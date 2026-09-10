@@ -92,6 +92,15 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 ## Release history
 
+### 1.7.0
+
+LinkedIn sweep robustness, ported from the live search after three corrections that each traced to the same guest endpoint. All three change how a running search behaves, which is what earns the minor.
+
+- **The sweep runs twice and unions by default.** The guest search endpoint returns a *different, incomplete* sample on every call, even for the identical query a minute apart, and this turned out to be a larger source of missed roles than the throttle, the sort, or the stem list. Measured on one bucket: three back-to-back runs returned 289 / 285 / 283 rows against a 399-row union, and 23% of the roles appeared in only one of the three runs, fresh roles at the same rate as any other. A single clean pass silently dropped about a quarter of the set. `linkedin_sweep.py` now runs `--passes` independent sweeps (default 2) and unions them by job ID; coverage rises ~71% → ~92% → ~98% across one, two, three passes, and the union is only `COMPLETE` if every pass paginated cleanly. `search-techniques.md` carries the rule under Search Integrity: **a single clean pass is not full coverage when the endpoint samples.**
+- **A throttle is retried before it's believed.** The guest-endpoint block is intermittent, not a hard wall: a bucket that hangs one minute paginates clean the next. The sweep now reads a run of consecutive unreadable pages as a throttle onset and bails that attempt in seconds instead of grinding every page to the cap (which looked "hung" and got the process killed), then re-runs the whole bucket after a cooldown up to `--retries` times. It reports `INCOMPLETE — THROTTLED` only once the retries are spent. The companion rule: **a fallback sweep that stopped on a cap, a timeout, or a rate-limit is `INCOMPLETE`, never a trustworthy "relevance-front" sample**, because a truncated pass is exactly how a dead-center role goes missing.
+- **Per-page integrity and an honest cap.** A short page carrying new IDs is legitimate only as the last page before exhaustion; if a full page follows it, it was a dropped page and the set is truncated, now surfaced in the `INCOMPLETE` reason. A deliberate `--max-rows` stop reports `CUT AT n (policy)`, distinct from a coverage gap. The runaway guard sits above the observed ceiling so a genuine exhaustion reports `COMPLETE` rather than false-tripping `INCOMPLETE`.
+- **The ATS sweep retries an unreadable host before calling it a gap.** A transient tool error on a single host silently drops that whole platform's roles, and the gap hides inside a group status. `search-techniques.md` gains the rule: re-issue the `allowed_domains` query for an unreadable host before logging it unread, report the retry outcome, and never close a cycle with Greenhouse unread when a retry is available.
+
 ### 1.6.0
 
 Two independent testers hit the same defect, and the fix is new cycle behavior: **nothing verified an apply link before its first appearance.**

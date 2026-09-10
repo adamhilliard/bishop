@@ -93,7 +93,7 @@ Load these as needed; there is no reason to read all of them for a single task.
 |---|---|---|
 | `references/setup-interview.md` | Setting up a new bot. The capability preflight, the operating conventions, the splash and letter, the Essentials/Everything fork, then sections A–D and E–G. | ~475 lines |
 | `references/scaffolding.md` | Writing the files and the two task prompts, read contracts, or changing the table format. | ~515 lines |
-| `references/search-techniques.md` | Running a cycle, or fixing a search that is missing roles. Integrity rules, sourcing, verification. | ~655 lines |
+| `references/search-techniques.md` | Running a cycle, or fixing a search that is missing roles. Integrity rules, sourcing, verification. | ~660 lines |
 | `references/quality-audit.md` | The weekly audit only. **No daily cycle reads this.** | ~130 lines |
 | `references/feedback-loop.md` | Correcting the bot, writing a decisions-log entry, opening a trial, or stating limitations. | ~90 lines |
 
@@ -101,7 +101,7 @@ Load these as needed; there is no reason to read all of them for a single task.
 
 | Script | What it does |
 |---|---|
-| `scripts/linkedin_sweep.py` | Paginates a job-board sweep to exhaustion, dedupes by job ID, and ends with an explicit `COMPLETE` or `INCOMPLETE` status naming what it could not reach. Use it rather than hand-rolling pagination, and surface an `INCOMPLETE` in the digest the way a failed source is surfaced. |
+| `scripts/linkedin_sweep.py` | Paginates a job-board sweep to exhaustion, dedupes by job ID, and ends with an explicit `COMPLETE` or `INCOMPLETE` status naming what it could not reach. **Runs the bucket twice and unions by default** (`--passes`), because the guest endpoint samples non-deterministically and one pass drops ~a quarter of the roles; it also retries a throttled bucket before reporting `INCOMPLETE`. Use it rather than hand-rolling pagination, and surface an `INCOMPLETE` in the digest the way a failed source is surfaced. |
 | `scripts/employer_sweep.py` | Sweeps named employers' boards directly, reading its sets out of the user's `Employer_Index.md`. Carries no employer list of its own. |
 | `scripts/vc_sweep.py` | Sweeps the Getro-platform VC portfolio boards through the API that actually paginates, and prints a canary line that fails loudly if pagination breaks again. **The documented HTML recipe silently caps at 20 jobs per board**, against boards carrying up to 25,000. |
 | `scripts/resolve_boards.py` | Turns a list of company names into confirmed board endpoints, so a named-employer list built in Everything's employer step becomes sweepable without hand-probing dozens of slugs. Verifies employer identity where the platform exposes it. |

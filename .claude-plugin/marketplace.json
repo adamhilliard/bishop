@@ -11,7 +11,7 @@
       "displayName": "Bishop Job Search",
       "source": "./bishop",
       "description": "A recurring job search that runs itself. A setup interview writes your profile and scoring rubric, then a scheduled task sources, verifies, scores, and ranks roles into a digest you actually read. Includes an optional private web dashboard. Works at any career level.",
-      "version": "1.6.9",
+      "version": "1.7.0",
       "author": {
         "name": "Adam Hilliard",
         "url": "https://linkedin.com/in/adamhilliard"

@@ -56,6 +56,14 @@ Read, in full: `Reference_Profile.md`, `Operating_Procedures.md`, and every `Tra
 
 One self-contained file: inline CSS, inline vanilla JS, **zero external requests**. Artifact pages block all external fetches, so no CDNs, no webfonts, no remote images. Embed the role data as a JS array in the file. The file is regenerated from the tracking files each cycle, so it never goes stale and never needs to fetch anything.
 
+**Give the page a favicon so the browser tab is never blank.** Put an inline SVG data-URI link in the head, right after the `<title>`, so the tab shows an icon even when the file is opened directly rather than through the artifact. Default to a robot; keep it identical to the emoji passed at publish (Step 5):
+
+```html
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🤖</text></svg>'>
+```
+
+Single-quote the `href` so the SVG's own double quotes need no escaping. If the user set a brand emoji at setup, use that emoji in place of the robot in both spots. This is a head element, so it stays out of the plain-language rules that govern visible page text.
+
 **Layout spec, battle-tested. Deviate on style, not structure:**
 
 - **Header:** the name they gave their search, the search number and date (**"Search #7 · March 12"** — the word is *search*, never "cycle," anywhere on the page), and a one-line **source-status strip** (each source ✓, or the failure reason, **named in plain words, never by platform slug**). Surfacing failed sources is a core feature of the bot, so keep it visible. No taglines or decorative eyebrows; they get deleted within a day.
@@ -110,7 +118,7 @@ If Node is available, smoke-test: extract the `<script>` block, stub `document` 
 
 ### Step 5: Publish as a private artifact
 
-Publish `dashboard.html` with the Artifact tool. Pick a favicon emoji and keep it forever, since it's how the user finds the tab. **Record the returned URL**, which goes into the scheduled task next. Tell the user the page is private until they share it from the page's share menu.
+Publish `dashboard.html` with the Artifact tool. Pass a favicon emoji and keep it forever, since it's how the user finds the tab. **Default to the robot (🤖), and use the same emoji here as the inline favicon in Step 3** so the tab looks the same whether the page is viewed as the artifact or opened directly. If the user set a brand emoji at setup, use that in both places instead. **Record the returned URL**, which goes into the scheduled task next. Tell the user the page is private until they share it from the page's share menu.
 
 > **Write the favicon into the procedures file alongside the URL.** Every republish has to pass it, and it is not recoverable from the live page, the artifact listing, or the repo. Nothing else in the system carries it, so an unrecorded favicon means the next cycle guesses and the user's tab silently changes identity.
 

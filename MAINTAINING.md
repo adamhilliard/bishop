@@ -102,6 +102,7 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 - **A missed role that's still open is offered to the user,** the one decision that can put a job in front of them the same week.
 - **The digest carries one line** while any decision is open, and nothing else from the check. The audit task prompt gains the step that writes and delivers the check.
 - **Tried first on the live search's own audit,** where the rewrite surfaced a still-open, qualifying role that the coded format had left in a patch note.
+- **1.8.1:** LinkedIn changes. **Setup and both READMEs now disclose that LinkedIn's User Agreement prohibits automated access and that accounts get restricted for it,** before the user decides; declining is taken the first time and means nothing touches linkedin.com. **Link checks run logged out** through `resolve_links.py` instead of the user's browser, and **the social-feed pass for role-list posters is removed** (six weeks on the live search, no tracked roles, the most account-visible automation it ran). Plus a comp fix: `linkedin_sweep.py --comp <job id>` reads both the posting's salary field and its description, because pay hides in either and the live search logged two rows "not disclosed" that had posted a band; `search-techniques.md` now forbids writing "not disclosed" until both were checked.
 
 ### 1.7.0
 

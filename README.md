@@ -69,6 +69,8 @@ In a new conversation, say:
 
 **The setup interview takes about fifteen minutes.** Have your resume or a PDF of your LinkedIn profile handy.
 
+**LinkedIn is optional, and you should know the risk before you say yes.** Bishop can read your LinkedIn feed and job alerts through your browser. LinkedIn's User Agreement prohibits automated access without its permission, and LinkedIn does restrict accounts it flags for automation. Bishop keeps it light and read-only, but the risk to your account is real. Setup asks you first; say no and Bishop never touches LinkedIn and still searches everywhere else.
+
 **It takes the name you give it.** The first thing setup asks is what you want to call your search, and every file it writes uses your name instead of Bishop.
 
 ## What you get

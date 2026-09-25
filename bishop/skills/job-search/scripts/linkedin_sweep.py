@@ -33,7 +33,12 @@ Usage:
                  silently drops a chunk of real roles. See "Why repeat-and-
                  union" below. --passes 1 restores single-pass behavior.
 
-Output: one "id ~ title ~ company ~ location ~ date" line per unique posting,
+Comp check (run before writing any comp cell as "not disclosed"):
+    python linkedin_sweep.py --comp <job id> [<job id> ...]
+    Reads the posting's LinkedIn salary field AND its description body.
+
+Output: one "id ~ title ~ company ~ location ~ date ~ card salary" line per unique posting
+(card salary is often blank even when the posting has pay; blank proves nothing),
 then a STATUS line. Parse the STATUS line; do not trust the rows without it.
 Progress is written to STDERR so a caller can see the sweep is working and not
 hung; only rows and the STATUS line go to STDOUT.
@@ -168,8 +173,50 @@ def parse(page_html):
             grab(r"hidden-nested-link[^>]*>\s*(.*?)\s*</a>"),
             grab(r'job-search-card__location">\s*(.*?)\s*</span>'),
             grab(r'datetime="([\d-]+)"'),
+            # Pay on the card itself, when LinkedIn shows it. Blank is NOT
+            # "not disclosed": run --comp on the id before writing that.
+            grab(r'job-search-card__salary-info[^>]*>\s*(.*?)\s*</span>'),
         ))
     return out
+
+
+JD_URL = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{jid}"
+# A pay range written into the description body: "$290K-$455K", "$160,000 - $200,000", "$200,000 to $250,000".
+BODY_PAY = re.compile(
+    r"\$\s?\d{2,3}(?:,\d{3})?(?:\.\d+)?\s?[kK]?\s*(?:-|–|—|to)\s*\$?\s?\d{2,3}(?:,\d{3})?(?:\.\d+)?\s?[kK]?")
+BODY_FLOOR = re.compile(r"(?:starting at|from|up to|base(?: salary)? of)\s+\$\s?\d{2,3}(?:,\d{3})?\s?[kK]?", re.I)
+
+
+def jd_comp(jid):
+    """Pay disclosed on one posting: LinkedIn's salary field AND the description body.
+
+    Pay hides in two places. The "Base pay range" salary field sits outside the
+    description, so a check that reads only the body misses it; a band typed
+    into the body is missed by anything that reads only the field. Measured on
+    a live search: one row showed its band only in the field, another only in
+    the body, and both had been logged "not disclosed." This reads both and
+    says which one it found.
+    """
+    page = fetch(JD_URL.format(jid=jid))
+    if page is None:
+        return {"status": "UNREADABLE", "field": "", "body": []}
+    if page == "":
+        return {"status": "NOT FOUND", "field": "", "body": []}
+    field = ""
+    # The value sits in <div class="salary compensation__salary">; the sibling
+    # <h3 class="compensation__heading"> is only the "Base pay range" label.
+    m = re.search(r'class="salary compensation__salary"[^>]*>(.*?)</div>', page, re.S)
+    if m:
+        field = html.unescape(re.sub("<[^>]*>", "", m.group(1))).strip()
+    body_m = re.search(r'show-more-less-html__markup[^>]*>(.*?)</div>', page, re.S)
+    body = html.unescape(re.sub("<[^>]*>", " ", body_m.group(1))) if body_m else ""
+    body = re.sub(r"\s+", " ", body)
+    hits = []
+    for rx in (BODY_PAY, BODY_FLOOR):
+        for h in rx.finditer(body):
+            hits.append(body[max(0, h.start() - 60):h.end() + 40].strip())
+    status = "DISCLOSED" if (field or hits) else "NOT DISCLOSED (salary field and body both checked)"
+    return {"status": status, "field": field, "body": hits[:3]}
 
 
 def sweep(keywords, location, window="r604800", remote=False, max_rows=None):
@@ -336,6 +383,20 @@ def main():
             getattr(sys, stream).reconfigure(encoding="utf-8", errors="replace")
         except Exception:
             pass
+
+    # Comp check mode: python linkedin_sweep.py --comp <job id> [<job id> ...]
+    # Run it on every new row before its comp cell is written.
+    if "--comp" in sys.argv:
+        ids = [a for a in sys.argv[sys.argv.index("--comp") + 1:] if a.isdigit()]
+        if not ids:
+            print("usage: linkedin_sweep.py --comp <job id> [<job id> ...]")
+            sys.exit(2)
+        for jid in ids:
+            r = jd_comp(jid)
+            print("%s ~ %s ~ field: %s ~ body: %s" % (
+                jid, r["status"], r["field"] or "none", " | ".join(r["body"]) or "none"))
+            time.sleep(0.5)
+        return
 
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     if len(args) < 2:

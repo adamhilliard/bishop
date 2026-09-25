@@ -10,7 +10,7 @@ so improvements here reach every search already running.
 | Section | What it covers | When it matters |
 |---|---|---|
 | **Search Integrity** | The seven rules that keep a partial sweep from reporting as a complete one | Read first; every technique below depends on it |
-| **Sourcing Techniques** | Source cadence, query design, the catch-up sweep, ATS site-search, VC boards, named-employer and association boards, role-list posters, recruiter postings, contact discovery, browser handling, volume management | Step 3 of the cycle |
+| **Sourcing Techniques** | Source cadence, query design, the catch-up sweep, ATS site-search, VC boards, named-employer and association boards, recruiter postings, contact discovery, browser handling, volume management | Step 3 of the cycle |
 | **Verification Techniques** | Authority order, workplace type, time-zone restrictions, freshness, expiry, dating a posting, apply links, scope ownership, years-of-experience | Steps 2 and 4 of the cycle |
 
 > **`quality-audit.md` is the companion to Search Integrity and runs weekly, not per cycle.** These rules make a broken source detectable; that file is what actually goes looking.
@@ -143,7 +143,7 @@ Nothing here is candidate-specific, which is why it lives in the skill and is re
 |---|---|
 | **A** | The logged-in job-board session, and ATS site-search |
 | **B** | Named-employer sweeps, the user's certifying-body or association board, VC portfolio boards where the field overlaps with venture-backed employers |
-| **C** | Aggregators mined for company names, role-list posters, and anything vetted in during Q11 |
+| **C** | Aggregators mined for company names, and anything vetted in during Q11 |
 
 > **Re-tier on measurement, not on the seed.** The seed is a guess about which sources pay off, and it is wrong for some fields: in trades, healthcare, education, and most local employment, the VC boards belong nowhere and an association board is Tier A from day one. **Q11's verdicts override the seed immediately.**
 
@@ -336,20 +336,9 @@ Expect these mechanics:
 - **Keyword search often doesn't work headlessly.** Use the site's own function or category filter pages, which render as plain listings.
 - **The filters are loose.** A seniority filter will return assistant and coordinator roles alongside the executive ones. Filter locally rather than trusting the facet.
 
-### Technique: role-list posters
+### Not used: scrolling the social feed for role-list posters
 
-**Individuals who publish recurring lists of open roles in one function.** They take submissions by DM from their own network, so **the inventory reaches no ATS and does not appear in job-board search.** One post carried three senior roles with comp bands, none of them findable by any query that search was running.
-
-- **Reading a post is invisible to its author, and that is what makes the channel safe.** Post analytics show aggregate demographics only. **Engagement is the tripwire, not viewing:** a like, comment, repost, or follow notifies the author by name. Profile views stay off limits.
-- **A known poster's permalink usually needs no session.** Post URLs are readable logged out; newsletter-format URLs on the same platforms generally are not.
-- **Web search cannot find these people, so discovery has to happen in the feed.** Measured: ten searches and three fetches yielded one confirmed name, while one fetch of an already-known handle yielded ten roles with comp bands. Generic title keywords return profile pages, not posts.
-- **Budget the pass by organic post count, and cap the scroll steps.** Roughly half of a loaded feed is ads and platform-injected modules, so page count is a misleading unit. Whichever limit hits first ends the pass.
-- **Never budget by post age.** A Top-sorted feed interleaves: a 3-hour-old post can sit below two-week-old ones, so an age-based stop fires early and unpredictably.
-- **Report `SAMPLED`, never `COMPLETE`.** A feed pass samples; it cannot enumerate.
-
-> **Feed scraping breaks in ways that look like an empty feed.** Three mechanics were wrong at once in one implementation and the pass stalled at 3 posts against a 50-post budget, which read as a dead channel. **Scrolling a container already at its bottom produces no delta and no fetch**, so scroll up first and then back down to make each step real. Settle time was 2.5s and needed 6s. And a visually-hidden accessibility label was being counted as an attribute rather than as text. **Two counting traps inflated the "organic" number in the same pass**: the platform's own injected job modules carry the same post marker as a person's post, and the "Promoted" label renders run together with adjacent text, so a whitespace-bounded regex counted 2 promoted where the truth was 21.
-
-> **Judge the channel on new posters found, not on roles found**, and set a review trigger before starting: if two consecutive passes surface no new poster, drop feed discovery to the day the known posters publish and stop running it mid-week. Reading a known handle by URL never needed the scroll.
+**Bishop does not scroll a logged-in social feed for people who post lists of open roles.** It was tried on a live search for six weeks, produced no tracked roles, and was the most visible automation that search ran against the user's own account. **Don't add it back as a technique.** A known poster's public post URL can still be read if the user shares one.
 
 ### Technique: recruiter and undisclosed-employer postings
 
@@ -475,6 +464,25 @@ When two sources disagree about a posting, they are not equally wrong. In descen
 
 **Open the posting and read its own workplace field.** Everything else is a hint.
 
+### Rule: "not disclosed" is written only after both places pay hides were checked
+
+**On a LinkedIn posting, pay can sit in two places, and a check that reads one of them misses the other.**
+
+- **The salary field.** LinkedIn shows a "Base pay range" box outside the description. A read of the description alone never sees it.
+- **The description body.** Many employers type the band into the text ("Compensation: $290K-$455K base"). A read of the salary field alone never sees that.
+
+**Run the committed check before writing any comp cell, and before screening a role on the user's comp floor:**
+
+```bash
+python scripts/linkedin_sweep.py --comp <job id> [<job id> ...]
+```
+
+It prints `DISCLOSED` with where the band was found, or `NOT DISCLOSED (salary field and body both checked)`. **Run it only when the user opted into LinkedIn during setup.** With LinkedIn declined, read pay from the employer's own posting instead. For a posting on an employer's own ATS, read that page's pay section and its full description the same way.
+
+> **A blank salary on a search-result card proves nothing.** The sweep's last column carries the card's salary when LinkedIn shows one, and most cards carry none even when the posting does.
+
+> This exists because a live search logged two rows as "not disclosed" that had posted pay: one showed $160,000-$200,000 only in the salary field, and would have failed the comp floor on the day it was found; the other had a $290K-$455K band in the description and sat under-scored for six weeks.
+
 ### Rule: resolve the link before the row is ever shown
 
 **Freshness re-verification only protects rows already in the table, so on a first cycle it protects nothing.** Two independent testers reported the same thing: a first digest whose top-ranked roles and below-the-cap links opened to "page not found." Nothing was broken. **No rule verified a link before its first appearance**, because freshness covers existing rows, the reliability gate is diagnostic and explicitly never screens, and below-the-cap rows are exempt from research entirely.
@@ -490,7 +498,7 @@ When two sources disagree about a posting, they are not equally wrong. In descen
 - **A failed check is never an expiry.** This is the same rule as "absence from a board is not expiry" and "a 404 from the ATS's own API is not expiry," applied one step earlier. Marking an unreachable posting dead is the false negative this file already documents three times.
 - **Check before scoring, not after.** A confirmed-dead row is not researched and not scored, which is the cheapest place to save the work. Score it if it comes back.
 - **Below-the-cap rows need this most.** They carry a clickable link and get no research on any cycle, so without an entry check their links are never verified at all. They are also the cheapest rows to batch: one line each, many sharing an origin.
-- **Batch by origin.** A same-origin fetch over several job IDs returns each requisition's final URL and title in one call, which is what makes checking twenty rows affordable.
+- **Run it logged out, in one call.** `python scripts/resolve_links.py --urls-file <file> --canary <a live posting>` checks every link without the user's session and reports live, expired or unverified per row. Never run link checks through the user's logged-in browser.
 - **A dead link is a question, not a verdict.** Before writing a role off, check the employer's own board for a replacement requisition. **A repost is a live role behind a dead URL**, and it enters as a new row. This is the highest-value output the check produces, and it is the "boards answer the opposite question" rule below, used the useful way round.
 
 > **Why this is a screen and the reliability gate is not.** The gate deliberately never removes a role, because a good role behind a stale posting should not lose points it deserves. That reasoning is about **scoring**. Whether a link opens is not a quality judgment, and a link that 404s should not be presented as a link.
@@ -531,7 +539,7 @@ Priority order, and don't let it expand past the first two categories when time 
 - **Job boards usually mark expiry in the URL.** A dead posting often redirects to a generic search page carrying a tracking parameter that names the redirect as an expiry. That parameter is definitive and cleaner than reading page text, and it's distinct from the "no longer accepting applications" banner a posting shows while still on its own page.
 - **⚠️ Match the parameter a board actually sends, never a reasoned-out guess at it.** The largest board abbreviates the middle word of its marker, so a matcher built from the spelled-out spellings missed every expiry that board produced while looking like it worked. **If the check finds no expiries at all across several cycles, suspect the matcher before believing the market.**
 - **Some closure pages say three words and stop.** A banner matcher tuned to full sentences walks straight past them, so keep the terse forms in the list alongside the sentences.
-- **Batch the checks from a page already on that origin.** A same-origin fetch over several job IDs returns each requisition's final URL and title in one call, which turns a four-row freshness check into one request.
+- **Batch the checks logged out.** `scripts/resolve_links.py` reads the expiry marker and the closed-posting banner without the user's session, and one run covers the whole table.
 
 ### Technique: dating a posting for free
 

@@ -67,6 +67,8 @@ Open a new conversation and say:
 
 Have your resume or a LinkedIn PDF handy. Bishop asks where to save your files, then walks you through the rest and hands you your first digest.
 
+> **About LinkedIn.** Bishop can read your LinkedIn feed and job alerts through your browser, and it asks you first. **LinkedIn's User Agreement prohibits automated access without its permission, and LinkedIn does restrict accounts it flags for automation.** Bishop keeps it light and read-only, but the risk to your account is real and it is yours to take or skip. Say no during setup and Bishop never touches LinkedIn; it still searches everywhere else.
+
 It'll also ask for a one-time OK so it doesn't have to interrupt you at every step, and so your searches can keep running on schedule while you're away.
 
 **What you installed:**

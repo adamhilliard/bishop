@@ -475,6 +475,25 @@ When two sources disagree about a posting, they are not equally wrong. In descen
 
 **Open the posting and read its own workplace field.** Everything else is a hint.
 
+### Rule: "not disclosed" is written only after both places pay hides were checked
+
+**On a LinkedIn posting, pay can sit in two places, and a check that reads one of them misses the other.**
+
+- **The salary field.** LinkedIn shows a "Base pay range" box outside the description. A read of the description alone never sees it.
+- **The description body.** Many employers type the band into the text ("Compensation: $290K-$455K base"). A read of the salary field alone never sees that.
+
+**Run the committed check before writing any comp cell, and before screening a role on the user's comp floor:**
+
+```bash
+python scripts/linkedin_sweep.py --comp <job id> [<job id> ...]
+```
+
+It prints `DISCLOSED` with where the band was found, or `NOT DISCLOSED (salary field and body both checked)`. **Run it only when the user opted into LinkedIn during setup.** With LinkedIn declined, read pay from the employer's own posting instead. For a posting on an employer's own ATS, read that page's pay section and its full description the same way.
+
+> **A blank salary on a search-result card proves nothing.** The sweep's last column carries the card's salary when LinkedIn shows one, and most cards carry none even when the posting does.
+
+> This exists because a live search logged two rows as "not disclosed" that had posted pay: one showed $160,000-$200,000 only in the salary field, and would have failed the comp floor on the day it was found; the other had a $290K-$455K band in the description and sat under-scored for six weeks.
+
 ### Rule: resolve the link before the row is ever shown
 
 **Freshness re-verification only protects rows already in the table, so on a first cycle it protects nothing.** Two independent testers reported the same thing: a first digest whose top-ranked roles and below-the-cap links opened to "page not found." Nothing was broken. **No rule verified a link before its first appearance**, because freshness covers existing rows, the reliability gate is diagnostic and explicitly never screens, and below-the-cap rows are exempt from research entirely.

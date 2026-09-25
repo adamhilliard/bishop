@@ -332,7 +332,11 @@ Options: *No · Yes*. Postings state this, so it's a reliable screen and the one
 
 **Say:**
 
-> LinkedIn is a great source for roles, so I strongly recommend connecting it. It pulls in your personalized feed and the alerts no anonymous search can reach. It takes a few minutes to set up once, then it just runs.
+> LinkedIn is a good source for roles. Connecting it pulls in your personalized feed and the alerts no anonymous search can reach. **Before you decide, one thing you should know:**
+>
+> **LinkedIn's User Agreement prohibits bots and other automated access without its permission, and this is automated access.** LinkedIn does restrict accounts it flags for automation. I keep it light (read only, a few pages a run), but I can't promise LinkedIn won't notice. If your LinkedIn account matters more to you than the extra roles, skip this step. I'll still search the company hiring systems, investor job boards and the other sources, and I won't touch LinkedIn at all.
+>
+> If you'd like to connect it, it takes a few minutes to set up once, then it just runs:
 >
 > 1. Add Claude to the browser you job-hunt in. It's a small add-on from Anthropic, the same people who make Claude, and I'll give you the one-click install link to add it.
 > 2. Sign in with your Claude account when it asks.
@@ -354,7 +358,7 @@ Then list the connected browsers and name the one that looks like theirs. **Conf
 
 Record the confirmed browser's identifier in the profile. **Never record an identifier you did not read off a connected browser.** If none appear, have them reopen the browser and re-sign in, then check again.
 
-> **Prefer to skip it for now?** Say so, run search-only, and name the source they're giving up. They can add LinkedIn anytime by saying so. Push back once, then take the answer.
+> **Prefer to skip it?** Take the answer the first time, with no push-back: the risk is to their account, so the call is theirs. Run search-only, record `linkedin: declined` in the profile, and name the source they're giving up in one line. **With LinkedIn declined, nothing touches linkedin.com:** no sweep, no `--comp` check, no feed read. They can add LinkedIn anytime by saying so, and the disclosure above is repeated when they do.
 
 ### D. Settings (~2 min)
 

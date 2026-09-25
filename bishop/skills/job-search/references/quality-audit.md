@@ -42,6 +42,7 @@
 | 2 | Run the live probe in §4, which needs the network and can't be scripted |
 | 3 | Append one row to the audit log. Write prose only where a check tripped |
 | 4 | Anything that changes a rule becomes a decisions-log entry, **never a paragraph here** |
+| 5 | Write the weekly check (§6) and deliver it. **This is the only part the user reads** |
 
 - **The script is the point, not the file.** A prose audit is a rule that doesn't execute wearing a new hat, so every check is computed from the files and none is self-reported. It exits nonzero when a check trips.
 - **Never delegate this to a sub-agent.** Detecting self-reported success is the job, and a sub-agent reporting "coverage looks good" is the thing being detected.
@@ -127,3 +128,109 @@ One row per week. **Prose only where something tripped.**
 
 - **A finding that changes a rule leaves as a decisions-log entry**, and this row keeps only the pointer.
 - **Never write a conclusion the script didn't compute.** "Coverage looks healthy" is the sentence this whole file exists to distrust.
+
+---
+
+## 6. The weekly check (what the user reads)
+
+**The audit log is the machine record. The weekly check is its plain-language twin, and the only output the user ever sees.** Same relationship as the COVERAGE line and the digest's coverage note.
+
+> **The user has never heard of a stem, a canary, a nil, an ATS host, or check S5.** A check ID, a section number, or a decisions-log number in the weekly check is the same defect as a status code in a digest.
+
+### 6.1 The shape
+
+**Fixed shape, in this order. Drop any empty section except the first two.**
+
+```markdown
+# Weekly search check · {{DATE}}
+
+{{VERDICT LINE}}
+
+**Is anything broken?** {{one or two sentences}}
+
+**Did it find what it should?** {{spot-check result, one or two sentences}}
+
+**Your decisions:**
+1. **{{Question, answerable yes or no}}** {{One sentence on why.}} Recommended: {{yes/no}}.
+
+Reply with the numbers you approve, e.g. "approve 1". Anything you skip stays here until you answer.
+
+**Fixed for you:** {{one line per fix, saying what it means for the user}}
+
+**Bishop update:** {{only if Update_Notice.md exists}}
+```
+
+- **A clean week is three lines:** the title, the green verdict, and "Nothing broken, nothing to decide."
+- **It fits on one phone screen.** If it doesn't, something is in here that belongs in the audit log.
+
+### 6.2 The verdict line
+
+**One of three, worded exactly like this, so the user learns to read the dot alone.**
+
+| Verdict | When | Line |
+|---|---|---|
+| 🟢 | Nothing tripped, nothing to decide | **Your search is working. Nothing to do.** |
+| 🟡 | Working, but one or more decisions are open | **Your search is working. {{N}} thing(s) need a yes or no from you.** |
+| 🔴 | Any finding §6.4 marks 🔴 | **Something is broken, and you may be missing jobs until it's fixed.** |
+
+### 6.3 Who acts on each finding
+
+**Every finding goes to exactly one bucket.** Choosing the bucket is the main job of writing the check.
+
+| Bucket | What goes here | How it reads |
+|---|---|---|
+| **Your decisions** | Anything that changes what gets searched or how the user's files are kept | A yes/no question, one sentence of why, a recommendation |
+| **Fixed for you** | A fix with exactly one right answer, already applied during the audit | One line saying what changed for them |
+| **Bishop problem** | A defect in Bishop itself: the audit script erroring, a check that can't run on any search | One line plus the report link (§6.6). Never a decision for the user |
+| **Not shown** | Market movement (roles closing, reqs filled), checks still waiting on history, anything unchanged since last week's report | Nothing. The audit log keeps it |
+
+> **A decision the user can't evaluate isn't a decision.** "Raise the read budget to 460KB?" fails. "Archive your 30 closed roles so each run stays fast?" passes. If the question needs a term from this file to make sense, rewrite it or make it a fix.
+
+### 6.4 What each check says when it trips
+
+**Use this wording.** A report that reads the same way every week is what lets a user skim it.
+
+| Check | Reads as | Bucket |
+|---|---|---|
+| **S1** | "{{Site}} has returned nothing for {{N}} runs while similar sites kept returning jobs. The search there has probably broken." | 🔴 Decision: "Let Bishop test and repair the search for {{site}}?" |
+| **S2** | "{{Source}} returned exactly {{N}} results, which usually means it stopped at a page limit. Jobs past that point weren't seen." | 🔴 Decision: "Let Bishop switch {{source}} to reading every page?" |
+| **S3** | "{{Source}} found jobs every week for a month, then suddenly found none." | 🔴 Same repair decision as S1 |
+| **S4** | "More sources are reporting 'no results' without a test search to back it up." | Fixed for you: run the test searches now and report what they showed |
+| **S5** | "{{N}} test searches were overdue." | Fixed for you: run them. One that fails becomes an S1-style 🔴 |
+| **S6** | "{{Source}} has reported success for {{N}} weeks while returning nothing." | 🔴 Repair decision |
+| **S7** | "{{Source}} works, but your job titles never match anything on it." | 🔴 Decision: "Let Bishop rewrite the title search for {{source}}?" |
+| **S8** | "Bishop found {{role}} on {{surface}}, but its search of {{site}} the same day said nothing was there. That search is missing jobs." | 🔴 Repair decision |
+| **E1** | "'{{Title}}' is on your list of titles to search, but wasn't actually being searched." | Fixed for you: add it, and name the title |
+| **E2** | "Your files disagree on {{figure}}: one says {{A}}, another says {{B}}." | Decision: "Which is right, {{A}} or {{B}}?" |
+| **E3** | "Your scheduled search had its own copy of a rule that lives in your files." | Fixed for you: remove the copy |
+| **E4** | "Your job tracker has grown long enough to slow down each run." | Decision: "Archive your {{N}} closed roles? Nothing is deleted." |
+| **E5** | "The trial of {{what}} was due for review on {{date}}." | Decision: "Keep {{what}}, or drop it?" with the trial's own results |
+| **E6** | "{{N}} tracker entries were out of sync with their index." | Fixed for you: resync |
+| **E7** | "On {{N}} days the posting-quality check was skipped." | Fixed for you: run it on those roles now and report anything it flags |
+| **E8** | "On {{N}} days the dead-link check was skipped." | Fixed for you: run it now and report any closed roles |
+| **Script error** | "Bishop's weekly check couldn't run this week." | 🔴 Bishop problem |
+
+### 6.5 The spot check
+
+**Lead with the count in plain words:** "We tested the search against {{N}} real openings it hadn't shown you. It found {{n}}."
+
+| Probe result | Reads as | Bucket |
+|---|---|---|
+| **Reached** | Counted in the "found" number, no further line | Not shown |
+| **Wrong cadence** | "{{Role}} was on a source that runs on {{day}}, so it would have shown up then." | Not shown unless it cost a role |
+| **No stem matches** | "{{Role}} was missed because its title, '{{title}}', isn't one Bishop searches for." | Decision: "Add '{{phrase}}' to your job-title searches?" |
+| **Source not covered** | "{{Role}} was only posted on {{where}}, which none of your sources check." | Decision: "Add {{where}} to your sources?" |
+| **Structurally unreachable** | "{{Role}} was only reachable from {{where}}, which Bishop can't read on a schedule." | One line under "Did it find what it should?", the first time only |
+
+- **Name the role, the pay if posted, and the location.** A missed role the user would want is the most persuasive line in the report.
+- **If a missed role is still open, offer it:** "Add {{role}} to your tracker?" It is the one decision that can put a job in front of them this week.
+- **Fewer than 3 candidates is fine.** Report the real count. Never pad it with a role that doesn't qualify.
+
+### 6.6 Delivery and answers
+
+- **Write it to `Weekly_Check.md` in the project,** replacing last week's. Carry any unanswered decision forward, marked "open since {{date}}."
+- **Deliver it** to the digest channel the profile names, as the audit task's final message.
+- **The next digest leads with one line** while any decision is open: "{{N}} decision(s) from the weekly check are waiting for you." Nothing else from the check goes in the digest.
+- **When the user approves an item,** apply it, log the change in `Decisions_Log.md`, and remove the item from `Weekly_Check.md`. **Log a "no" too,** so the same question isn't asked next week.
+- **A Bishop problem carries this link,** `https://github.com/adamhilliard/bishop/issues/new`, plus a two-line summary the user can paste. Never ask the user to diagnose one.
+- **Numbers need a comparison and a consequence.** "448KB against 420KB" fails. "Long enough to slow down each run" passes. Use a number only when it would change what the user does: pay, days, or a count of roles.

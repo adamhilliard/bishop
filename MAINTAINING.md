@@ -92,6 +92,17 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 ## Release history
 
+### 1.8.0
+
+**The weekly audit now tells the user, in plain words, whether their search is working.** Until now its only output was a coded log row (`Tripped: S5, E1 | 2/3`) that even the maintainer found hard to read, and nothing reached the user at all. That changes what every running search sends, which earns the minor.
+
+- **A weekly check the user actually reads.** `quality-audit.md` §6 defines `Weekly_Check.md`: a fixed shape that fits on one phone screen, led by one of three verdicts (🟢 working, nothing to do · 🟡 working, N decisions for you · 🔴 something is broken and you may be missing jobs).
+- **Every finding lands in exactly one bucket.** Your decisions (a yes/no question with a recommendation), fixed for you (one-answer fixes applied during the audit), Bishop problem (a defect in Bishop itself, with an issue link and never a user decision), or not shown (market movement and anything unchanged).
+- **Fixed wording for every check and every spot-check outcome,** so the report reads the same way each week. No check IDs, section numbers, or decisions-log numbers reach the user, and a number appears only with a comparison and a consequence.
+- **A missed role that's still open is offered to the user,** the one decision that can put a job in front of them the same week.
+- **The digest carries one line** while any decision is open, and nothing else from the check. The audit task prompt gains the step that writes and delivers the check.
+- **Tried first on the live search's own audit,** where the rewrite surfaced a still-open, qualifying role that the coded format had left in a patch note.
+
 ### 1.7.0
 
 LinkedIn sweep robustness, ported from the live search after three corrections that each traced to the same guest endpoint. All three change how a running search behaves, which is what earns the minor.

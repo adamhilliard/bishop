@@ -46,7 +46,7 @@ Four moving pieces. Nothing else.
 | **The profile** | Four markdown files holding background, criteria, scoring rubric, standing search rules, and the reasoning behind them. The bot's constitution. | Built once via the setup interview, then amended as rules are learned |
 | **Tracking file(s)** | One file per search track. Holds the live results table plus a Search Notes log. | Written and re-sorted by the bot every run |
 | **The cycle task** | A recurring Claude Code task that reads the profile, runs the cycle, updates the tracking files, and hands over a digest. | Created once during setup |
-| **The weekly audit** | A second task that asks whether the search is mechanically doing what it claims. Scripted, so nothing is self-reported. | Created at setup, starts in week two |
+| **The weekly audit** | A second task that asks whether the search is mechanically doing what it claims. Scripted, so nothing is self-reported. Sends the user a short plain-language weekly check: a green, yellow or red verdict and any yes/no decisions. | Created at setup, starts in week two |
 
 **Why the split matters.** Criteria live in one place and results in another, so a rule change never means editing fifty table rows. The bot reads the profile fresh every run, so amending the profile is how the user steers it.
 
@@ -92,9 +92,9 @@ Load these as needed; there is no reason to read all of them for a single task.
 | File | Read it when | Size |
 |---|---|---|
 | `references/setup-interview.md` | Setting up a new bot. The capability preflight, the operating conventions, the splash and letter, the Essentials/Everything fork, then sections A–D and E–G. | ~475 lines |
-| `references/scaffolding.md` | Writing the files and the two task prompts, read contracts, or changing the table format. | ~515 lines |
+| `references/scaffolding.md` | Writing the files and the two task prompts, read contracts, or changing the table format. | ~525 lines |
 | `references/search-techniques.md` | Running a cycle, or fixing a search that is missing roles. Integrity rules, sourcing, verification. | ~660 lines |
-| `references/quality-audit.md` | The weekly audit only. **No daily cycle reads this.** | ~130 lines |
+| `references/quality-audit.md` | The weekly audit only. **No daily cycle reads this.** | ~235 lines |
 | `references/feedback-loop.md` | Correcting the bot, writing a decisions-log entry, opening a trial, or stating limitations. | ~90 lines |
 
 ## Bundled scripts

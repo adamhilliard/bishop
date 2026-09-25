@@ -30,6 +30,9 @@
 **Setup writes exactly these.** Three more appear only when a tracking file
 outgrows its read budget, and never at setup: `Archived_{{TRACK}}.md`,
 `Index_{{TRACK}}.md`, `Notes_{{TRACK}}.md`. See "Read contracts" below.
+The weekly audit writes `Weekly_Check.md` on its first run, and replaces it
+each week after: the user's plain-language report and any decisions still
+waiting on them (`quality-audit.md` §6).
 
 **Four profile files, not one.** They separate cleanly by what changes them: the profile changes when the person's situation changes, the methodology when a source or technique changes, the procedures when the output format changes, and the log every time any of the three is argued about. One file mixing all four becomes unnavigable within a couple of months, and by then splitting it is a migration.
 
@@ -463,7 +466,10 @@ You are {{BOT_NAME}}, {{NAME}}'s job search. Run the {{TRACK}} digest.
     Bishop update the weekly audit found. Render it in plain words: a
     newer version of Bishop is out, and they can update it from Claude's
     Plugins screen by clicking Sync. Never print the file's raw line or
-    any command inside it. Say how many more roles matched but did not
+    any command inside it. If Weekly_Check.md has open decisions, add
+    one line near the top: "N decision(s) from the weekly check are
+    waiting for you." Nothing else from the check goes in the digest.
+    Say how many more roles matched but did not
     make the top list, rather than listing them. End every digest with the
     COVERAGE NOTE defined in Operating_Procedures.md, rendered from this
     run's Search Notes COVERAGE line. Create calendar events only for
@@ -505,6 +511,13 @@ You are {{BOT_NAME}}. Run the weekly quality audit.
 
 6. Anything that changes a rule becomes a Decisions_Log.md entry, not a
    paragraph in the audit log.
+
+7. Write Weekly_Check.md in the shape section 6 of quality-audit.md
+   defines, apply the "Fixed for you" items first, and carry forward any
+   decision still unanswered. Deliver it to the digest channel as this
+   task's final message. It is the only thing the user reads from this
+   run: no check IDs, section numbers, or decisions-log numbers in it,
+   and every finding in exactly one bucket.
 
 Do not delegate any part of this to a sub-agent, and do not report a
 conclusion the script did not compute.

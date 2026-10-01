@@ -8,6 +8,8 @@ Free, MIT licensed, and it works at any career level, from first job to executiv
 
 **You need the [Claude](https://claude.com) desktop app.** It's free to download. Have your resume or a PDF of your LinkedIn profile handy.
 
+Prefer pictures? The [install guide on adamhilliard.com](https://adamhilliard.com/bishop) walks through the same steps with screenshots.
+
 1. Open Claude. **First time using Claude Code?** In a chat, type *"Help me set up Claude Code"* and follow the prompts.
 2. Click **Customize** in the left sidebar, then the **Plugins** tab. (Plugins are free add-ons for Claude. Bishop is one of them.)
 3. In the top right, click **Add**, then **Add marketplace**.

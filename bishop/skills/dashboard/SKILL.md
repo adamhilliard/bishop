@@ -1,6 +1,6 @@
 ---
 name: dashboard
-description: Turn a Bishop job search's tracking files into a private, interactive web dashboard that refreshes itself every cycle. Builds a self-contained dashboard.html with a stat band, ranked role cards carrying a score ring and per-bucket pass/fail chips, filters for track and score and stage, save-for-later and archive buttons, then publishes it as a private artifact at a stable URL and wires regeneration into the existing scheduled search task. Use this when someone with a recurring job search wants to see their tracked roles as a page rather than a markdown table, asks for a dashboard or a visual view or a scoreboard of their search, wants a bookmarkable link to their shortlist, or wants their job tracking to stop living in a table they have to scroll. Users often refer to their search by a personal name they chose at setup, so a request to build a dashboard for a named job bot belongs here. Requires an existing search built by the job-search skill plus at least one completed cycle.
+description: Turn a Bishop job search's tracking files into a private, interactive web dashboard that refreshes itself every cycle. Builds a self-contained dashboard.html with a Bishop-branded header, ranked role cards carrying a score bar and a check per scoring bucket, filters for track and score and stage, save-for-later and archive buttons, then publishes it as a private artifact at a stable URL and wires regeneration into the existing scheduled search task. Use this when someone with a recurring job search wants to see their tracked roles as a page rather than a markdown table, asks for a dashboard or a visual view or a scoreboard of their search, wants a bookmarkable link to their shortlist, or wants their job tracking to stop living in a table they have to scroll. Users often refer to their search by a personal name they chose at setup, so a request to build a dashboard for a named job bot belongs here. Requires an existing search built by the job-search skill plus at least one completed cycle.
 ---
 
 # Bishop Dashboard
@@ -16,7 +16,7 @@ Turns a job search's tracking files into a private, interactive web dashboard th
 
 > **Use the name the user gave their search, not "Bishop."** The interview's opening question set it and the profile records it as a named field. That name is the page's masthead and how the user refers to the thing in conversation.
 
-**What the user gets:** a stat band up top (active roles, top score, disclosed-pay count, saved count), then a ranked card per role with a score ring, a pass/fail chip for each scoring bucket with the reason on hover, comp and flags at a glance, and expandable details with a working apply link. Filters cover track, minimum score, disclosed pay, and remote. Every card carries save-for-later and archive buttons. Published as a private Claude artifact at a stable URL that the scheduled search task republishes after every run, so the bookmark never goes stale.
+**What the user gets:** a branded header (their search's name between two Bishop robots, with a one-line run log and a square per source), a short "since your last search" list, then a ranked card per role with a score bar, a check for each scoring bucket with the reason on hover, comp and flags at a glance, and expandable details with a working apply link. Filters cover track, minimum score, disclosed pay, and remote. Every card carries save-for-later and archive buttons. Published as a private Claude artifact at a stable URL that the scheduled search task republishes after every run, so the bookmark never goes stale.
 
 ## The build
 
@@ -26,7 +26,7 @@ Turns a job search's tracking files into a private, interactive web dashboard th
 
 Read, in full: `Reference_Profile.md`, `Operating_Procedures.md`, and every `Tracking_*.md` in the project folder. (Older setups keep all of this in one profile file; read whatever exists.) From them, derive rather than asking the user for anything readable:
 
-- **The search's name**, from the profile's Bot Name field. It goes in the masthead and the page title.
+- **The search's name**, from the profile's Bot Name field. It goes in the header and the page title, and it picks the header art: Bishop and the ten Surprise Me robots each have a pre-made file in `assets/headers/` (`bishop`, `data`, `wall-e`, `baymax`, `tars`, `johnny-5`, `r2-d2`, `rosie`, `kitt`, `optimus`, `astro`). Any other name gets the stock header.
 - **The palette and any accessibility adjustments**, from the profile's Customization section: accent color, plus whichever of larger text, higher contrast, reduced motion, and colorblind-safe colors they asked for. **Setup already asked. Don't ask again.**
 - **Where the digest link should go**, from Customization. It changes where this skill delivers the page at publish time.
 - **Track names** (one per tracking file) and a short label for each.
@@ -47,7 +47,7 @@ Read, in full: `Reference_Profile.md`, `Operating_Procedures.md`, and every `Tra
 |---|---|
 | **Larger text** | Raise the base size and every step above it. Don't just scale the body and leave 11px micro-labels behind |
 | **Higher contrast** | Push text and border contrast well past the minimum, and drop the soft elevation that depends on low-contrast shadow |
-| **Reduced motion** | No transitions, no hover lifts, no animated score rings. Render the final state directly |
+| **Reduced motion** | No transitions, no hover lifts, no animated score bars. Render the final state directly |
 | **Colorblind-safe colors** | Pick track tones that separate on lightness, not hue, and never use red against green. **The text label on every mark stays either way**; it is the thing that makes color a redundant channel rather than the only one |
 
 > **The dashboard is private by default.** Artifacts start private, so it stays private until the user shares the link themselves. Employer names are kept, the user alone decides who ever sees the page. **Where the digest link goes was decided at setup**; wire it into that destination on first publish and record that it's done.
@@ -56,30 +56,35 @@ Read, in full: `Reference_Profile.md`, `Operating_Procedures.md`, and every `Tra
 
 One self-contained file: inline CSS, inline vanilla JS, **zero external requests**. Artifact pages block all external fetches, so no CDNs, no webfonts, no remote images. Embed the role data as a JS array in the file. The file is regenerated from the tracking files each cycle, so it never goes stale and never needs to fetch anything.
 
-**Give the page a favicon so the browser tab is never blank.** Put an inline SVG data-URI link in the head, right after the `<title>`, so the tab shows an icon even when the file is opened directly rather than through the artifact. Default to a robot; keep it identical to the emoji passed at publish (Step 5):
+**Give the page a favicon so the browser tab is never blank.** Put an inline SVG data-URI link in the head, right after the `<title>`, so the tab shows an icon even when the file is opened directly rather than through the artifact. **Default to the Bishop robot from `assets/robot.svg`**, URL-encoded into the `href` (`#` becomes `%23`). If the user set a brand emoji at setup, use the emoji form below instead, and keep it identical to the emoji passed at publish (Step 5):
 
 ```html
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🤖</text></svg>'>
 ```
 
-Single-quote the `href` so the SVG's own double quotes need no escaping. If the user set a brand emoji at setup, use that emoji in place of the robot in both spots. This is a head element, so it stays out of the plain-language rules that govern visible page text.
+Single-quote the `href` so the SVG's own double quotes need no escaping. This is a head element, so it stays out of the plain-language rules that govern visible page text.
 
 **Layout spec, battle-tested. Deviate on style, not structure:**
 
-- **Header:** the name they gave their search, the search number and date (**"Search #7 · March 12"** — the word is *search*, never "cycle," anywhere on the page), and a one-line **source-status strip** (each source ✓, or the failure reason, **named in plain words, never by platform slug**). Surfacing failed sources is a core feature of the bot, so keep it visible. No taglines or decorative eyebrows; they get deleted within a day.
-- **Stat band** (a "hero" card): 3 to 5 KPI tiles computed *from the embedded data at load time*, not hard-coded. For example a Fresh count with per-track split, in-play count broken down by stage, top score plus company, and a count of roles that list their pay with the typical figure. **Label the tiles in plain words:** "Pay listed," not "disclosed pay"; "typical: $145K," not "median midpoint." Skip decorative mini-charts unless the user asks; tiles earn their place, ornaments don't. **Lead with the Fresh tile**, the count of roles not acted on: that is the number they open the page for.
-- **Sticky toolbar of filter buttons:** track tabs (All plus one per track) · min-score thresholds · **stage filter: Fresh / In play / All, defaulting to Fresh** · status views: Active / Saved / Archived · **Pay listed**, **Remote only**, and **Hide closed roles** toggles (**Hide closed on by default**; the count of what it hides shows next to it, so nothing disappears silently) · a "N shown · N saved · N archived" counter. Keep stage and status in visually separate groups; see the stage section below for why.
+- **Header: copy `assets/header.html`, never redraw it.** It is the Bishop brand, so it looks the same for every user: a navy panel under an orange bar, the name centered between two Bishop robots, and a two-line run log.
+  - **The name:** paste the matching file from `assets/headers/` as the wordmark. **Any other name** uses the template's stock header (the name set in heavy orange type), which wraps on a phone.
+  - **The run line:** "Search 7 · Mon 3/16 · 24 roles · 2 interviewing". The word is *search*, never "cycle," anywhere on the page.
+  - **The sources line:** one colored square per source, sorted **green (clean), blue (a gap), white (skipped this run on purpose)**. "Details" opens the full list in the same order, **each named in plain words, never by platform slug**. Surfacing failed sources is a core feature of the bot, so it stays one tap away.
+  - **">" means "this opens."** Only the sources line and the "since your last search" list carry it, and it turns down when open. Nothing else on the page gets one.
+  - **No taglines and no stat tiles.** Top score and an average pay figure were tried and cut as not useful.
+- **"Since your last search":** 3 to 6 short plain lines under the header (what was added, applied to, passed on, closed), collapsible like the sources list and open by default. Regenerated every run.
+- **Sticky toolbar of filter buttons:** track tabs (All plus one per track) · min-score thresholds · **stage filter: Fresh / In play / All, defaulting to Fresh, each button showing its live count** (a stage with none dims but stays tappable) · status views: Active / Saved / Archived · **Pay listed**, **Remote only**, and **Hide closed roles** toggles (**Hide closed on by default**; the count of what it hides shows next to it, so nothing disappears silently) · a "N shown · N saved · N archived" counter. Keep stage and status in visually separate groups; see the stage section below for why.
 
 > **Open on Fresh, not on All.** The page exists to answer "what haven't I dealt with yet," and once most of the board is in play, an unfiltered default buries that answer under roles needing nothing. Ordering the control Fresh · In play · All puts the default first and the firehose last.
 
 - **Ranked cards**, grouped by stage (see below), highest score first within each group, ties broken by disclosed comp midpoint:
-  - a **score ring** (conic-gradient donut, no chart library) colored per track, `score/N` in the center
+  - a **score bar**: one small segment per scoring bucket in their rubric order, filled in the accent color for a pass, empty for a miss, hatched for not yet known, with `score/N` beside it
   - company name (hyperlinked, verified homepage) plus one-line bio and location
   - title; comp in tabular numerals (undisclosed styled muted/italic)
-  - one **chip per scoring check**: ✓ / ✗ / ? with the 4 to 12-word reason as the `title` tooltip. **Give the row a one-line legend** (“green means it matches what you asked for”); an unexplained ? reads as a bug
+  - one **check per scoring bucket** as a plain inline list (✓ / ✗ / ? and the check's name), with the 4 to 12-word reason as the `title` tooltip. **Give the row a one-line legend** (“green means it matches what you asked for”); an unexplained ? reads as a bug
   - **flags** as small callout rows (stretch flags, below-bar comp, level ambiguity, whatever the tracking file carries)
   - a details expander listing every bucket's full reason, ending in an **Apply button** with the real link
-- **Card actions (top-right):** ☆ save-for-later (toggles; saved roles get a SAVED tag and populate the Saved view) and ✕ archive (hides from Active; the Archived view shows an ↩ Restore button). Persist statuses in `localStorage` keyed by a stable id (`encodeURIComponent(company + "|" + title)`) so they survive republishes. Event-delegate clicks on the card list; re-render (including the stat tiles) after every change. **Suppress ✕ archive on in-play cards.** Hiding a role you have applied to is a footgun.
+- **Card actions (top-right):** ☆ save-for-later (toggles; saved roles get a SAVED tag and populate the Saved view) and ✕ archive (hides from Active; the Archived view shows an ↩ Restore button). Persist statuses in `localStorage` keyed by a stable id (`encodeURIComponent(company + "|" + title)`) so they survive republishes. Event-delegate clicks on the card list; re-render (including the stage counts) after every change. **Suppress ✕ archive on in-play cards.** Hiding a role you have applied to is a footgun.
 
 **Pipeline stage (build this only if the tracking files carry a stage concept):**
 
@@ -91,7 +96,8 @@ The point of the dashboard is answering "what haven't I dealt with yet." Once a 
 > **The groups lead with In play; the filter defaults to Fresh.** Not a contradiction: grouping only renders on the All view, where in-play roles are the ones with dates ticking. Don't "fix" one to match the other on a later regeneration.
 
 - **In-play cards show different information.** Stage tag, date, and a one-line "what happens next" callout. Score is history once you have applied, so it stops being the headline.
-- **Compute day counts at load, not at generation.** `Applied 12 days ago` stays accurate between cycles, and it is the one thing a static page genuinely cannot do otherwise. Flag an application with no reply past a threshold (10 days works) in the card and in the stat tile.
+- **Applied roles render as one-line rows** (title, company, "Applied 12 days ago," the score bar) that open the full card in place. Interviewing roles keep the full card. **Each role is still exactly one card element**, so the Step 4 count is unchanged.
+- **Compute day counts at load, not at generation.** `Applied 12 days ago` stays accurate between cycles, and it is the one thing a static page genuinely cannot do otherwise. Flag an application with no reply past a threshold (10 days works) in the card.
 - **Keep the vocabulary tiny:** `open`, `applied`, `interviewing`. Resist encoding how a role arrived (inbound vs outbound) as a stage; that is a note. Stage tracks what happens next.
 - **Posting status is a separate axis from stage, and never a stage value.** Stage is what the user does next; posting status (live / expired / unverified) is a fact about the requisition. **Render it as a badge on the card, not as a stage chip**, so "Applied · Expired" stays expressible. That combination is the one users most need to see: the application is live even though the posting closed. Folding expiry into stage would overwrite the fact that they applied.
   - **Badge wording is plain:** **Closed** for expired, **Couldn’t check** for unverified, and nothing at all for live. Never "expired" as a bare status code, and never show a badge on a live role.
@@ -103,7 +109,24 @@ The point of the dashboard is answering "what haven't I dealt with yet." Once a 
 
 > **Drive every recurring value from one variable, or from none.** A cycle number that lives in a JS constant *and* in hardcoded masthead and footer text will ship wrong the first time someone updates the constant and assumes that was enough. Either bind the text nodes to the variable, or accept the hardcoding and follow the grep rule in Step 6.
 
-**Style spec:** commit to a **light theme**. Airy white cards on a near-white ground, hairline borders, soft elevation that lifts slightly on hover, system font stack, tabular numerals for money and scores, letter-spaced uppercase micro-labels for tile headings. If the user supplied brand guidelines, use that palette and type instead. Two checks either way:
+**Style spec: color follows 60/30/10.**
+
+- **60 neutral:** the page ground and the cards.
+- **30 navy / steel blue:** the header (navy in both themes) and the tinted surfaces: the "since your last search" list, the next-step box, tags, the stage buttons.
+- **10 the user's accent from setup:** pressed buttons, links, focus rings, the Apply button, the score bar. **The header stays Bishop orange for every user.** The accent never recolors it, because two of the four setup choices disappear on navy.
+- **Caution is sky blue, never yellow** (a source gap, a warning flag). Green means clean and red means a missed date, both kept small.
+
+**Build a light and a dark theme** and follow the device's setting. System font stack, tabular numerals for money and scores, one type scale set as tokens. If the user supplied brand guidelines, use that palette and type below the header, which stays as the template draws it.
+
+**The page is read on phones, so it gets a phone pass before it ships:**
+
+- A viewport tag with `viewport-fit=cover`, and no sideways scrolling anywhere from 320px up. Long words in notes take `overflow-wrap: anywhere` so they wrap instead of pushing the page wider.
+- 44px minimum for every button, toggle and summary row.
+- Hover effects only under `(hover: hover) and (pointer: fine)`; no motion under `prefers-reduced-motion`.
+- Text at 4.5:1 contrast in both themes.
+- `aria-pressed` on filter buttons and a live-region count.
+
+Two more checks either way:
 
 1. The two track colors must be distinguishable to colorblind viewers. Since every track mark also carries a text label, a muted secondary is acceptable, but never rely on color alone.
 2. Escape all role text before injecting into HTML (`&` and `<` at minimum). Company bios and flags contain ampersands constantly.
@@ -114,7 +137,9 @@ The point of the dashboard is answering "what haven't I dealt with yet." Once a 
 
 > **This exists because a role was invisible for two days.** It was added to the tracking file at a high score with the best disclosed pay on the board, and the regeneration simply never wrote it into the roles array. **The defect is that regeneration reports success either way:** it renders whatever is in the array, so a dropped role and a correct run produce identical output. It surfaced only when the user asked why three unrelated roles were missing. Nothing in the pipeline noticed, and nothing would have. **The count is the only cheap signal that separates the two.**
 
-If Node is available, smoke-test: extract the `<script>` block, stub `document` and `localStorage`, `eval` it, and confirm it runs, the tiles render, and the card HTML contains the save/archive buttons. Otherwise open the file in a browser pane and look at it. Do not publish an unverified page.
+If Node is available, smoke-test: extract the `<script>` block, stub `document` and `localStorage`, `eval` it, and confirm it runs, the header and counts render, and the card HTML contains the save/archive buttons. Otherwise open the file in a browser pane and look at it.
+
+**Then look at it at phone width (about 390px) in both themes** and confirm nothing scrolls sideways and the header fits. The source list and long role notes are what usually break it. Do not publish an unverified page.
 
 ### Step 5: Publish as a private artifact
 
@@ -126,7 +151,7 @@ Publish `dashboard.html` with the Artifact tool. Pass a favicon emoji and keep i
 
 Append a step to the existing scheduled search task's prompt, after the scoring/writing step and before the digest:
 
-> REGENERATE THE DASHBOARD: rewrite `dashboard.html` with the fresh full role set. Keep the existing design, structure, filters, and theme. Refresh the embedded data array, the cycle number and date, the source-status strip, the decisions panel, and **the rubric panel, re-derived from the profile rather than carried over**.
+> REGENERATE THE DASHBOARD: rewrite `dashboard.html` with the fresh full role set. Keep the existing design, structure, filters, theme and header; never redraw the header art. Refresh the embedded data array, the search number and date, the source squares and list, the "since your last search" lines, the decisions panel, and **the rubric panel, re-derived from the profile rather than carried over**.
 >
 > Before publishing, **search the whole file for the previous cycle number and date and fix every hit**, not just the variable. Masthead and footer text is frequently hardcoded and will not follow a variable you edited.
 >

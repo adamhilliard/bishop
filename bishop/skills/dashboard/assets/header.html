@@ -1,0 +1,90 @@
+<!--
+  Bishop dashboard header: reference markup and styles. Copy these into dashboard.html;
+  do not redraw them. Open this file in a browser to see it.
+
+  Fill in:
+    {{WORDMARK}}  The user's name has a file in headers/ (bishop, data, wall-e, baymax, tars,
+                  johnny-5, r2-d2, rosie, kitt, optimus, astro): paste that file's <svg> here.
+                  Any other name: use <span class="stock">Their Name</span> instead.
+    {{ROBOT}}     The <svg> from robot.svg, with everything inside it wrapped in <g id="bm-robot">.
+                  The second robot is the <use> already in the markup, which draws the same group.
+    {{SEARCH}}    "Search 7 · Mon 3/16 · 24 roles · 2 interviewing", built from the data.
+  The squares and the source list are rendered by the page script (see SKILL.md, Step 3).
+
+  Color is 60/30/10. 60 neutral (ground, cards); 30 navy (this header, tinted surfaces);
+  10 the user's accent from setup (buttons, links, focus, score bars). The header itself is
+  Bishop orange for every user. Caution is sky blue. Green means clean.
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root {
+    --hd-navy: #1a2944; --hd-navy-2: #213357; --hd-rule: #31466e;
+    --hd-ink: #eef1f6; --hd-dim: #aab8d0;
+    --hd-orange: #ff6a1f; --hd-orange-line: #ffa36b;
+    --hd-clean: #6fd39b; --hd-gap: #6cb6ff; --hd-off: #eef1f6;
+    --hd-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --hd-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --tap: 44px;
+  }
+  .hd { position: relative; container-type: inline-size; background: var(--hd-navy); color: var(--hd-ink);
+    border: 1px solid var(--hd-rule); border-top: 4px solid var(--hd-orange); border-radius: 14px; overflow: hidden;
+    padding: clamp(20px, 4cqi, 36px) clamp(14px, 3cqi, 28px) clamp(14px, 3cqi, 22px); display: grid; gap: clamp(14px, 3cqi, 22px); }
+  /* The name sits centered between two robots. */
+  .hd-brand { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3.5cqi, 32px); min-width: 0; }
+  .hd-mark { width: clamp(36px, 9cqi, 84px); height: auto; flex: none; display: block; }
+  .hd h1 { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; font: inherit; }
+  /* Width follows the letter count, so every name gets the same letter height. */
+  .hd .wordmark { width: calc(var(--cols) * clamp(2.6px, .78cqi, 8.6px)); max-width: 100%; height: auto; display: block; }
+  /* Any name without a pre-made header: set in type, same orange, wraps on a phone. */
+  .hd .stock { font: 800 clamp(24px, 7cqi, 58px)/1.05 var(--hd-mono); letter-spacing: .05em; text-transform: uppercase;
+    color: var(--hd-orange); text-align: center; text-wrap: balance; overflow-wrap: anywhere; max-width: 100%;
+    text-shadow: 3px 3px 0 rgba(255,163,107,.25); }
+  .hd-sub { font: 500 11px/1 var(--hd-mono); letter-spacing: .32em; padding-left: .32em; text-transform: uppercase; color: var(--hd-dim); }
+  .hd-log { padding-top: 12px; border-top: 1px dashed var(--hd-rule); display: grid; gap: 6px; font: 13px/1.45 var(--hd-mono); }
+  .hd-line { display: flex; gap: 8px; align-items: center; margin: 0; min-width: 0; }
+  .hd-line .k { color: var(--hd-dim); }
+  .hd-line .dots { flex: 1 1 24px; min-width: 16px; border-bottom: 2px dotted var(--hd-rule); }
+  .hd-line > .ok { color: var(--hd-clean); }
+  /* ">" means "this opens". Only the sources line carries it; it turns down when open. */
+  .hd-sources > summary { list-style: none; cursor: pointer; }
+  .hd-sources > summary::-webkit-details-marker { display: none; }
+  .hd-sources > summary .hd-line { min-height: var(--tap); }
+  .hd-sources > summary .hd-line::before { content: ">"; color: var(--hd-orange); display: inline-block; transition: transform .15s; }
+  .hd-sources[open] > summary .hd-line::before { transform: rotate(90deg); }
+  .hd-sources .more { color: var(--hd-orange-line); text-decoration: underline; text-underline-offset: 3px; }
+  /* One square per source, sorted clean, gap, skipped this run: green, blue, white. */
+  .hd-squares { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+  .hd-squares i { width: 12px; height: 12px; border-radius: 2px; display: block; }
+  .hd-squares .clean { background: var(--hd-clean); } .hd-squares .gap { background: var(--hd-gap); } .hd-squares .off { background: var(--hd-off); }
+  .hd-list { display: grid; gap: 6px; margin: 4px 0 2px; }
+  .hd-list > div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 4px 12px; font: 13px/1.45 var(--hd-ui);
+    color: var(--hd-dim); padding: 8px 10px; border: 1px solid var(--hd-rule); border-radius: 8px; background: var(--hd-navy-2); }
+  .hd-list b { color: var(--hd-ink); font-weight: 600; }
+  .hd-list .st { font: 600 11px/1.6 var(--hd-mono); text-transform: uppercase; letter-spacing: .05em; }
+  .hd-list .clean .st { color: var(--hd-clean); } .hd-list .gap .st { color: #9ccbff; } .hd-list .off .st { color: var(--hd-dim); }
+  @container (max-width: 480px) {
+    .hd-line { display: block; } .hd-line .dots { display: none; }
+    .hd-line > .ok, .hd-line > .hd-squares, .hd-line > .more { margin-left: 8px; vertical-align: middle; }
+    .hd-sources > summary .hd-line { padding-block: 10px; min-height: 0; }
+    .hd-sources > summary .hd-line::before { margin-right: 8px; }
+    .hd-list > div { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { .hd * { transition: none !important; } }
+</style>
+
+<header class="hd">
+  <div class="hd-brand">
+    <span class="hd-mark" aria-hidden="true">{{ROBOT}}</span>
+    <h1>{{WORDMARK}}<span class="hd-sub">Status Dashboard</span></h1>
+    <svg class="hd-mark" viewBox="0 0 64 64" aria-hidden="true"><use href="#bm-robot"/></svg>
+  </div>
+  <div class="hd-log">
+    <p class="hd-line"><span>{{SEARCH}}</span><span class="dots"></span><span class="ok">ok</span></p>
+    <details class="hd-sources">
+      <summary><span class="hd-line"><span class="k">sources</span><span class="dots"></span>
+        <span class="hd-squares" role="img" aria-label="9 clean, 2 gaps, 3 skipped this run"><!-- one <i class="clean|gap|off"> per source --></span>
+        <span class="more">Details</span></span></summary>
+      <div class="hd-list"><!-- one row per source, same order: <div class="clean"><span class="st">Clean</span><span><b>Job boards</b> note</span></div> --></div>
+    </details>
+  </div>
+</header>

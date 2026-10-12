@@ -29,13 +29,27 @@ Interview_Prep/
   core.html             the built decks, side by side
   <company>.html
   Master_Answers.json   the candidate's answers, exported from the master deck
+  <resume file>         their resume, saved here with their OK (Bishop's setup doesn't keep one)
 ```
 
 Build a deck with `python scripts/build_deck.py Interview_Prep/<deck> --master Interview_Prep/Master_Answers.json` (the path to this skill's `scripts/`). It writes `<deck>.html` next to the folder. Leave out `--master` when the file doesn't exist yet. `--check` validates without writing.
 
 ## Job 1: build the master deck (once)
 
-**Read first:** `Reference_Profile.md` (career level, current role, full history, target roles) and **the resume itself**, so a resume question can quote the bullet exactly as the interviewer will read it. They decide *which* questions to ask, never what the answers are.
+### What Bishop gives you, and what it doesn't
+
+Everything here decides *which* questions to ask, never what the answers are. **Don't interview them about their history; Bishop already has it.**
+
+| Input | Where it is | What it decides |
+|---|---|---|
+| Career level | `Reference_Profile.md` → Career Level: the rung (First-line manager, Senior manager, Director…) and the band (Early career, Mid, Senior / exec) | The behavioral layers (below) |
+| Current role, full history | `Reference_Profile.md` → Current Role, Full Career History (period, role, company, highlights) | Opening and tough questions: tenure, gaps, a layoff, a pivot |
+| Target roles | `Reference_Profile.md` → Target Roles | Technical questions, and the level they're interviewing *for* |
+| Resume bullets | **Not saved by Bishop.** Setup reads the resume but keeps only the history table. Look for a resume file in their Bishop folder | Resume questions, quoted word for word |
+
+**No resume file in the folder?** Ask once: *"Can you share your resume again? I'll use it to ask about the specific lines an interviewer will point at."* Save it into `Interview_Prep/` with their OK, so the next deck doesn't ask. If they have none, write the resume questions from the Career History highlights and put `"Bishop profile: <role>, <company>"` in `source`.
+
+**Their level is the one they're interviewing for:** the higher of their current rung and their target roles (an explicit level word in a target title counts at face value, as in the job search: Director, VP, Chief; a bare "Head of" doesn't settle it, so go by the rest of the profile). A senior manager targeting director roles gets director-level questions, because that's what those interviewers ask. Older profiles may record only the band; then read the rung from Current Role and the resume. **Never ask for it directly.** State what you read in the Step 0 message, in a short sentence they can correct: *"I'm building this for director-level interviews in customer success."*
 
 ### Step 0: ask how much practice they want
 
@@ -56,26 +70,28 @@ Before building anything, ask one question, and save the answer as `"rigor"` in 
 | **R. Resume** | "I see you did this" questions, one per resume bullet (below) |
 | **T. Technical** | Knowledge of their field, from their target roles: how they'd approach the core problems of the job ("How do you decide what to build next?" for a product manager, "How do you structure pay at a growing company?" for HR). Field knowledge, never a claim from the resume |
 | **C. Behavioral** | From `assets/behavioral.json`, word for word (below) |
-| **E. Tough Questions** (`role: "hard"`) | The questions their profile makes likely: level, tenure, a layoff, a gap, a pivot, compensation. Each `origin: "standard"` |
+| **E. Tough Questions** (`role: "hard"`) | The questions their profile makes likely: level, tenure, a layoff, a gap, a pivot, compensation. Each `origin: "standard"`. **Never repeat an Opening question in any wording:** "Why leave a job that's going well?" is "Why are you looking?" |
 | **F. Questions to Ask** (`role: "ask"`) | From the default themes (`assets/defaults.json`), each with its `theme` and `origin: "standard"` |
 
 ### Resume questions: "I see you did this"
 
 This is how interviewers use a resume: they point at a line and ask about it. Each bullet is a claim, and the question asks the candidate to back it up.
 
-- **One question per bullet, quoting it, and nothing more:** *"Your resume says you cut onboarding time in half. Walk me through how."* Put the role and the bullet word for word in `source` (`"Acme Robotics, 2021 to now: Cut onboarding time in half"`), most recent role first, bullets in resume order. `rigor.json` sets how many roles and bullets; **bullets with a number go first**, since interviewers press those hardest.
+- **One question per bullet, pointing at the claim, and nothing more:** *"I see you cut onboarding time in half. Walk me through how."* The form stays simple on purpose: how an interviewer digs into a line is hard to predict, so the question just points at it. **Vary the opening** so the section doesn't read like a form letter: *"I see you…"*, *"Your resume says…"*, *"Walk me through…"*, *"Tell me more about…"*, *"How did you…?"* Quote the claim, not necessarily the whole bullet.
+- **Put the role and the full bullet word for word in `source`** (`"Acme Robotics, 2021 to now: Cut onboarding time in half by rebuilding the kickoff"`), most recent role first, bullets in resume order.
+- **A role is an employer.** Titles held at one company count as one role, with their bullets pooled; a promotion isn't a second job. `rigor.json` sets how many roles and bullets; **bullets with a number go first**, since interviewers press those hardest.
 
 ### Behavioral questions: from the bank
 
 Use the bank's wording exactly; it's been reviewed and every question is balanced between successes and failures.
 
-- **Layers by career level** (from their profile): **Universal** for everyone; **Leading people** for anyone who manages people (first-line manager and up); **Leading the business** for the senior or executive band.
+- **Layers by the level they're interviewing for** (above): **Universal** for everyone; **Leading people** for any manager rung (First-line manager, Senior manager, Director, Executive); **Leading the business** for Bishop's Senior / exec band (Functional or technical lead, Director, Executive).
 - **How many** follows `rigor.json`: light takes the first question of the six light-marked universal competencies, plus one question per leadership layer they qualify for; medium takes the first question of every competency in their layers; heavy takes two per competency.
 - Put the competency's title in `source` (`"Behavioral bank: Conflict"`) and its `tests` line in `why`.
 
 ### Step 2: build it and hand it over
 
-Give every question a `why` (what the interviewer is trying to learn, in one sentence) and no `script`. Set `"deck": {"slug": "core", "master": true, "evergreen": true, "rigor": "medium", ...}`, open with a `readiness` slide (id `cover`, section `I`), build it, and open `core.html` for them.
+Give every question a `why` (what the interviewer is trying to learn, in one sentence), a `target` in seconds (120 for tell me about yourself, 60 to 90 for the rest, 0 for questions to ask) and no `script`. Set `"deck": {"slug": "core", "title": "Master Deck", "brandTitle": "<their name>", "master": true, "evergreen": true, "rigor": "medium", "theme": {"accent": "#e2541b"}, "jd": {"none": "Every interview"}}`, sections in the order of the table above, open with a `readiness` slide (id `cover`, section `I`, listed first in `sections`), start each section with its `section` slide, build it, and open `core.html` for them.
 
 **Tell them how to use it:** in **Study**, click into a question and write the answer the way they'd say it; **+ Add STAR** splits a "tell me about a time" into Situation, Task, Action, Result; **Lock In** marks an answer done; **+ Add Question** adds their own. Readiness shows what's left to write and lock. Then **Export Answers** (bottom of the sidebar) saves `Master_Answers.json`: ask them to save it into `Interview_Prep/`, or find it in their Downloads folder and move it there with their OK.
 

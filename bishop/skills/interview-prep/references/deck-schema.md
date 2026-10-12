@@ -39,9 +39,17 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
  "why": "The screen-out version of the industry gap. They want to see you own it."}
 ```
 
-**section**: the first slide of every section that holds questions. `"cards": true` shows its questions as a page of cards.
+**section**: the first slide of every section that holds questions, id `S` plus the section letter. `"cards": true` shows its questions as a page of cards (use it in every section).
 
-**readiness**: the master deck's first slide (id `cover`, section `I`): what's left to write, to lock in, and flagged.
+```json
+{"kind": "section", "id": "SA", "section": "A", "title": "Opening", "cards": true}
+```
+
+**readiness**: the master deck's first slide: what's left to write, to lock in, and flagged. It needs only a title; the deck fills in the rest. Its section `I` goes first in `meta.sections`: `{"id": "I", "title": "Readiness"}`.
+
+```json
+{"kind": "readiness", "id": "cover", "section": "I", "title": "Your master deck"}
+```
 
 **cover**: an interview deck's first slide; its text comes from `META.deck.cover`.
 

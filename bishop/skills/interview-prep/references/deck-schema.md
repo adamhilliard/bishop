@@ -6,21 +6,22 @@ A deck is a folder: `meta.json` (the deck's settings, sections, priorities and r
 
 Every slide has `kind`, `id`, `section` and `title`, and appears in the order of the files, grouped by section.
 
-**question / followup**
+**question**
 
 | Field | Required | Notes |
 |---|---|---|
 | `title` | yes | The question, worded the way this interviewer would ask it |
-| `chain` | yes | The question's own id, or its parent's for a follow-up. Keeps follow-ups with their question when a section shuffles |
+| `chain` | yes | The question's own id |
 | `why` | yes | What the interviewer is trying to learn, and for a custom question what makes it likely. Context, never a hint at the answer |
 | `target` | yes | Seconds to answer, for the practice timer. `0` turns it off |
 | `core` | | Interview decks: the master question this one asks the same thing as. Shows the candidate's master answer until they write a version for this interview |
 | `origin` | in `hard` and `ask` sections | `standard`, `jd`, `recruiter`, `research` or `risk`. Shown as a tag on the card |
 | `source` | unless `standard` | The posting line, recruiter's words, finding (with its date) or resume fact behind it |
 | `theme` | in `ask` sections | A theme id (`assets/defaults.json`, or `META.deck.askThemes`) |
-| `parent`, `followupNumber` | follow-ups | The parent question's id; 1, 2, 3 |
 | `verify` | | A fact the candidate should confirm before the interview. Shows a VERIFY badge |
 | `when` | | Master deck only: when a conditional question applies |
+
+> **No follow-ups.** A second angle on a question is a question of its own; the builder rejects `"kind": "followup"`.
 
 > **Leave the answer fields empty.** `script`, `beats`, `landing`, `bridge`, `avoid` and `gateNote` exist in the engine, but the candidate writes every answer in the deck. Don't fill them.
 
@@ -36,12 +37,6 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
  "title": "You haven't worked in robotics. Why you?", "target": 60,
  "origin": "risk", "source": "The posting asks for robotics experience.",
  "why": "The screen-out version of the industry gap. They want to see you own it."}
-```
-
-```json
-{"kind": "followup", "id": "QE1a", "section": "E", "chain": "QE1", "parent": "QE1", "followupNumber": 1,
- "title": "What would your first month of learning the product look like?", "target": 40,
- "why": "Tests whether the answer to the gap is a plan or a promise."}
 ```
 
 **section**: the first slide of every section that holds questions. `"cards": true` shows its questions as a page of cards.

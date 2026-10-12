@@ -54,7 +54,7 @@ Every map item becomes a question before any standard one is added, and a standa
 | Section | What goes in it |
 |---|---|
 | **A. Opening** | Tell me about yourself, why this company, why now, worded for this interview. Link each to its master question with `core`. |
-| **B. Their priorities** | One question per priority, asked the way this hiring team would ask it, with 2 or 3 likely follow-ups. |
+| **B. Their priorities** | One question per priority, asked the way this hiring team would ask it. A second angle on a priority is a question of its own. |
 | **C. Behavioral** | Tell me about a time, aimed at the priorities. Link each to the master question it draws on (`core`). |
 | **E. Tough Questions** (`role: "hard"`) | At least two custom questions that press mapped risks, each with its `origin` and `source`. Then the master deck's tough questions that apply, linked with `core`. Every risk in `META.risks` is covered. |
 | **F. Questions to ask** (`role: "ask"`) | 3 or 4 custom questions from the posting, the recruiter or research, each citing its `source`, then 2 or 3 standard ones. Close with one that surfaces their doubts while the candidate can still answer them. Every one carries a `theme`. |
@@ -70,21 +70,21 @@ One sentence on what the interviewer is trying to learn, and, for a custom quest
 
 ### Timing
 
-Give each question a `target` in seconds, so the timer tells the candidate when they're running long: 60 to 90 for opening, priority and behavioral questions, 30 to 45 for follow-ups, 0 (no timer) for questions to ask. Roughly 150 spoken words a minute.
+Give each question a `target` in seconds, so the timer tells the candidate when they're running long: 60 to 90 for opening, priority and behavioral questions, 30 to 60 for a narrower question, 0 (no timer) for questions to ask. Roughly 150 spoken words a minute.
 
 ### What to produce
 
 Size it to the candidate's rigor (`"rigor"` in the master deck's settings), then to the round:
 
-| Rigor | Questions | Follow-ups |
-|---|---|---|
-| Light | About 10 | None |
-| Medium | About 20 | 1 on the questions most likely to be pressed |
-| Heavy | About 30 | 2 or 3 on most questions |
+| Rigor | Questions |
+|---|---|
+| Light | About 10 |
+| Medium | About 20 |
+| Heavy | About 30 |
 
 A recruiter screen or 30-minute round takes the lower end; a full loop with a hiring manager or panel the higher. Linked questions count toward the total, so a priority the master deck already covers costs nothing extra to practice.
 
-**Resume follow-ups belong here, not in the master deck.** Pick the resume bullets this role makes relevant, link each to its master question (`core`), and add follow-ups from the table in `SKILL.md` ("I see you did this"), worded the way this interviewer would press.
+**Resume questions:** pick the resume bullets this role makes relevant, and link each to its master question (`core`), worded the way this interviewer would ask it.
 
 ### Writing the files
 
@@ -96,7 +96,7 @@ One folder per deck, named by its slug, inside `Interview_Prep/`: a `meta.json`,
 python <this skill>/scripts/build_deck.py Interview_Prep/<slug> --master Interview_Prep/Master_Answers.json
 ```
 
-The builder checks before it writes: duplicate ids, missing fields, a follow-up with no parent, a tough question or question to ask with no `origin`, a custom one with no `source`, and a question to ask with no `theme`. Fix every error.
+The builder checks before it writes: duplicate ids, missing fields, any follow-up (a second angle is a question of its own), a tough question or question to ask with no `origin`, a custom one with no `source`, and a question to ask with no `theme`. Fix every error.
 
 **Then check by hand:**
 - No question carries a script, beats, or a landing line.

@@ -3512,7 +3512,7 @@ body.edit-mode [data-bank-id]:focus {
 <div class="layout"><aside><nav id="section-nav" aria-label="Sections"></nav><div class="side-bottom"><div id="side-meta"></div><span id="side-flags">0 slides flagged</span><br>Flags and timings are<br>saved in this browser.</div></aside><main id="main" tabindex="-1"><div class="slide-status"><div class="left"><span id="section-label" class="eyebrow"></span><span id="mode-label" class="pill"></span><span id="run-label" class="pill" hidden></span></div><div class="right" id="counter"></div></div><div id="slide" class="slide-content"></div></main></div>
 <footer class="footer"><ol id="steps" class="steps" aria-label="Deck progress"></ol><div class="footer-row"><div class="transport"><button data-action="prev" aria-label="Previous slide">←</button><button data-action="reveal" id="reveal-btn" class="primary">Reveal <kbd>Space</kbd></button><button data-action="next" aria-label="Next slide">→</button></div><div class="tools"><button data-action="flag" id="flag-btn" aria-pressed="false">Flag <kbd>F</kbd></button><button data-action="drill" id="drill-btn" aria-pressed="false">Drill Flagged <kbd>D</kbd></button></div><div class="timer" id="timer"><button data-action="timer" id="timer-btn" aria-label="Record your answer"><span class="rec-icon">●</span> <span id="time">0:00</span> <span id="target-time">/ 1:00</span></button><button data-action="reset-timer" class="quiet" aria-label="Reset speaking timer" title="Reset timer">↺</button></div></div><div class="footer-caption"><span id="footer-hint">Space reveals. Arrow keys navigate.</span><span id="footer-mode"></span></div></footer>
 
-<dialog id="help"><div class="dialog-top"><h2>Practice controls</h2><button data-close="help" aria-label="Close controls">×</button></div><p class="intro">Move from reading to recall. Start the timer, say your answer out loud (nothing is recorded), then reveal to check. Every keyboard action also has an on-screen control, and on a phone you can swipe left or right to move. Flags, modes and timings are saved in this browser.</p><div class="shortcut-grid"><p>Previous / next slide <kbd>← / →</kbd></p><p>Reveal the next layer <kbd>Space</kbd></p><p>Script / Beats <kbd>1 / 2</kbd></p><p>Flag this slide <kbd>F</kbd></p><p>Drill flagged slides <kbd>D</kbd></p><p>Record / stop your answer (and its timer) <kbd>T</kbd></p><p>Show / close controls <kbd>?</kbd></p><p>Close an open panel <kbd>Esc</kbd></p></div><div class="evidence-card"><h3>Choose a global mode</h3><div class="hero-actions"><button data-global="1">1 Script</button><button data-global="2">2 Beats</button></div><p><b>Script:</b> question first; reveal the full answer.<br><b>Beats:</b> reveal recall cues.<br>Global mode changes clear slide overrides. Story timelines and frameworks reveal in stages.</p></div><p class="tiny muted">Shuffle keeps each main question with its three follow-ups. Press S again to restore the section order. Drill can be switched off at any time. The timer pauses when you leave a slide.</p></dialog>
+<dialog id="help"><div class="dialog-top"><h2>Practice controls</h2><button data-close="help" aria-label="Close controls">×</button></div><p class="intro">Move from reading to recall. Start the timer, say your answer out loud (nothing is recorded), then reveal to check. Every keyboard action also has an on-screen control, and on a phone you can swipe left or right to move. Flags, modes and timings are saved in this browser.</p><div class="shortcut-grid"><p>Previous / next slide <kbd>← / →</kbd></p><p>Reveal the next layer <kbd>Space</kbd></p><p>Script / Beats <kbd>1 / 2</kbd></p><p>Flag this slide <kbd>F</kbd></p><p>Drill flagged slides <kbd>D</kbd></p><p>Record / stop your answer (and its timer) <kbd>T</kbd></p><p>Show / close controls <kbd>?</kbd></p><p>Close an open panel <kbd>Esc</kbd></p></div><div class="evidence-card"><h3>Choose a global mode</h3><div class="hero-actions"><button data-global="1">1 Script</button><button data-global="2">2 Beats</button></div><p><b>Script:</b> question first; reveal the full answer.<br><b>Beats:</b> reveal recall cues.<br>Global mode changes clear slide overrides. Story timelines and frameworks reveal in stages.</p></div><p class="tiny muted">Drill can be switched off at any time. The timer pauses when you leave a slide.</p></dialog>
 
 <div id="toast" class="toast" role="status" hidden></div>
 <noscript><p style="padding:40px">This study deck needs JavaScript enabled. It runs locally without an internet connection.</p></noscript>
@@ -3984,7 +3984,6 @@ const state = {
   overrides: new Map(),
   layers: new Map(),
   flags: new Set(),
-  shuffles: new Map(),
   drill: false,
   preDrill: 'cover',
   lengths: new Map(),
@@ -4051,7 +4050,7 @@ const target = () => {
 };
 function ordered() {
   const out = sections.flatMap(
-    (s) => state.shuffles.get(s.id) || CONTENT.filter((x) => x.section === s.id).map((x) => x.id),
+    (s) => CONTENT.filter((x) => x.section === s.id).map((x) => x.id),
   );
   const seen = new Set(out);
   for (const x of CONTENT)
@@ -4180,10 +4179,10 @@ async function saveAnswer(id, text) {
 
 let rec = null;
 const practiceSlide = (s) =>
-  ['question', 'followup', 'story'].includes(s.kind) && (sectionMap.get(s.section) || {}).role !== 'ask';
+  ['question', 'story'].includes(s.kind) && (sectionMap.get(s.section) || {}).role !== 'ask';
 // Study: the answer is open to work on (STAR, open field, story picker). Test: it hides, you say it, the take records.
 const studying = () => state.purpose === 'study';
-const studyOpen = (s) => studying() && ['question', 'followup'].includes(s.kind) && practiceSlide(s);
+const studyOpen = (s) => studying() && s.kind === 'question' && practiceSlide(s);
 function setPurpose(p) {
   if (rec) stopRecord();
   pauseTimer();
@@ -4360,10 +4359,7 @@ const DELETED = new Set();
 function removeSlide(id) {
   const s = byId.get(id);
   if (!s) return false;
-  const gone = new Set([
-    id,
-    ...CONTENT.filter((x) => x.parent === id || (x.kind === 'followup' && x.chain === id)).map((x) => x.id),
-  ]);
+  const gone = new Set([id]);
   for (let i = CONTENT.length - 1; i >= 0; i--) if (gone.has(CONTENT[i].id)) CONTENT.splice(i, 1);
   DELETED.add(id);
   for (const g of gone) {
@@ -5437,8 +5433,7 @@ function renderStoryAnswer(s) {
   const ids = (s.stories || [s.story]).filter(Boolean);
   const id = storyChoice(s);
   const b = MASTER ? null : bankStory(id);
-  const eyebrow =
-    s.kind === 'followup' ? sec.followupLabel || 'Follow-up' : sec.questionLabel || 'Interview question';
+  const eyebrow = sec.questionLabel || 'Interview question';
   const picker =
     BANK && !s.story && !s.paired && DECK.storyPicker !== false
       ? `<div class="story-pick"><span class="chain-label">${s.technical ? 'DRAW ON' : 'ANSWER WITH'}</span>${[...ids, OWN_EXAMPLE]
@@ -5462,7 +5457,7 @@ function renderStoryAnswer(s) {
   const tags = (s.strategic || []).length
     ? `<div class="rubric-row">${s.strategic.map((x) => `<span class="rubric-beat">${esc(x)}</span>`).join('')}</div>`
     : '';
-  return `<div class="question-head"><div class="question-meta"><span class="eyebrow">${s.competency ? esc(eyebrow) : esc(eyebrow) + ' / ' + esc(s.code || s.id)}</span>${verify ? '<span class="pill verify">VERIFY</span>' : ''}</div><h1${editAttrs(s, 'title')}>${esc(s.title)}</h1>${tags}${picker}${s.bridge ? `<p class="pivot-line"><b>Pivot</b> ${esc(s.bridge)}</p>` : ''}${anchorHTML(s.anchor)}</div><div style="height:12px"></div>${cardBody(body, '', studyOpen(s) ? secStatusHTML(s) : '')}${(layer() || studyOpen(s)) && b ? (/^[qt]-/.test(s.id) && s.competency ? verifyLine(b) : storyContextHTML(s, b)) : ''}${chainHTML(s)}`;
+  return `<div class="question-head"><div class="question-meta"><span class="eyebrow">${s.competency ? esc(eyebrow) : esc(eyebrow) + ' / ' + esc(s.code || s.id)}</span>${verify ? '<span class="pill verify">VERIFY</span>' : ''}</div><h1${editAttrs(s, 'title')}>${esc(s.title)}</h1>${tags}${picker}${s.bridge ? `<p class="pivot-line"><b>Pivot</b> ${esc(s.bridge)}</p>` : ''}${anchorHTML(s.anchor)}</div><div style="height:12px"></div>${cardBody(body, '', studyOpen(s) ? secStatusHTML(s) : '')}${(layer() || studyOpen(s)) && b ? (/^[qt]-/.test(s.id) && s.competency ? verifyLine(b) : storyContextHTML(s, b)) : ''}`;
 }
 // A story slide backed by the Story Bank.
 function renderBankStory(s) {
@@ -5476,7 +5471,7 @@ function renderBankStory(s) {
   ).join('');
   const uses = CONTENT.filter(
     (x) =>
-      ['question', 'followup'].includes(x.kind) &&
+      x.kind === 'question' &&
       ((x.anchor || []).includes(s.id) ||
         (x.anchor || []).includes(b.id) ||
         x.story === b.id ||
@@ -5568,11 +5563,6 @@ function contextHTML(s) {
     .join('');
   return `<details class="context"><summary>${esc(DECK.gateSummary || 'Why this answer matters')}${s.verify ? ' · verification note' : ''}</summary><div style="padding:6px 20px 2px">${rubricHTML(s)}</div><div class="context-grid"><div><b>Why they’re asking</b><p>${esc(s.why)}</p></div>${s.bridge ? `<div><b>Bridge</b><p>${esc(s.bridge)}</p></div>` : ''}${s.avoid ? `<div><b>Avoid</b><p>${esc(s.avoid)}</p></div>` : ''}${s.lens ? `<div><b>${esc(DECK.lensLabel || 'Lens')}</b><p>${esc(s.lens)}</p></div>` : ''}${s.source ? `<div><b>Source</b><p>${esc(s.source)}</p></div>` : ''}${s.when ? `<div><b>Use when</b><p>${esc(s.when)}</p></div>` : ''}${s.note ? `<div><b>Confirmed detail</b><p>${esc(s.note)}</p></div>` : ''}${s.verify ? `<div><b>Verify</b><p>${esc(s.verify)}</p></div>` : ''}${extra}</div></details>`;
 }
-function chainHTML(s) {
-  const parent = s.parent || s.id;
-  const chain = CONTENT.filter((x) => x.chain === parent);
-  return `<div class="chain-links"><span class="chain-label">ANSWER CHAIN</span>${chain.map((x, i) => `<button data-go="${x.id}" class="${x.id === s.id ? 'active' : ''}">${i === 0 ? 'Main answer' : 'Follow-up ' + i}</button>`).join('')}</div>`;
-}
 function renderQuestion(s) {
   if (s.story || s.stories) return renderStoryAnswer(s);
   const sec = sectionMap.get(s.section) || {};
@@ -5599,14 +5589,11 @@ function renderQuestion(s) {
   // A question with no answer yet (the candidate writes it in Study) reveals nothing to check against.
   else if (!String(s.script || '').trim()) body = '<div class="empty-message">No answer yet.</div>';
   else body = '<div class="script"' + editAttrs(s, 'script', true) + '>' + textHTML(s.script) + '</div>';
-  const eyebrow =
-    s.kind === 'followup'
-      ? sec.followupLabel || 'Follow-up ' + (s.followupNumber || '')
-      : sec.questionLabel || 'Interview question';
+  const eyebrow = sec.questionLabel || 'Interview question';
   const beatBadges = (s.strategic || []).length
     ? `<div class="rubric-row">${(s.strategic || []).map((b) => `<span class="rubric-beat">${esc(b)}</span>`).join('')}</div>`
     : '';
-  return `<div class="question-head"><div class="question-meta"><span class="eyebrow">${esc(eyebrow)} / ${esc(s.id)}</span>${originTag(s)}${sec.role === 'ask' && s.kind === 'question' && !MASTER ? `<button class="pill ask-pill${state.asked.has(s.id) ? ' on' : ''}" data-asked="${s.id}">${state.asked.has(s.id) ? '✓ Asked' : 'Mark Asked'}</button>` : ''}${s.verify ? '<span class="pill verify">VERIFY</span>' : ''}</div><h1${editAttrs(s, 'title')}>${esc(s.title)}</h1>${beatBadges}${anchorHTML(s.anchor)}</div><div style="height:12px"></div>${cardBody(body, !askMaster && layer() && !studyOpen(s) && mode() === 2 ? 'Recall Cues' : '', askMaster ? `<span class="sec-status"></span>${lockHTML(s)}` : core.length ? `<span class="sec-status">Your Core answer.</span>${studyOpen(s) ? '<button class="quiet" data-fork-core>Write One for This Interview</button>' : ''}<a class="jd-link" href="${esc(coreLink(s.core))}" target="_blank" rel="noopener">Edit in Core ↗</a>` : studyOpen(s) ? secStatusHTML(s) : '')}${askMaster || layer() || studyOpen(s) ? contextHTML(s) : ''}${chainHTML(s)}`;
+  return `<div class="question-head"><div class="question-meta"><span class="eyebrow">${esc(eyebrow)} / ${esc(s.id)}</span>${originTag(s)}${sec.role === 'ask' && s.kind === 'question' && !MASTER ? `<button class="pill ask-pill${state.asked.has(s.id) ? ' on' : ''}" data-asked="${s.id}">${state.asked.has(s.id) ? '✓ Asked' : 'Mark Asked'}</button>` : ''}${s.verify ? '<span class="pill verify">VERIFY</span>' : ''}</div><h1${editAttrs(s, 'title')}>${esc(s.title)}</h1>${beatBadges}${anchorHTML(s.anchor)}</div><div style="height:12px"></div>${cardBody(body, !askMaster && layer() && !studyOpen(s) && mode() === 2 ? 'Recall Cues' : '', askMaster ? `<span class="sec-status"></span>${lockHTML(s)}` : core.length ? `<span class="sec-status">Your Core answer.</span>${studyOpen(s) ? '<button class="quiet" data-fork-core>Write One for This Interview</button>' : ''}<a class="jd-link" href="${esc(coreLink(s.core))}" target="_blank" rel="noopener">Edit in Core ↗</a>` : studyOpen(s) ? secStatusHTML(s) : '')}${askMaster || layer() || studyOpen(s) ? contextHTML(s) : ''}`;
 }
 function renderShortlist(s) {
   return `<section class="top10-intro">${s.eyebrow ? `<div class="eyebrow">${esc(s.eyebrow)}</div>` : ''}<h1 style="margin-top:16px">${esc(s.title)}</h1>${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ''}${s.pacing ? `<div class="pill">${esc(s.pacing)}</div>` : ''}</section><ol class="top10-list">${s.questions.map((q, i) => `<li class="top10-card"><div class="eyebrow">${esc(q.topic)}</div><h2${editAttrs(s, 'questions.' + i + '.title')}>${esc(q.title)}</h2></li>`).join('')}</ol>`;
@@ -5616,7 +5603,7 @@ function renderReadiness(s) {
   const head = `<section class="section-page cards-page"><div class="eyebrow">Before your next interview</div><h1>${esc(s.title)}</h1>${s.subtitle ? `<p>${esc(s.subtitle)}</p>` : ''}</section>`;
   if (!BANK) return head + '<p class="muted">Loading the Story Bank…</p>';
   // What's left in the master set: questions with no answer yet, and answers not locked in.
-  const practice = CONTENT.filter((x) => ['question', 'followup'].includes(x.kind));
+  const practice = CONTENT.filter((x) => x.kind === 'question');
   const written = (q) => {
     if (String(ANSWERS.get(q.id) || q.script || '').trim()) return true;
     try {
@@ -5714,7 +5701,6 @@ const CO_COLORS = [
 ];
 function renderResumeCards(s) {
   const all = CONTENT.filter((x) => x.section === s.section && x.kind === 'question');
-  const fups = (id) => CONTENT.filter((x) => x.kind === 'followup' && x.chain === id).length;
   const shownComps = new Set(
     BANK.competencies.filter((c) => (s.groups || BANK.groups.map((g) => g.id)).includes(c.group_id)).map((c) => c.id),
   );
@@ -5745,7 +5731,7 @@ function renderResumeCards(s) {
   const legend = `<div class="co-legend">${cos.map((c, k) => (here.has(c) ? `<span><i style="background:${CO_COLORS[k % CO_COLORS.length]}"></i>${esc(c)}</span>` : '')).join('')}<span><i class="ghost"></i>Not on your resume</span></div>`;
   const opening = all.filter((q) => !q.competency);
   const ocards = opening.length
-    ? `<h2 class="role-head">Opening</h2><div class="comp-grid">${opening.map((q) => `<button class="resume-card q-card ${state.flags.has(q.id) ? 'flagged' : ''}" data-go="${q.id}"><span class="rc-top"><span></span><span class="rc-status">${q.target ? clock(q.target * 1000) : ''}</span></span><b>${lockMark(q)}${esc(q.title)}</b>${previewHTML(q)}<span class="rc-foot">${fups(q.id) ? `<span class="rc-status">${fups(q.id)} follow-up${fups(q.id) > 1 ? 's' : ''}</span>` : ''}</span></button>`).join('')}</div>`
+    ? `<h2 class="role-head">Opening</h2><div class="comp-grid">${opening.map((q) => `<button class="resume-card q-card ${state.flags.has(q.id) ? 'flagged' : ''}" data-go="${q.id}"><span class="rc-top"><span></span><span class="rc-status">${q.target ? clock(q.target * 1000) : ''}</span></span><b>${lockMark(q)}${esc(q.title)}</b>${previewHTML(q)}<span class="rc-foot"></span></button>`).join('')}</div>`
     : '';
   const gids = s.groups || BANK.groups.map((g) => g.id),
     BEH = DECK.bank.behavioralGroups || ['executive'];
@@ -5885,8 +5871,7 @@ function renderThemeCards(s, qs) {
 function renderQuestionCards(s) {
   const qs = CONTENT.filter((x) => x.section === s.section && x.kind === 'question');
   if (sectionMap.get(s.section)?.role === 'ask' && qs.some((q) => q.theme)) return renderThemeCards(s, qs);
-  const n = (id) => CONTENT.filter((x) => x.kind === 'followup' && x.chain === id).length;
-  return `<section class="section-page cards-page"><div class="eyebrow">${qs.length} questions</div><h1>${esc(s.title)}</h1>${s.subtitle ? `<p>${esc(s.subtitle)}</p>` : ''}</section><div class="comp-grid">${qs.map((q) => `<button class="resume-card q-card ${state.flags.has(q.id) ? 'flagged' : ''}" data-go="${q.id}"><span class="rc-top">${originTag(q) || '<span></span>'}<span class="rc-status">${q.target ? clock(q.target * 1000) : ''}</span></span><b>${lockMark(q)}${esc(q.title)}</b>${previewHTML(q)}${q.when ? `<span class="rc-when">Use when: ${esc(q.when)}</span>` : ''}<span class="rc-foot">${q.verify ? '<span class="rc-verify">Verify</span>' : ''}${n(q.id) ? `<span class="rc-status">${n(q.id)} follow-up${n(q.id) > 1 ? 's' : ''}</span>` : ''}</span></button>`).join('')}</div>`;
+  return `<section class="section-page cards-page"><div class="eyebrow">${qs.length} questions</div><h1>${esc(s.title)}</h1>${s.subtitle ? `<p>${esc(s.subtitle)}</p>` : ''}</section><div class="comp-grid">${qs.map((q) => `<button class="resume-card q-card ${state.flags.has(q.id) ? 'flagged' : ''}" data-go="${q.id}"><span class="rc-top">${originTag(q) || '<span></span>'}<span class="rc-status">${q.target ? clock(q.target * 1000) : ''}</span></span><b>${lockMark(q)}${esc(q.title)}</b>${previewHTML(q)}${q.when ? `<span class="rc-when">Use when: ${esc(q.when)}</span>` : ''}<span class="rc-foot">${q.verify ? '<span class="rc-verify">Verify</span>' : ''}</span></button>`).join('')}</div>`;
 }
 function renderSection(s) {
   if (s.cards) return renderQuestionCards(s);
@@ -5953,7 +5938,7 @@ function render() {
     tab.setAttribute('aria-pressed', String(!!sl && s.id === sl.id));
   }
   // A section page's own heading names the section, and the recall mode only matters on a question in Test.
-  const onQuestion = ['question', 'followup', 'story'].includes(s.kind);
+  const onQuestion = ['question', 'story'].includes(s.kind);
   $('#section-label').textContent = onQuestion ? compLabel(s) || sec.title : '';
   $('#counter').textContent = String(i + 1).padStart(2, '0') + ' / ' + ids.length;
   $('#mode-label').hidden = !onQuestion || studying();
@@ -5994,7 +5979,6 @@ function render() {
     cover: renderCover,
     section: renderSection,
     question: renderQuestion,
-    followup: renderQuestion,
     hub: renderHub,
     story: renderStory,
     visual: renderVisual,
@@ -6039,7 +6023,7 @@ function render() {
           : 'Reveal'
       : 'Continue') + ' <kbd>Space</kbd>';
   {
-    const practice = ['question', 'followup', 'story'].includes(s.kind);
+    const practice = ['question', 'story'].includes(s.kind);
     document.querySelector('.footer .tools').hidden = !practice;
     $('#timer').hidden = !practice || studying();
   }
@@ -6061,9 +6045,9 @@ function render() {
 }
 function maxLayer(s) {
   if (studyOpen(s)) return 0;
-  if (['question', 'followup'].includes(s.kind) && (s.story || s.stories)) return BANK && revealsOwnAnswer(s) ? 1 : 4;
+  if (s.kind === 'question' && (s.story || s.stories)) return BANK && revealsOwnAnswer(s) ? 1 : 4;
   if (s.kind === 'story' && s.bank) return 5;
-  if (['question', 'followup'].includes(s.kind)) return 1;
+  if (s.kind === 'question') return 1;
   if (s.kind === 'story') return (s.stages?.length || 4) + 1;
   if (s.kind === 'visual') return s.labels.length;
   return 0;
@@ -6687,7 +6671,7 @@ function addBankSlides() {
       y.competency || (y.kind === 'story' && y.bank ? resumeComp(bankStory(y.bank) || {})?.id : null);
     const next = new Map();
     for (const x of own) {
-      const comp = x.competency || (x.parent && own.find((o) => o.id === x.parent)?.competency) || null;
+      const comp = x.competency || null;
       const key = x.section + '|' + (comp || '');
       let at = next.get(key);
       if (at == null) {

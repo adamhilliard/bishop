@@ -1,0 +1,373 @@
+{
+  "_about": "Humblebrag's behavioral question bank, reviewed and approved 2026-10-12. Three layers: universal (everyone), people (managers and up), business (senior leaders). Each competency's first question is the one a light or medium deck uses; heavy uses all. tone: positive asks about a success, negative about a failure or a hard moment. Use the wording as written.",
+  "layers": [
+    {
+      "id": "universal",
+      "title": "Universal",
+      "who": "Everyone"
+    },
+    {
+      "id": "people",
+      "title": "Leading people",
+      "who": "Managers and up"
+    },
+    {
+      "id": "business",
+      "title": "Leading the business",
+      "who": "Senior leaders"
+    }
+  ],
+  "competencies": [
+    {
+      "id": "work-ethic",
+      "layer": "universal",
+      "light": true,
+      "title": "Work Ethic and Ownership",
+      "tests": "You do what you said, and own what's yours.",
+      "questions": [
+        {
+          "text": "Tell me about a time you failed to meet a deadline.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a time you went beyond what your role required to get something done.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a problem you took on that nobody else was handling.",
+          "tone": "positive"
+        }
+      ]
+    },
+    {
+      "id": "collaboration",
+      "layer": "universal",
+      "light": true,
+      "title": "Collaboration",
+      "tests": "You make the people around you more effective.",
+      "questions": [
+        {
+          "text": "Tell me about a time you helped a teammate succeed.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a time you worked with someone you found difficult.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a time you put a personal interest aside to help a group.",
+          "tone": "positive"
+        }
+      ]
+    },
+    {
+      "id": "communication",
+      "layer": "universal",
+      "light": false,
+      "title": "Communication",
+      "tests": "People understand you, and you understand them.",
+      "questions": [
+        {
+          "text": "Tell me about a time a miscommunication caused a problem.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a time you explained something complex to someone without your background.",
+          "tone": "positive"
+        }
+      ]
+    },
+    {
+      "id": "problem-solving",
+      "layer": "universal",
+      "light": false,
+      "title": "Problem Solving",
+      "tests": "You work out what's actually wrong, then fix it.",
+      "questions": [
+        {
+          "text": "Tell me about a problem you solved that others had given up on.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a time your first solution didn't work.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "decision-making",
+      "layer": "universal",
+      "light": true,
+      "title": "Decision Making and Judgment",
+      "tests": "You make good calls, including under uncertainty.",
+      "questions": [
+        {
+          "text": "Tell me about a decision you made with incomplete information.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a decision you got wrong.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a time you decided not to act.",
+          "tone": "positive"
+        }
+      ]
+    },
+    {
+      "id": "adaptability",
+      "layer": "universal",
+      "light": false,
+      "title": "Adaptability",
+      "tests": "You keep delivering when the plan changes.",
+      "questions": [
+        {
+          "text": "Tell me about a time your priorities changed overnight.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a change you resisted at first.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "conflict",
+      "layer": "universal",
+      "light": true,
+      "title": "Conflict",
+      "tests": "You can disagree and keep the working relationship.",
+      "questions": [
+        {
+          "text": "Tell me about a disagreement with your manager.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a time you resolved a conflict between other people.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a conflict you didn't handle well.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "learning",
+      "layer": "universal",
+      "light": true,
+      "title": "Learning from Failure and Feedback",
+      "tests": "You get better because of what goes wrong.",
+      "questions": [
+        {
+          "text": "Tell me about your biggest professional failure.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about feedback that was hard to hear.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about something you taught yourself to do your job better.",
+          "tone": "positive"
+        }
+      ]
+    },
+    {
+      "id": "results",
+      "layer": "universal",
+      "light": true,
+      "title": "Prioritization and Results",
+      "tests": "The important things get done.",
+      "questions": [
+        {
+          "text": "Tell me about a time you delivered under real pressure.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a time you had too much on your plate and something slipped.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "integrity",
+      "layer": "universal",
+      "light": false,
+      "title": "Integrity",
+      "tests": "You do the right thing when it costs you something.",
+      "questions": [
+        {
+          "text": "Tell me about a time you were asked to do something you thought was wrong.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a time you delivered news nobody wanted to hear.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a mistake you made that nobody else noticed. What did you do?",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "developing-others",
+      "layer": "people",
+      "light": true,
+      "title": "Developing Others",
+      "tests": "People grow under you.",
+      "questions": [
+        {
+          "text": "Tell me about someone you developed who went on to bigger things.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about someone you couldn't help improve.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "hiring",
+      "layer": "people",
+      "light": false,
+      "title": "Hiring",
+      "tests": "You pick people well.",
+      "questions": [
+        {
+          "text": "Tell me about your best hire, and how you knew they were the right fit.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a hire that didn't work out.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "hard-people-decisions",
+      "layer": "people",
+      "light": false,
+      "title": "Hard People Decisions",
+      "tests": "You act on performance, and do it humanely.",
+      "questions": [
+        {
+          "text": "Tell me about a time you had to let someone go.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a time tough feedback turned someone's performance around.",
+          "tone": "positive"
+        }
+      ]
+    },
+    {
+      "id": "building-a-team",
+      "layer": "people",
+      "light": false,
+      "title": "Building a Team",
+      "tests": "You shape a team that works.",
+      "questions": [
+        {
+          "text": "Tell me about a team you built or rebuilt.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a time your team missed a goal.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "humility",
+      "layer": "people",
+      "light": true,
+      "title": "Humility",
+      "tests": "You can be wrong in front of the people you lead.",
+      "questions": [
+        {
+          "text": "Tell me about a time someone on your team was right and you were wrong.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a time you changed your mind because of someone who reported to you.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a leadership habit you've had to unlearn.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "influence",
+      "layer": "business",
+      "light": true,
+      "title": "Influence without Authority",
+      "tests": "You move decisions you don't own.",
+      "questions": [
+        {
+          "text": "Tell me about a time you changed a decision that wasn't yours to make.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a time you couldn't win people over.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "strategy",
+      "layer": "business",
+      "light": false,
+      "title": "Strategy",
+      "tests": "You set direction and see whether it worked.",
+      "questions": [
+        {
+          "text": "Tell me about a strategic bet that didn't pay off.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a strategy you set and how it played out.",
+          "tone": "positive"
+        }
+      ]
+    },
+    {
+      "id": "leading-change",
+      "layer": "business",
+      "light": false,
+      "title": "Leading Change",
+      "tests": "You take people through change that sticks.",
+      "questions": [
+        {
+          "text": "Tell me about the biggest change you've led.",
+          "tone": "positive"
+        },
+        {
+          "text": "Tell me about a change effort that stalled.",
+          "tone": "negative"
+        }
+      ]
+    },
+    {
+      "id": "executives",
+      "layer": "business",
+      "light": true,
+      "title": "Working with Executives",
+      "tests": "You earn trust at the top, and push back when it matters.",
+      "questions": [
+        {
+          "text": "Tell me about a time you disagreed with an executive and lost.",
+          "tone": "negative"
+        },
+        {
+          "text": "Tell me about a time you pushed back on a senior leader and it changed the outcome.",
+          "tone": "positive"
+        }
+      ]
+    }
+  ]
+}

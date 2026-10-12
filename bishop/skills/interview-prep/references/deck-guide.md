@@ -74,7 +74,17 @@ Give each question a `target` in seconds, so the timer tells the candidate when 
 
 ### What to produce
 
-A full loop (45 to 60 minutes with a hiring manager or panel): 20 to 30 questions, most with 2 or 3 follow-ups, the priority hub, and evidence notes. A recruiter screen or 30-minute round: 10 to 14 questions.
+Size it to the candidate's rigor (`"rigor"` in the master deck's settings), then to the round:
+
+| Rigor | Questions | Follow-ups |
+|---|---|---|
+| Light | About 10 | None |
+| Medium | About 20 | 1 on the questions most likely to be pressed |
+| Heavy | About 30 | 2 or 3 on most questions |
+
+A recruiter screen or 30-minute round takes the lower end; a full loop with a hiring manager or panel the higher. Linked questions count toward the total, so a priority the master deck already covers costs nothing extra to practice.
+
+**Resume follow-ups belong here, not in the master deck.** Pick the resume bullets this role makes relevant, link each to its master question (`core`), and add follow-ups from the table in `SKILL.md` ("I see you did this"), worded the way this interviewer would press.
 
 ### Writing the files
 

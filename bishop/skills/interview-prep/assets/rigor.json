@@ -1,0 +1,47 @@
+{
+  "_about": "How many questions a master deck asks at each rigor. The candidate picks one before the first build. Raising it adds questions; lowering it hides only unanswered ones. An answered question is never removed. Totals run about 15 / 16 / 17 (light), 31 / 36 / 40 (medium) and 51 / 61 / 69 (heavy) for an individual contributor / manager / executive.",
+  "default": "medium",
+  "levels": [
+    {
+      "id": "light",
+      "title": "Light",
+      "pitch": "The questions nearly every interview asks. About 15, for a quick tune-up or a first screen.",
+      "opening": 2,
+      "behavioral": { "universal": "light", "perCompetency": 1, "perLeadershipLayer": 1 },
+      "resume": { "roles": 1, "bulletsPerRole": 2 },
+      "technical": 1,
+      "tough": 2,
+      "ask": 2
+    },
+    {
+      "id": "medium",
+      "title": "Medium",
+      "pitch": "A full prep for most interviews. About 30 to 40 questions.",
+      "opening": 4,
+      "behavioral": { "universal": "all", "perCompetency": 1, "perLeadershipLayer": "all" },
+      "resume": { "roles": 2, "bulletsPerRole": 3 },
+      "technical": 3,
+      "tough": 3,
+      "ask": 5
+    },
+    {
+      "id": "heavy",
+      "title": "Heavy",
+      "pitch": "Everything, for a final round or a big career move. About 50 to 70 questions.",
+      "opening": 6,
+      "behavioral": { "universal": "all", "perCompetency": 2, "perLeadershipLayer": "all" },
+      "resume": { "roles": 3, "bulletsPerRole": 3 },
+      "technical": 5,
+      "tough": 4,
+      "ask": 7
+    }
+  ],
+  "_fields": {
+    "opening": "In order: tell me about yourself, why are you looking, what are you looking for, what are you doing now, your first 90 days, then one their history invites (why they left, a gap, a career change).",
+    "behavioral.universal": "light: the six universal competencies marked light in behavioral.json; all: all ten.",
+    "behavioral.perCompetency": "How many of each competency's questions, in the bank's order (the first is the one lighter decks use).",
+    "behavioral.perLeadershipLayer": "For the layers the candidate qualifies for (people: manages people; business: senior or executive band). 1: the first light-marked competency in the layer, its first question. all: every competency in the layer, at perCompetency questions each.",
+    "resume": "roles: how many of the most recent roles get bullet questions. bulletsPerRole: how many bullets each, the ones with a number first. The master deck has no resume follow-ups; an interview deck adds them.",
+    "ask": "Questions to ask, spread across the themes, one per theme before any theme gets a second."
+  }
+}

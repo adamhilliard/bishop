@@ -14,7 +14,7 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 | `chain` | yes | The question's own id |
 | `why` | yes | What the interviewer is trying to learn, and for a custom question what makes it likely. Context, never a hint at the answer |
 | `target` | yes | Seconds to answer, for the practice timer. `0` turns it off |
-| `core` | | Interview decks: the master question this one asks the same thing as. Shows the candidate's master answer until they write a version for this interview |
+| `core` | | Interview decks: the master question this one asks the same thing as, by its slide id in the master deck (`QR2`). Shows the candidate's master answer until they write a version for this interview |
 | `origin` | in `hard` and `ask` sections | `standard`, `jd`, `recruiter`, `research` or `risk`. Shown as a tag on the card |
 | `source` | unless `standard` | The posting line, recruiter's words, finding (with its date) or resume fact behind it |
 | `theme` | in `ask` sections | A theme id (`assets/defaults.json`, or `META.deck.askThemes`) |
@@ -51,9 +51,11 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 {"kind": "readiness", "id": "cover", "section": "I", "title": "Your master deck"}
 ```
 
-**cover**: an interview deck's first slide; its text comes from `META.deck.cover`.
+**cover**: an interview deck's first slide (id `cover`, section `I`); its text comes from `META.deck.cover` (below), so the slide itself needs only a title.
 
-**hub**: `priorities: [{id, title, quote, detail, answers: [slide ids]}]`. The quote is the hiring team's own words; leave it out rather than paraphrasing into quotation marks.
+**hub**: the priority page, right after the cover in section `I`. `priorities: [{id, title, quote, detail, answers: [slide ids]}]`. The quote is the hiring team's own words (relayed words are fine, attributed in `detail`: "Priya, via the recruiter"); leave it out rather than paraphrasing into quotation marks.
+
+> **Priorities are written twice, for two jobs.** The hub's list is what the candidate sees: the quote, the evidence, and the questions that answer each one. `META.priorities` is the map the builder checks against: ids, titles, and `partial`. Same ids and titles in both.
 
 **visual**: a drill revealed one step at a time. `labels` and `details` (same length), `note`, `mode` (`"map"` for a hub-and-spoke, anything else for steps).
 
@@ -94,7 +96,8 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 
 - **`deck.slug`** is required and matches the deck's folder name. The master deck is `core`, with `"master": true` and `"evergreen": true`.
 - **`deck.interview.date`** is `YYYY-MM-DD`; the builder puts the round, date and time first in the sidebar.
+- **`deck.cover`**: `eyebrow` (company / function), `title` (the role), `titleAccent` (optional, a second line in the accent color), `description` (lines under the title: the round, who, when), `actions` (buttons: `{label, go: slide id, primary}`), `stats` (optional figures: `[{value, label}]`, such as `{"value": "7", "label": "Priorities"}`), and `risk` (`{title, body}`: the top risk, which the builder expects whenever there's a risk list). Leave out `guides`: it holds how-to tips, and the deck explains itself.
 - **`deck.theme.accent`** is the company's own brand color, read from their site, never guessed. The master deck keeps a neutral one.
-- **`deck.jd`** links the posting in the header; with none, `{"none": "No posting · referral"}`.
+- **`deck.jd`** links the posting in the header (a URL, or the saved posting's path relative to `Interview_Prep/`, such as `../Postings/Acme_Director.md`); with none, `{"none": "No posting · referral"}`.
 - **`sections[].role`**: `"hard"` (Tough Questions) or `"ask"` (Questions to Ask) turns on the origin, source and theme checks.
 - **`priorities[].partial`** marks a priority the candidate can only partly speak to. **`risks[].answers`** lists the slides that cover it, at least one in a `hard` section.

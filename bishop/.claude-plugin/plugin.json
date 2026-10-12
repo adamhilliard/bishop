@@ -1,7 +1,7 @@
 {
   "name": "bishop",
-  "description": "Bishop builds and runs a recurring job search on Claude Code. A setup interview writes your profile and scoring rubric; a scheduled task then sources, verifies, scores, and ranks roles into a tracking file and hands you a digest. Includes an optional private web dashboard. You name your own copy during setup.",
-  "version": "1.8.2",
+  "description": "Bishop runs your job search and preps you for the interviews it lands. A setup interview writes your profile and scoring rubric; a scheduled task then sources, verifies, scores, and ranks roles into a digest. Humblebrag, its interview prep, builds study decks you drill out loud: a master deck of the questions every interview asks, answered once in your own words, and a tailored deck for each interview. Includes an optional private web dashboard. You name your own copy during setup.",
+  "version": "1.9.0",
   "author": {
     "name": "Adam Hilliard"
   }

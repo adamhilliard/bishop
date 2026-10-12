@@ -15,8 +15,13 @@ bishop/                              the plugin
     │   ├── SKILL.md
     │   ├── references/              interview, scaffolding, techniques, quality audit, feedback loop
     │   └── scripts/                 sweep, audit, and capture tooling
-    └── dashboard/                   /bishop:dashboard
-        └── SKILL.md
+    ├── dashboard/                   /bishop:dashboard
+    │   └── SKILL.md
+    └── interview-prep/              /bishop:interview-prep (Humblebrag)
+        ├── SKILL.md
+        ├── references/              deck guide, deck schema, the answers file
+        ├── scripts/build_deck.py    fills the template with a deck's data
+        └── assets/                  template.html and defaults.json: generated, never edited here
 build_package.py                     builds the handoff zip
 ```
 
@@ -30,7 +35,7 @@ build_package.py                     builds the handoff zip
 
 **`python build_package.py` still builds `bishop.zip`**, which stays useful for two things: attaching to a GitHub Release for people not installing from a marketplace, and `claude --plugin-dir bishop.zip` for a one-session trial. The zip is not committed; it's a release asset.
 
-> **Verify before announcing.** `claude plugin validate ./bishop`, then load the plugin and confirm both skills come up as `/bishop:job-search` and `/bishop:dashboard`.
+> **Verify before announcing.** `claude plugin validate ./bishop`, then load the plugin and confirm all three skills come up as `/bishop:job-search`, `/bishop:dashboard` and `/bishop:interview-prep`.
 >
 > **`validate` only reads `plugin.json`.** It checks the manifest and never opens a skill file, so a plugin with broken skill frontmatter validates clean, installs clean, lists clean, and then does nothing when someone asks it for a job search. That shipped once already (`af31`, "fix the job-search skill's frontmatter, which failed to parse"). **Only loading it actually proves it loads.**
 
@@ -91,6 +96,12 @@ Extracted from a live executive job search that has been running daily since Jul
 Deliberately not watermarked: the reference files, because Claude loads them into context every cycle and a credit line there is noise inside search instructions; and the digest, because it's someone's private job search and a recurring credit reads as an ad.
 
 ## Release history
+
+### 1.9.0
+
+**Humblebrag joins as Bishop's interview prep (`/bishop:interview-prep`), and the plugin's name on the Plugins screen becomes plain "Bishop."** A new skill earns the minor. It builds a master deck of the questions every interview asks, which the candidate answers once in their own words, and a tailored study deck per interview whose generic questions show those master answers. Each deck is one self-contained HTML file; answers save in the browser and travel as an exported `Master_Answers.json`.
+
+> **`assets/` is generated.** `template.html` and `defaults.json` come from Humblebrag's source (`export_bishop.mjs`), the same engine the maintainer's own decks run on, and `build_deck.py` only fills the template's data slots. Fix the engine there and export again; never hand-edit the template. Before 1.9.0 its output was checked byte for byte against Humblebrag's own builder on a sample deck.
 
 ### 1.8.0
 

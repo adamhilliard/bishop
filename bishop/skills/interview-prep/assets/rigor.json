@@ -40,8 +40,8 @@
     "opening": "In order: tell me about yourself, why are you looking, what are you looking for, what are you doing now, your first 90 days, then one their history invites (why they left, a gap, a career change).",
     "behavioral.universal": "light: the six universal competencies marked light in behavioral.json; all: all ten.",
     "behavioral.perCompetency": "How many of each competency's questions, in the bank's order (the first is the one lighter decks use).",
-    "behavioral.perLeadershipLayer": "For the layers the candidate qualifies for (people: manages people; business: senior or executive band). 1: the first light-marked competency in the layer, its first question. all: every competency in the layer, at perCompetency questions each.",
-    "resume": "roles: how many of the most recent roles get bullet questions. bulletsPerRole: how many bullets each, the ones with a number first.",
+    "behavioral.perLeadershipLayer": "For the layers the candidate qualifies for for the level they are interviewing for, the higher of their current rung and their target roles (people: any manager rung; business: Bishop's Senior / exec band, i.e. functional or technical lead, director, executive). 1: the first light-marked competency in the layer, its first question. all: every competency in the layer, at perCompetency questions each.",
+    "resume": "roles: how many of the most recent employers (titles at one employer count as one role) get bullet questions. bulletsPerRole: how many bullets each, the ones with a number first.",
     "ask": "Questions to ask, spread across the themes, one per theme before any theme gets a second."
   }
 }

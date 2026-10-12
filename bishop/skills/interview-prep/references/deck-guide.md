@@ -10,6 +10,7 @@ Ask for everything in one round. Don't interview the candidate about their work 
 
 **Already in their Bishop folder (read first)**
 - `Reference_Profile.md`: career level, current role, full history, target roles, compensation.
+- Their resume, saved in `Interview_Prep/` when the master deck was built. Bishop's setup doesn't keep it; if it isn't there, ask for it as SKILL.md says.
 - The tracking file's entry for this role: the posting link, what the search found, and why it scored.
 - `Interview_Prep/core/`: the master questions this deck can link to.
 

@@ -91,7 +91,7 @@ rule in Decisions_Log.md. Live results live in the tracking file(s).
 ###                            to light silently (not asked). Country comes from A. You;
 ###                            integrations from Everything G
 ### Built With              -> one line, verbatim (see below)
-### Career Level            -> A. You (band + table cap + research-depth rule)
+### Career Level            -> A. You (rung + band + table cap + research-depth rule)
 ### Current Role            -> A. You
 ### Full Career History     -> A. You (table: period | role | company | highlights)
 ### Key Positioning Point   -> left empty at setup; filled from the first real

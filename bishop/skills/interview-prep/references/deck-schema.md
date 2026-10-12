@@ -10,40 +10,38 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 
 | Field | Required | Notes |
 |---|---|---|
-| `title` | yes | The question, as it would be asked |
+| `title` | yes | The question, worded the way this interviewer would ask it |
 | `chain` | yes | The question's own id, or its parent's for a follow-up. Keeps follow-ups with their question when a section shuffles |
-| `why` | yes | Why they're asking. Shows in the "why" panel (can be `""` in the master deck) |
-| `target` | yes | Seconds to answer. `0` turns the timer off |
-| `script` | yes, unless `core` or the master deck | The spoken answer. `\n\n` between paragraphs |
-| `core` | | Interview decks: the master question this one asks the same thing as. Until the candidate writes a version for this deck, it shows their master answer, then `landing` |
-| `landing` | with `core` | One line said after the master answer that ties it to this company |
-| `beats` | recommended with a script | 4 to 6 recall cues, fragments, not sentences |
+| `why` | yes | What the interviewer is trying to learn, and for a custom question what makes it likely. Context, never a hint at the answer |
+| `target` | yes | Seconds to answer, for the practice timer. `0` turns it off |
+| `core` | | Interview decks: the master question this one asks the same thing as. Shows the candidate's master answer until they write a version for this interview |
 | `origin` | in `hard` and `ask` sections | `standard`, `jd`, `recruiter`, `research` or `risk`. Shown as a tag on the card |
 | `source` | unless `standard` | The posting line, recruiter's words, finding (with its date) or resume fact behind it |
 | `theme` | in `ask` sections | A theme id (`assets/defaults.json`, or `META.deck.askThemes`) |
 | `parent`, `followupNumber` | follow-ups | The parent question's id; 1, 2, 3 |
-| `bridge` | | One line: the point the answer has to land |
-| `avoid` | | The specific way this answer goes wrong |
-| `note` | | A confirmed detail worth holding |
-| `verify` | | An open item. Shows a VERIFY badge until the candidate edits the answer |
-| `gateNote` | | The test of a good answer |
+| `verify` | | A fact the candidate should confirm before the interview. Shows a VERIFY badge |
 | `when` | | Master deck only: when a conditional question applies |
+
+> **Leave the answer fields empty.** `script`, `beats`, `landing`, `bridge`, `avoid` and `gateNote` exist in the engine, but the candidate writes every answer in the deck. Don't fill them.
 
 ```json
 {"kind": "question", "id": "QA1", "section": "A", "chain": "QA1",
  "title": "Walk me through your background.", "target": 90,
- "why": "The opener. Give the arc, then land on why this role.",
- "core": "QA1",
- "landing": "That's why a robotics company building its first service team caught my eye."}
+ "why": "The opener. They want the arc in two minutes, and why it leads here.",
+ "core": "QA1"}
 ```
 
 ```json
 {"kind": "question", "id": "QE1", "section": "E", "chain": "QE1",
  "title": "You haven't worked in robotics. Why you?", "target": 60,
  "origin": "risk", "source": "The posting asks for robotics experience.",
- "why": "The screen-out version of the industry gap.",
- "script": "I haven't, and I've learned three industries fast...",
- "beats": ["Own it in one line", "Three industries, learned fast", "What service always needs"]}
+ "why": "The screen-out version of the industry gap. They want to see you own it."}
+```
+
+```json
+{"kind": "followup", "id": "QE1a", "section": "E", "chain": "QE1", "parent": "QE1", "followupNumber": 1,
+ "title": "What would your first month of learning the product look like?", "target": 40,
+ "why": "Tests whether the answer to the gap is a plan or a promise."}
 ```
 
 **section**: the first slide of every section that holds questions. `"cards": true` shows its questions as a page of cards.
@@ -71,13 +69,12 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
       "sidebar": ["Jordan Lee, Head of Service"],
       "jd": {"href": "https://posting-url", "label": "Job description"},
       "theme": {"accent": "#2f6fde"},
-      "gates": [{"title": "Ownership", "body": "Lead with what you decided or drove."}],
       "cover": {
         "eyebrow": "Acme Robotics / Service",
         "title": "Head of Field Service",
-        "description": ["What this deck is for, in one line."],
+        "description": ["Recruiter screen with Jordan Lee, Head of Service."],
         "actions": [{"label": "Start practicing", "go": "QA1", "primary": true}],
-        "risk": {"title": "Highest-risk answer: QE1", "body": "Own the industry gap before they raise it."}
+        "risk": {"title": "Highest-risk question: QE1", "body": "The posting asks for robotics experience."}
       },
       "hub": {"title": "What this hire needs to solve.", "intro": "Ranked from the posting and the recruiter call."}
     },

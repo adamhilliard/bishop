@@ -5411,6 +5411,15 @@ const fromCore = (s) => {
   const secs = !MASTER && s.core && !hasOwnAnswer(s) ? coreSections(s.core) : [];
   return secs.length && s.landing ? [...secs, { name: 'Landing', text: s.landing }] : secs;
 };
+// A linked question's own version for this interview, started from the Core answer (and its landing
+// line, if the deck has one). From then on it's this deck's answer, edited here.
+document.addEventListener('click', async (e) => {
+  if (!e.target.closest || !e.target.closest('[data-fork-core]')) return;
+  const s = current(),
+    secs = fromCore(s);
+  if (!secs.length) return;
+  if (await saveAnswer(s.id + '--sections', JSON.stringify(secs.map((x) => ({ name: x.name, text: x.text }))))) render();
+});
 function ownAnswerHTML(s, secs = sectionsOf(s)) {
   return secs
     .filter((x) => String(x.text || '').trim())
@@ -5535,7 +5544,7 @@ function cuesFor(s) {
   return s.beats?.length
     ? s.beats
     : [
-        ...s.script
+        ...String(s.script || '')
           .split(/(?<=[.!?])\s+/)
           .filter((x) => x && !x.startsWith('[VERIFY'))
           .slice(0, 4)
@@ -5574,7 +5583,9 @@ function renderQuestion(s) {
   let body;
   if (core.length && (studyOpen(s) || (layer() && mode() !== 2))) body = ownAnswerHTML(s, core);
   else if (askMaster)
-    body = '<div class="script"' + (isLocked(s) ? '' : editAttrs(s, 'script', true)) + '>' + textHTML(s.script) + '</div>';
+    body = s.script
+      ? '<div class="script"' + (isLocked(s) ? '' : editAttrs(s, 'script', true)) + '>' + textHTML(s.script) + '</div>'
+      : '';
   else if (studyOpen(s)) body = sectionsHTML(s);
   else if (!layer())
     body = concealed(
@@ -5585,6 +5596,8 @@ function renderQuestion(s) {
   else if (mode() === 2) body = cueHTML(cuesFor(s));
   // Test reveals your own answer once you've written one; the deck's script until then.
   else if (hasOwnAnswer(s)) body = ownAnswerHTML(s);
+  // A question with no answer yet (the candidate writes it in Study) reveals nothing to check against.
+  else if (!String(s.script || '').trim()) body = '<div class="empty-message">No answer yet.</div>';
   else body = '<div class="script"' + editAttrs(s, 'script', true) + '>' + textHTML(s.script) + '</div>';
   const eyebrow =
     s.kind === 'followup'
@@ -5593,7 +5606,7 @@ function renderQuestion(s) {
   const beatBadges = (s.strategic || []).length
     ? `<div class="rubric-row">${(s.strategic || []).map((b) => `<span class="rubric-beat">${esc(b)}</span>`).join('')}</div>`
     : '';
-  return `<div class="question-head"><div class="question-meta"><span class="eyebrow">${esc(eyebrow)} / ${esc(s.id)}</span>${originTag(s)}${sec.role === 'ask' && s.kind === 'question' && !MASTER ? `<button class="pill ask-pill${state.asked.has(s.id) ? ' on' : ''}" data-asked="${s.id}">${state.asked.has(s.id) ? '✓ Asked' : 'Mark Asked'}</button>` : ''}${s.verify ? '<span class="pill verify">VERIFY</span>' : ''}</div><h1${editAttrs(s, 'title')}>${esc(s.title)}</h1>${beatBadges}${anchorHTML(s.anchor)}</div><div style="height:12px"></div>${cardBody(body, !askMaster && layer() && !studyOpen(s) && mode() === 2 ? 'Recall Cues' : '', askMaster ? `<span class="sec-status"></span>${lockHTML(s)}` : core.length ? `<span class="sec-status">Your Core answer.</span><a class="jd-link" href="${esc(coreLink(s.core))}" target="_blank" rel="noopener">Edit in Core ↗</a>` : studyOpen(s) ? secStatusHTML(s) : '')}${askMaster || layer() || studyOpen(s) ? contextHTML(s) : ''}${chainHTML(s)}`;
+  return `<div class="question-head"><div class="question-meta"><span class="eyebrow">${esc(eyebrow)} / ${esc(s.id)}</span>${originTag(s)}${sec.role === 'ask' && s.kind === 'question' && !MASTER ? `<button class="pill ask-pill${state.asked.has(s.id) ? ' on' : ''}" data-asked="${s.id}">${state.asked.has(s.id) ? '✓ Asked' : 'Mark Asked'}</button>` : ''}${s.verify ? '<span class="pill verify">VERIFY</span>' : ''}</div><h1${editAttrs(s, 'title')}>${esc(s.title)}</h1>${beatBadges}${anchorHTML(s.anchor)}</div><div style="height:12px"></div>${cardBody(body, !askMaster && layer() && !studyOpen(s) && mode() === 2 ? 'Recall Cues' : '', askMaster ? `<span class="sec-status"></span>${lockHTML(s)}` : core.length ? `<span class="sec-status">Your Core answer.</span>${studyOpen(s) ? '<button class="quiet" data-fork-core>Write One for This Interview</button>' : ''}<a class="jd-link" href="${esc(coreLink(s.core))}" target="_blank" rel="noopener">Edit in Core ↗</a>` : studyOpen(s) ? secStatusHTML(s) : '')}${askMaster || layer() || studyOpen(s) ? contextHTML(s) : ''}${chainHTML(s)}`;
 }
 function renderShortlist(s) {
   return `<section class="top10-intro">${s.eyebrow ? `<div class="eyebrow">${esc(s.eyebrow)}</div>` : ''}<h1 style="margin-top:16px">${esc(s.title)}</h1>${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ''}${s.pacing ? `<div class="pill">${esc(s.pacing)}</div>` : ''}</section><ol class="top10-list">${s.questions.map((q, i) => `<li class="top10-card"><div class="eyebrow">${esc(q.topic)}</div><h2${editAttrs(s, 'questions.' + i + '.title')}>${esc(q.title)}</h2><div class="response-label">Likely follow-ups</div><ul>${q.followups.map((f, j) => `<li${editAttrs(s, 'questions.' + i + '.followups.' + j)}>${esc(f)}</li>`).join('')}</ul></li>`).join('')}</ol>`;
@@ -6783,6 +6796,8 @@ loadProgress();
 {
   const h = slideFromHash();
   if (h && byId.has(h)) state.id = h;
+  // A deck with no cover slide (or a saved place that's gone) starts on its first slide.
+  if (!byId.has(state.id)) state.id = CONTENT[0].id;
 }
 render();
 updateEditUI();

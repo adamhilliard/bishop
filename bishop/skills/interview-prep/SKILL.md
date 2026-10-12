@@ -35,14 +35,58 @@ Build a deck with `python scripts/build_deck.py Interview_Prep/<deck> --master I
 
 ## Job 1: build the master deck (once)
 
-**Read first:** `Reference_Profile.md` (career level, current role, full history, target roles) and the resume it came from. They decide *which* questions to ask, never what the answers are.
+**Read first:** `Reference_Profile.md` (career level, current role, full history, target roles) and **the resume itself**, so a resume question can quote the bullet exactly as the interviewer will read it. They decide *which* questions to ask, never what the answers are.
 
-1. **Opening (section A):** tell me about yourself, why are you looking, what are you doing now, what are you looking for, what would you do in your first 90 days. Add the ones their history invites: why they left a recent role, a gap, a career change.
-2. **Behavioral (section C):** 8 to 12 "tell me about a time" questions covering what their target roles are judged on, calibrated to their career level: teamwork and conflict for anyone; leading people and decisions for managers; strategy, executives, and change for senior leaders.
-3. **Tough Questions (section E, `role: "hard"`):** the questions their profile makes likely: level, tenure, a layoff, a gap, a pivot, compensation. Each `origin: "standard"`.
-4. **Questions to Ask (section F, `role: "ask"`):** 2 or 3 per theme, from the default themes (`assets/defaults.json`), each with its `theme` and `origin: "standard"`.
+### Step 0: ask how much practice they want
 
-Give every question a `why` (what the interviewer is trying to learn, in one sentence) and no `script`. Set `"deck": {"slug": "core", "master": true, "evergreen": true, ...}`, open with a `readiness` slide (id `cover`, section `I`), build it, and open `core.html` for them.
+Before building anything, ask one question, and save the answer as `"rigor"` in the master deck's `deck` settings:
+
+> **How much practice do you want?**
+> - **Light:** the questions nearly every interview asks. About 15, for a quick tune-up or a first screen.
+> - **Medium** *(recommended)*: a full prep for most interviews. About 30 to 40.
+> - **Heavy:** everything, for a final round or a big career move. About 50 to 70.
+
+`assets/rigor.json` sets how many questions each section gets at each level. They can change it any time ("switch me to heavy"): **raising it adds questions; lowering it hides only questions they haven't answered. Never remove an answered question.**
+
+### Step 1: the sections
+
+| Section | What goes in it |
+|---|---|
+| **A. Opening** | In order: Tell me about yourself · Why are you looking · What are you looking for · What are you doing now · What would you do in your first 90 days · then one their history invites (why they left a recent role, a gap, a career change). Light takes 2, medium 4, heavy 6 |
+| **R. Resume** | "I see you did this" questions, one per resume bullet (below) |
+| **T. Technical** | Knowledge of their field, from their target roles: how they'd approach the core problems of the job ("How do you decide what to build next?" for a product manager, "How do you structure pay at a growing company?" for HR). Field knowledge, never a claim from the resume |
+| **C. Behavioral** | From `assets/behavioral.json`, word for word (below) |
+| **E. Tough Questions** (`role: "hard"`) | The questions their profile makes likely: level, tenure, a layoff, a gap, a pivot, compensation. Each `origin: "standard"` |
+| **F. Questions to Ask** (`role: "ask"`) | From the default themes (`assets/defaults.json`), each with its `theme` and `origin: "standard"` |
+
+### Resume questions: "I see you did this"
+
+This is how interviewers use a resume: they point at a line and ask about it. Each bullet is a claim, and the question asks the candidate to back it up.
+
+- **One question per bullet, quoting it:** *"Your resume says you cut onboarding time in half. Walk me through how."* Put the role and the bullet word for word in `source` (`"Acme Robotics, 2021 to now: Cut onboarding time in half"`), most recent role first, bullets in resume order. `rigor.json` sets how many roles and bullets; **bullets with a number go first**, since those get probed hardest.
+- **Follow-ups fit what the bullet claims.** The master deck has none, to keep it lean; an interview deck adds them to the bullets that interviewer is likely to press:
+
+| The bullet claims… | The follow-ups |
+|---|---|
+| A number | How did you measure it? What was it before? What else changed at the same time? |
+| A scope ("led a team of 40") | What did you own, and what did the team? Who did you answer to? |
+| Something built or launched | What was hardest? What would you do differently? Is it still running? |
+| A duty ("managed payroll") | What did you change about it? What broke, and how did you find out? |
+| A big verb ("transformed," "spearheaded") | What exactly was your part? |
+
+- **Older roles** (heavy only) get one question each: *"What did you take from your time at Acme?"*
+
+### Behavioral questions: from the bank
+
+Use the bank's wording exactly; it's been reviewed and every question is balanced between successes and failures.
+
+- **Layers by career level** (from their profile): **Universal** for everyone; **Leading people** for anyone who manages people (first-line manager and up); **Leading the business** for the senior or executive band.
+- **How many** follows `rigor.json`: light takes the first question of the six light-marked universal competencies, plus one question per leadership layer they qualify for; medium takes the first question of every competency in their layers; heavy takes two per competency.
+- Put the competency's title in `source` (`"Behavioral bank: Conflict"`) and its `tests` line in `why`.
+
+### Step 2: build it and hand it over
+
+Give every question a `why` (what the interviewer is trying to learn, in one sentence) and no `script`. Set `"deck": {"slug": "core", "master": true, "evergreen": true, "rigor": "medium", ...}`, open with a `readiness` slide (id `cover`, section `I`), build it, and open `core.html` for them.
 
 **Tell them how to use it:** in **Study**, click into a question and write the answer the way they'd say it; **+ Add STAR** splits a "tell me about a time" into Situation, Task, Action, Result; **Lock In** marks an answer done; **+ Add Question** adds their own. Readiness shows what's left to write and lock. Then **Export Answers** (bottom of the sidebar) saves `Master_Answers.json`: ask them to save it into `Interview_Prep/`, or find it in their Downloads folder and move it there with their OK.
 

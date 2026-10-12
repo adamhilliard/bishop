@@ -112,8 +112,8 @@ def validate(meta, content, defaults):
                     errors.append("%s: %d words a minute; cut the script" % (cid, wpm))
                 elif wpm > WPM_WARN:
                     warnings.append("%s: %d words a minute, fast for speech" % (cid, wpm))
-        if kind == "followup" and c.get("chain") not in idset:
-            errors.append("%s: chain %s does not exist" % (cid, c.get("chain")))
+        if kind == "followup":
+            errors.append("%s: follow-ups aren't used. Make it a question of its own, or cut it." % cid)
         role = role_of.get(c.get("section"))
         if kind == "question" and role in ("hard", "ask"):
             if c.get("origin") not in ORIGINS:
@@ -188,7 +188,7 @@ def main(argv):
     with open(out, "w", encoding="utf-8", newline="\n") as f:
         f.write(html)
     n = lambda k: sum(1 for c in content if c.get("kind") == k)
-    print("Wrote %s  (%d KB)  %d questions, %d follow-ups" % (out, len(html) // 1024, n("question"), n("followup")))
+    print("Wrote %s  (%d KB)  %d questions" % (out, len(html) // 1024, n("question")))
     return 0
 
 

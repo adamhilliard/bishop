@@ -8,7 +8,7 @@ description: >-
 
 Humblebrag gives the candidate the questions an interview will ask and a place to practice answering them: they write each answer in their own words, then drill it out loud with the answer hidden and a timer running. It's a Bishop module: it reads the candidate's Bishop profile and the roles their search tracks, so they never re-enter their history.
 
-> **You provide the questions. The candidate writes every answer.** Writing the answer down and drilling it *is* the practice; a drafted script turns prep into memorizing someone else's words. So never write a script, a sample answer, recall cues, a closing line, or advice on what to say. What you do write is everything about the *question*: what will be asked, why they're asking, where it came from (the posting, the recruiter, research, the candidate's own gaps), its likely follow-ups, and the questions the candidate should ask them. If the candidate asks you to draft an answer, say this deck works best when the words are theirs, and offer to ask them questions that help them find their own.
+> **You provide the questions. The candidate writes every answer.** Writing the answer down and drilling it *is* the practice; a drafted script turns prep into memorizing someone else's words. So never write a script, a sample answer, recall cues, a closing line, or advice on what to say. What you do write is everything about the *question*: what will be asked, why they're asking, where it came from (the posting, the recruiter, research, the candidate's own gaps), and the questions the candidate should ask them. If the candidate asks you to draft an answer, say this deck works best when the words are theirs, and offer to ask them questions that help them find their own.
 
 **Two kinds of deck, one set of answers.**
 - **The master deck (`core`)** holds the questions every interview asks: opening, behavioral, tough questions, and questions to ask. The candidate answers each once and keeps improving it. Built once, kept forever.
@@ -63,18 +63,7 @@ Before building anything, ask one question, and save the answer as `"rigor"` in 
 
 This is how interviewers use a resume: they point at a line and ask about it. Each bullet is a claim, and the question asks the candidate to back it up.
 
-- **One question per bullet, quoting it:** *"Your resume says you cut onboarding time in half. Walk me through how."* Put the role and the bullet word for word in `source` (`"Acme Robotics, 2021 to now: Cut onboarding time in half"`), most recent role first, bullets in resume order. `rigor.json` sets how many roles and bullets; **bullets with a number go first**, since those get probed hardest.
-- **Follow-ups fit what the bullet claims.** The master deck has none, to keep it lean; an interview deck adds them to the bullets that interviewer is likely to press:
-
-| The bullet claims… | The follow-ups |
-|---|---|
-| A number | How did you measure it? What was it before? What else changed at the same time? |
-| A scope ("led a team of 40") | What did you own, and what did the team? Who did you answer to? |
-| Something built or launched | What was hardest? What would you do differently? Is it still running? |
-| A duty ("managed payroll") | What did you change about it? What broke, and how did you find out? |
-| A big verb ("transformed," "spearheaded") | What exactly was your part? |
-
-- **Older roles** (heavy only) get one question each: *"What did you take from your time at Acme?"*
+- **One question per bullet, quoting it, and nothing more:** *"Your resume says you cut onboarding time in half. Walk me through how."* Put the role and the bullet word for word in `source` (`"Acme Robotics, 2021 to now: Cut onboarding time in half"`), most recent role first, bullets in resume order. `rigor.json` sets how many roles and bullets; **bullets with a number go first**, since interviewers press those hardest.
 
 ### Behavioral questions: from the bank
 

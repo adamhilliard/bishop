@@ -79,7 +79,7 @@ This is how interviewers use a resume: they point at a line and ask about it. Ea
 
 - **One question per bullet, pointing at the claim, and nothing more:** *"I see you cut onboarding time in half. Walk me through how."* The form stays simple on purpose: how an interviewer digs into a line is hard to predict, so the question just points at it. **Vary the opening** so the section doesn't read like a form letter: *"I see you…"*, *"Your resume says…"*, *"Walk me through…"*, *"Tell me more about…"*, *"How did you…?"* Quote the claim, not necessarily the whole bullet.
 - **Put the role and the full bullet word for word in `source`** (`"Acme Robotics, 2021 to now: Cut onboarding time in half by rebuilding the kickoff"`), most recent role first, bullets in resume order.
-- **A role is an employer.** Titles held at one company count as one role, with their bullets pooled; a promotion isn't a second job. `rigor.json` sets how many roles and bullets; **bullets with a number go first**, since interviewers press those hardest.
+- **A role is an employer.** Titles held at one company count as one role, with their bullets pooled; a promotion isn't a second job. `rigor.json` sets how many roles and bullets; **the biggest numbers go first**, since interviewers press those hardest: across all of an employer's titles, rank its bullets by the size of the result (retention up seven points, onboarding time cut by 40%, $14M in ARR), with a plain count (a team of 6) below any result, and bullets with no number last, in resume order.
 
 ### Behavioral questions: from the bank
 

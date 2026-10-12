@@ -105,9 +105,7 @@ def validate(meta, content, defaults):
             for f in ("title", "why", "target"):
                 if f not in c:
                     errors.append("%s: question missing %s" % (cid, f))
-            answered_elsewhere = c.get("story") or c.get("stories") or c.get("core")
-            if not c.get("script") and not answered_elsewhere and not deck.get("master"):
-                errors.append("%s: question missing script (or a master-set question in \"core\")" % cid)
+            # No script is the normal case: the candidate writes every answer in the deck.
             if c.get("target") and c.get("script"):
                 wpm = len(c["script"].split()) / (c["target"] / 60.0)
                 if wpm > WPM_ERROR:

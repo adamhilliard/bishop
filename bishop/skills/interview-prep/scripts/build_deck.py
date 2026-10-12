@@ -122,6 +122,28 @@ def validate(meta, content, defaults):
                 errors.append("%s: a %s question cites its source" % (cid, c["origin"]))
             if role == "ask" and c.get("theme") not in themes:
                 errors.append("%s: a question to ask needs a theme (%s)" % (cid, ", ".join(sorted(themes))))
+        # An interview deck's own question (not linked to the master deck) says where it came from.
+        elif kind == "question" and not deck.get("evergreen") and not c.get("core") and not str(c.get("source") or "").strip():
+            warnings.append("%s: a question written for this interview cites its source (the posting line, recruiter's words, finding, or resume line)" % cid)
+    if deck.get("evergreen"):
+        return errors, warnings
+    # Every risk is pressed by a tough question, and the top one is on the cover.
+    hard_ids = {c.get("id") for c in content if role_of.get(c.get("section")) == "hard"}
+    risks = meta.get("risks") or []
+    if not risks:
+        warnings.append("META.risks: no risk list; the map's risks belong here, each with the questions that cover it")
+    for rk in risks:
+        for f in ("id", "title", "source"):
+            if not rk.get(f):
+                errors.append("risk %s: missing %s" % (rk.get("id", "?"), f))
+        answers = rk.get("answers") or []
+        for a in answers:
+            if a not in idset:
+                errors.append("risk %s: question %s does not exist" % (rk.get("id"), a))
+        if not any(a in hard_ids for a in answers):
+            errors.append("risk %s: no tough question covers it (add one to Tough Questions and list it in answers)" % rk.get("id"))
+    if risks and not (deck.get("cover") or {}).get("risk"):
+        warnings.append("META.deck.cover.risk: name the top risk on the cover")
     return errors, warnings
 
 

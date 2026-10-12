@@ -102,7 +102,7 @@ When an interview is booked. Follow `references/deck-guide.md`, in order:
 1. **Collect the inputs in one round:** the posting (from the tracking file, or ask), who's interviewing and their role, the format and date, notes from any earlier round (a recruiter's exact words are the most valuable input there is), and anything they're worried about. Research the company: public, recent, and dated.
 2. **Map it,** in chat: the role's priorities, the candidate's gaps and risks against them, research findings, and which master questions each priority will draw on. The candidate corrects the map; then build the deck.
 3. **Write the questions.** Custom first: every priority, risk and finding becomes a question before any standard question is added. A question that asks what a master question asks links to it with `"core"`. Questions to ask cite their source.
-4. **Build it** with `--master` so their master answers show, fix every error, and open it.
+4. **Build it** with `--master` so their master answers show, fix every error, and open it. If the map added a question to their master deck, rebuild `core.html` too, and tell them before anything else.
 
 The deck and the field reference are in `references/deck-schema.md`; the answers file is in `references/master-set.md`.
 

@@ -92,6 +92,16 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 ## Release history
 
+### 1.9.0
+
+**The named-employer sweep reads six more platforms, and unresolved boards now have a procedure.** Ported from the live search after a pass that resolved most of its "own careers site" employers by watching what each page loads, then reading the feed directly. That changes which employers a running search can sweep, which earns the minor.
+
+- **Six new readers in `employer_sweep.py`:** SmartRecruiters, SAP SuccessFactors, Jobvite, Avature, ADP Workforce Now and Oracle Recruiting Cloud, beside Greenhouse, Lever, Ashby, Workday and iCIMS. Each was run end to end on public boards outside the live search's own list. The docstring carries the slug shape for every platform, all read off the employer's board or apply link, never guessed. ADP pages at 20 rows with a one-based skip and answers only in the tenant's own locale, so the reader paginates and tries a few locales; the live search's copy read one page.
+- **A partial read is named, never silently complete.** Paginating readers stop at a shared cap (`MAX_ROWS`, 1,000) and raise `PartialRead` with what they got; the sweep still filters those rows and lists the board on the STATUS line as partly read.
+- **`resolve_boards.py` probes Workday from a hint.** `Name | tenant/site`, or any Workday URL for the employer (the apply link is the usual source), is tried on every Workday host, because the same tenant and site answer on exactly one numbered host and return 422 on the rest. A board the live search had logged as a 422 for weeks resolved this way. Tested on two public tenants.
+- **Resolving a board the probe could not find is a five-step procedure** in `search-techniques.md`: follow the Apply button first (it usually names a platform the sweep already reads), list the careers page's network requests in the connected browser to find the feed, load it two or three times before concluding there is none, confirm the feed with a plain fetch, and read the robots.txt and terms of the host actually read before adding a row.
+- **A terms and robots rule, and a skipped table.** Bishop had no rule anywhere about a site's terms. A host whose terms or robots.txt bar automated access is skipped and recorded in `Employer_Index.md`'s skipped table (employer, host, reason, date), so it is not re-derived; keyword sources still cover the employer. `scaffolding.md` carries the table.
+
 ### 1.8.0
 
 **The weekly audit now tells the user, in plain words, whether their search is working.** Until now its only output was a coded log row (`Tripped: S5, E1 | 2/3`) that even the maintainer found hard to read, and nothing reached the user at all. That changes what every running search sends, which earns the minor.

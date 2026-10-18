@@ -964,6 +964,50 @@ main {
   margin: 13px 0;
   background: var(--card);
 }
+/* Interview Notes: the open box for the notes taken on the call */
+.own-notes {
+  padding: 23px;
+  border: 1px solid var(--accent);
+  border-radius: 17px;
+  margin: 13px 0 21px;
+  background: var(--card);
+}
+.own-notes-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.own-notes-head b {
+  color: var(--accent);
+}
+.own-notes-head .sec-status {
+  font-size: 12px;
+  color: var(--muted);
+}
+.own-notes textarea {
+  display: block;
+  width: 100%;
+  min-height: 260px;
+  padding: 16px 18px;
+  font: inherit;
+  font-size: var(--script-size);
+  line-height: 1.6;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--accent) 9%, var(--card));
+  border: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  border-radius: 12px;
+  resize: vertical;
+}
+.own-notes textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.own-notes textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
+}
 .evidence-card h3 {
   color: var(--accent);
   font-size: 17px;
@@ -2576,7 +2620,7 @@ a.anchor {
   }
 }
 
-/* Launcher design (2026-10-02): the Lab's paper and ink, one orange, the title serif, mono labels, 5% grain. */
+/* AI Home Tool Hub design (2026-10-02): the Lab's paper and ink, one orange, the title serif, mono labels, 5% grain. */
 body {
   font-family: var(--sans);
 }
@@ -2696,7 +2740,7 @@ dialog {
     0 14px 30px -20px rgba(23, 24, 26, 0.22);
 }
 
-/* Sidebar: bold throughout; the current section is an ink pill (white in dark mode), like the Launcher tabs. */
+/* Sidebar: bold throughout; the current section is an ink pill (white in dark mode), like the AI Home Tool Hub tabs. */
 aside,
 aside nav button,
 aside .nav-caption,
@@ -3524,7 +3568,7 @@ __MASTER_DATA__
 const MASTER_FILE = (() => {
 // The master-set file: one person's whole Humblebrag in one JSON file, the same on every setup.
 // It is what an export writes, what an import reads, and what a deck without a server loads.
-// Pure functions only. Reading a database or a folder belongs to whoever calls these (the Launcher's
+// Pure functions only. Reading a database or a folder belongs to whoever calls these (the AI Home Tool Hub's
 // a server's export script for its database; a Bishop module reads and writes the file itself).
 //
 //   toMaster(raw)       raw tables and deck files  -> master object
@@ -3691,8 +3735,9 @@ const CONTENT = JSON.parse(document.getElementById('deck-content').textContent);
 
 const META = JSON.parse(document.getElementById('deck-meta').textContent);
 
-// The Story Bank (/api/bank on the Launcher). Story slides and behavioral answers read
-// from it, and edits to them save straight back. Opened anywhere else, it stays null.
+// The Story Bank: bank.json in the Core deck's folder, served at /api/bank by the AI Home Tool Hub.
+// Story slides and behavioral answers read from it; edits to it save as Core's deck edits (ServerStore).
+// Opened anywhere else, it comes from the master set (LocalStore), or stays null.
 let BANK = null;
 const bankStory = (id) => (BANK ? BANK.stories.find((x) => x.id === id) || null : null);
 const STAR = [
@@ -3761,7 +3806,7 @@ function coreView(b) {
 const EDIT_STORAGE_KEY = DECK.storageKey || 'interview-study-deck-text-edits-v1';
 // The deck's slug: the last part of its address (/core, or /decks/core) when a server serves it.
 // ---- Storage. Every read and write goes through STORE, so one engine runs two ways. Served by the
-// Launcher (a web address like /core or /decks/core), it's ServerStore: the /api routes and D1, the
+// AI Home Tool Hub (a web address like /core or /decks/core), it's ServerStore: the /api routes and D1, the
 // same on every device. Opened any other way (a file, or a plain web server), it's LocalStore: one
 // master-set file (MASTER_FORMAT.md) kept in this browser, with Export and Import.
 const SERVED = /^https?:$/.test(location.protocol) && /^\/(?:decks\/)?[a-z0-9-]+\/?$/.test(location.pathname);
@@ -3788,16 +3833,51 @@ const getJSON = (path, opts = {}) =>
   fetch(path, { credentials: 'same-origin', ...opts })
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
+// The bank as built (Core's bank.json), before any saved change: what a change is recorded against.
+let BANK_FILE = null;
+// A change to the bank saves as one of the master deck's edits: slide "bank-story-<id>" or "bank-comp-<id>",
+// field = the field changed. Every deck lays them over the file when it loads (while the file still
+// says what was changed), and the AI Home Tool Hub's fold-edits.mjs writes them into bank.json.
+const BANK_ROW = /^bank-(story|comp)-(.+)$/;
+const bankRows = (bank, kind) => (kind === 'story' ? bank.stories : bank.competencies);
+const bankText = (v) => (Array.isArray(v) ? JSON.stringify(v) : String(v ?? ''));
+async function serverBank() {
+  const [file, edits] = await Promise.all([
+    getJSON('/api/bank', { cache: 'no-store' }),
+    getJSON('/api/deck-edits/' + MASTER_SLUG, { cache: 'no-store' }),
+  ]);
+  if (!file || !Array.isArray(file.stories)) return null;
+  BANK_FILE = file;
+  const bank = JSON.parse(JSON.stringify(file));
+  for (const row of (edits && edits.edits) || []) {
+    const m = String(row.slide_id).match(BANK_ROW);
+    if (!m) continue;
+    const orig = bankRows(file, m[1]).find((x) => x.id === m[2]),
+      obj = bankRows(bank, m[1]).find((x) => x.id === m[2]);
+    if (!orig || !obj || bankText(orig[row.field]) !== row.before) continue;
+    const was = orig[row.field];
+    obj[row.field] = Array.isArray(was) ? JSON.parse(row.after) : typeof was === 'number' ? Number(row.after) : row.after;
+  }
+  return bank;
+}
+async function putBank(kind, id, fields) {
+  const orig = BANK_FILE && bankRows(BANK_FILE, kind).find((x) => x.id === id);
+  if (!orig) throw new Error('404');
+  for (const [field, value] of Object.entries(fields)) {
+    const row = { id: 'bank-' + kind + '-' + id, field, before: bankText(orig[field]), after: bankText(value) };
+    await sendJSON('/api/deck-edits/' + MASTER_SLUG, row.after === row.before ? 'DELETE' : 'PUT', row);
+  }
+}
 const ServerStore = {
   kind: 'server',
-  bank: () => getJSON('/api/bank', { cache: 'no-store' }),
+  bank: serverBank,
   answers: (deck) => getJSON('/api/deck-answers/' + deck).then((d) => (d ? d.answers || [] : null)),
   saveAnswer: (deck, id, text) => sendJSON('/api/deck-answers/' + deck, 'PUT', { id, text }),
   edits: (deck) => getJSON('/api/deck-edits/' + deck).then((d) => (d ? d.edits || [] : null)),
   saveEdit: (deck, row) => sendJSON('/api/deck-edits/' + deck, 'PUT', row),
   dropEdit: (deck, row) => sendJSON('/api/deck-edits/' + deck, 'DELETE', row),
-  putCompetency: (id, fields) => sendJSON('/api/competencies/' + encodeURIComponent(id), 'PUT', fields),
-  putStory: (id, fields) => sendJSON('/api/stories/' + encodeURIComponent(id), 'PUT', fields),
+  putCompetency: (id, fields) => putBank('comp', id, fields),
+  putStory: (id, fields) => putBank('story', id, fields),
 };
 const LocalStore = (() => {
   const KEY = 'humblebrag:master';
@@ -3897,7 +3977,7 @@ const LocalStore = (() => {
 })();
 const STORE = SERVED ? ServerStore : LocalStore;
 const editTimers = new Map();
-// Save one field to the Launcher a moment after typing stops. Back to the original text removes the saved edit.
+// Save one field to the AI Home Tool Hub a moment after typing stops. Back to the original text removes the saved edit.
 function saveEdit(id, field, before, after) {
   const key = id + '::' + field;
   clearTimeout(editTimers.get(key));
@@ -4101,7 +4181,7 @@ function normalizeEdit(el) {
 // ---- Practice: record yourself, play it back, read the transcript, and keep a typed answer.
 // Takes (audio + transcript) stay in this browser, in IndexedDB, keyed by deck and slide. Transcripts
 // come from the browser's speech recognition (Chrome sends that audio to Google to transcribe).
-// Typed answers save to the Launcher (/api/deck-answers/<deck>), so they follow you to every device.
+// Typed answers save to the AI Home Tool Hub (/api/deck-answers/<deck>), so they follow you to every device.
 const TAKES = { db: null, ids: new Set(), urls: new Map() };
 const ANSWERS = new Map();
 const takeKey = (id) => (DECK_SLUG || 'local') + '|' + id;
@@ -4666,7 +4746,10 @@ function sectionsHTML(s) {
 }
 // Lock In: an answer you're happy with. It saves on every device (deck answer "<id>--locked"), turns
 // read-only until you unlock it, and puts a check on the question's card so what's left stands out.
-const isLocked = (q) => ANSWERS.get(q.id + '--locked') === '1';
+// A company deck question showing its Core answer carries Core's lock too.
+const isLocked = (q) =>
+  ANSWERS.get(q.id + '--locked') === '1' ||
+  (!MASTER && !!q.core && !hasOwnAnswer(q) && CORE_ANS.get(q.core + '--locked') === '1');
 // On a card it's a padlock in the lower-right corner; the card's border also closes around it.
 const LOCK_SVG =
   '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1.5" fill="currentColor"/><path d="M5.25 7V5a2.75 2.75 0 0 1 5.5 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
@@ -5256,12 +5339,17 @@ function updateEditUI() {
 
 // An anchor is a story slide id (S1) or a Story Bank id (rif-40).
 function storyChip(id) {
+  // A chip names a deck story entry (META.stories) or a bank story. It jumps to the story's slide in this
+  // deck when there is one (the deck's own, or the generated s-<bank id>), else to the Core question the
+  // story leads here, else it links out to Core.
   const s = storyMap.get(id) || storyMap.get('s-' + id);
-  if (s) return { go: s.id, title: s.title, color: s.color, icon: s.icon };
-  const b = bankStory(id);
-  return b
-    ? { href: coreHome(b) ? coreLink(coreHome(b)) : '', title: b.title, color: 'var(--accent)', icon: '•' }
-    : null;
+  const b = bankStory(id) || (s && s.bank ? bankStory(s.bank) : null);
+  const home = b ? coreHome(b) : null;
+  const go = [s && s.id, 's-' + id, home].find((x) => x && byId.has(x)) || null;
+  const look = { title: (s && s.title) || (b && b.title) || id, color: (s && s.color) || 'var(--accent)', icon: (s && s.icon) || '•' };
+  if (go) return { go, ...look };
+  if (home) return { href: coreLink(home), ...look };
+  return s || b ? look : null;
 }
 function anchorHTML(ids = []) {
   return (
@@ -5298,7 +5386,7 @@ const lines = (t) =>
     .split('\n')
     .filter(Boolean);
 const NO_BANK =
-  '<div class="empty-message">This comes from the Story Bank, which didn’t load. Open this deck from the Launcher while signed in.</div>';
+  '<div class="empty-message">This comes from the Story Bank, which didn’t load. Open this deck from the AI Home Tool Hub while signed in.</div>';
 // The four STAR parts. Script shows the words, Beats the cues.
 function starHTML(b, s) {
   const L = layer(),
@@ -5434,8 +5522,10 @@ function renderStoryAnswer(s) {
   const id = storyChoice(s);
   const b = MASTER ? null : bankStory(id);
   const eyebrow = sec.questionLabel || 'Interview question';
+  // A company deck's bank question shows the Core answer until a company one is written here.
+  const core = fromCore(s);
   const picker =
-    BANK && !s.story && !s.paired && DECK.storyPicker !== false
+    BANK && !core.length && !s.story && !s.paired && DECK.storyPicker !== false
       ? `<div class="story-pick"><span class="chain-label">${s.technical ? 'DRAW ON' : 'ANSWER WITH'}</span>${[...ids, OWN_EXAMPLE]
           .map((x) => {
             const t = x === OWN_EXAMPLE ? { title: 'My own example' } : bankStory(x);
@@ -5445,6 +5535,8 @@ function renderStoryAnswer(s) {
       : '';
   let body;
   if (!BANK) body = NO_BANK;
+  else if (core.length && (studyOpen(s) || (layer() && mode() !== 2))) body = ownAnswerHTML(s, core);
+  else if (core.length && layer()) body = cueHTML(cuesFor(s));
   else if (studyOpen(s)) body = sectionsHTML(s);
   else if (revealsOwnAnswer(s) && !layer()) body = concealed();
   else if (revealsOwnAnswer(s) && answerPreview(s)) body = ownAnswerHTML(s);
@@ -5457,7 +5549,12 @@ function renderStoryAnswer(s) {
   const tags = (s.strategic || []).length
     ? `<div class="rubric-row">${s.strategic.map((x) => `<span class="rubric-beat">${esc(x)}</span>`).join('')}</div>`
     : '';
-  return `<div class="question-head"><div class="question-meta"><span class="eyebrow">${s.competency ? esc(eyebrow) : esc(eyebrow) + ' / ' + esc(s.code || s.id)}</span>${verify ? '<span class="pill verify">VERIFY</span>' : ''}</div><h1${editAttrs(s, 'title')}>${esc(s.title)}</h1>${tags}${picker}${s.bridge ? `<p class="pivot-line"><b>Pivot</b> ${esc(s.bridge)}</p>` : ''}${anchorHTML(s.anchor)}</div><div style="height:12px"></div>${cardBody(body, '', studyOpen(s) ? secStatusHTML(s) : '')}${(layer() || studyOpen(s)) && b ? (/^[qt]-/.test(s.id) && s.competency ? verifyLine(b) : storyContextHTML(s, b)) : ''}`;
+  const foot = core.length
+    ? `<span class="sec-status">Your Core answer.</span>${studyOpen(s) ? '<button class="quiet" data-fork-core>Write One for This Interview</button>' : ''}<a class="jd-link" href="${esc(coreLink(s.core))}" target="_blank" rel="noopener">Edit in Core ↗</a>`
+    : studyOpen(s)
+      ? secStatusHTML(s)
+      : '';
+  return `<div class="question-head"><div class="question-meta"><span class="eyebrow">${s.competency ? esc(eyebrow) : esc(eyebrow) + ' / ' + esc(s.code || s.id)}</span>${verify ? '<span class="pill verify">VERIFY</span>' : ''}</div><h1${editAttrs(s, 'title')}>${esc(s.title)}</h1>${tags}${picker}${s.bridge ? `<p class="pivot-line"><b>Pivot</b> ${esc(s.bridge)}</p>` : ''}${anchorHTML(s.anchor)}</div><div style="height:12px"></div>${cardBody(body, core.length && layer() && !studyOpen(s) && mode() === 2 ? 'Recall Cues' : '', foot)}${(layer() || studyOpen(s)) && b ? (/^[qt]-/.test(s.id) && s.competency ? verifyLine(b) : storyContextHTML(s, b)) : ''}`;
 }
 // A story slide backed by the Story Bank.
 function renderBankStory(s) {
@@ -5912,17 +6009,38 @@ function renderVisual(s) {
 function renderMatch(s) {
   const p = (s.priorities || []).find((x) => x.id === state.matchPriority) || (s.priorities || [])[0];
   if (!p) return '<p class="intro">No priorities defined for this drill.</p>';
+  // The choices are the deck's own story list (META.stories), never the generated bank slides (s-<id>).
+  const choices = stories.filter((x) => !String(x.id).startsWith('s-'));
   const choice = storyMap.get(state.matchChoice);
   const correct = choice && (p.stories || []).includes(choice.id);
+  const open = correct ? storyChip(choice.id) : null;
   let feedback = s.prompt || 'Choose the story that gives the strongest evidence for this priority.';
   if (choice)
     feedback = correct
       ? `${choice.icon || ''} ${choice.title} supports ${p.title.toLowerCase()}.${p.matchNote ? ' ' + p.matchNote : ''}`
       : `${choice.icon || ''} ${choice.title} is not the primary evidence for this priority. Try another story.`;
-  return `<div class="eyebrow">${esc(s.eyebrow || 'Priority match drill')}</div><h1 style="margin-top:17px">${esc(s.title || 'Which story proves it?')}</h1><div class="match-priorities">${s.priorities.map((x) => `<button data-priority="${esc(x.id)}" class="${x.id === p.id ? 'active' : ''}">${esc(x.id)} ${esc(x.title)}</button>`).join('')}</div><div class="priority-card" style="margin-bottom:20px"><div class="eyebrow">${esc(p.id)}</div><h3>${esc(p.title)}</h3><p>${esc(p.detail)}</p></div><div class="match-choices">${stories.map((x) => `<button data-match="${x.id}" style="--story:${x.color}" class="${state.matchChoice === x.id ? 'active' : ''}"><b>${x.icon || ''}</b>${esc(x.title)}</button>`).join('')}</div><div class="match-feedback" role="status">${esc(feedback)}${correct ? ` <button data-go="${choice.id}">Open Story ↗</button>` : ''}</div><div class="chain-links"><button data-action="match-next">Next Priority →</button>${byId.has('hub') ? '<button data-go="hub">Back to the Priorities Hub</button>' : ''}</div>`;
+  return `<div class="eyebrow">${esc(s.eyebrow || 'Priority match drill')}</div><h1 style="margin-top:17px">${esc(s.title || 'Which story proves it?')}</h1><div class="match-priorities">${s.priorities.map((x) => `<button data-priority="${esc(x.id)}" class="${x.id === p.id ? 'active' : ''}">${esc(x.id)} ${esc(x.title)}</button>`).join('')}</div><div class="priority-card" style="margin-bottom:20px"><div class="eyebrow">${esc(p.id)}</div><h3>${esc(p.title)}</h3><p>${esc(p.detail)}</p></div><div class="match-choices">${choices.map((x) => `<button data-match="${x.id}" style="--story:${x.color}" class="${state.matchChoice === x.id ? 'active' : ''}"><b>${x.icon || ''}</b>${esc(x.title)}</button>`).join('')}</div><div class="match-feedback" role="status">${esc(feedback)}${open && open.go ? ` <button data-go="${esc(open.go)}">Open Story ↗</button>` : open && open.href ? ` <a href="${esc(open.href)}" target="_blank" rel="noopener">Open in Core ↗</a>` : ''}</div><div class="chain-links"><button data-action="match-next">Next Priority →</button>${byId.has('hub') ? '<button data-go="hub">Back to the Priorities Hub</button>' : ''}</div>`;
+}
+// The notes you take on the call: one open box at the top of Interview Notes, saved on every device as
+// the deck answer "<notes id>--own" (as you type, like an answer).
+let ownNotesTimer = null;
+document.addEventListener('input', (e) => {
+  const el = e.target.closest && e.target.closest('[data-own-notes]');
+  if (!el) return;
+  const id = el.dataset.ownNotes, val = el.value.replace(/\r\n/g, '\n');
+  autosize(el);
+  clearTimeout(ownNotesTimer);
+  ownNotesTimer = setTimeout(async () => {
+    const ok = await saveAnswer(id + '--own', val);
+    const st = document.getElementById('own-notes-status');
+    if (st) st.textContent = ok ? 'Saved.' : 'Not saved. Check your connection.';
+  }, 600);
+});
+function ownNotesHTML(s) {
+  return `<div class="own-notes"><div class="own-notes-head"><b>Your notes from the call</b><span class="sec-status" id="own-notes-status" role="status">Saves as you type, on every device.</span></div><textarea data-own-notes="${esc(s.id)}" rows="4" spellcheck="true" aria-label="Your notes from the call" placeholder="Type or paste your notes from the conversation here.">${esc(ANSWERS.get(s.id + '--own') || '')}</textarea></div>`;
 }
 function renderNotes(s) {
-  return `<div class="eyebrow">${esc(s.eyebrow || 'Preparation notes, not spoken copy')}</div><h1 style="margin-top:17px">${esc(s.title)}</h1>${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ''}${(s.cards || []).map((c, ci) => `<div class="evidence-card"><h3>${esc(c.title)}</h3>${(c.paragraphs || []).map((p, pi) => `<p${p.startsWith('VERIFY') ? ' class="verify-inline"' : ''}${editAttrs(s, 'cards.' + ci + '.paragraphs.' + pi, true)}>${esc(p)}</p>`).join('')}${(c.bullets || []).length ? `<ul>${c.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}</div>`).join('')}${(s.links || []).length ? `<div class="chain-links">${s.links.map((l) => `<button data-go="${esc(l.id)}">${esc(l.label || l.id)} ↗</button>`).join('')}</div>` : ''}`;
+  return `<div class="eyebrow">${esc(s.eyebrow || 'Preparation notes, not spoken copy')}</div><h1 style="margin-top:17px">${esc(s.title)}</h1>${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ''}${ownNotesHTML(s)}${(s.cards || []).map((c, ci) => `<div class="evidence-card"><h3>${esc(c.title)}</h3>${(c.paragraphs || []).map((p, pi) => `<p${p.startsWith('VERIFY') ? ' class="verify-inline"' : ''}${editAttrs(s, 'cards.' + ci + '.paragraphs.' + pi, true)}>${esc(p)}</p>`).join('')}${(c.bullets || []).length ? `<ul>${c.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}</div>`).join('')}${(s.links || []).length ? `<div class="chain-links">${s.links.map((l) => `<button data-go="${esc(l.id)}">${esc(l.label || l.id)} ↗</button>`).join('')}</div>` : ''}`;
 }
 function render() {
   // Study is the edit mode: the deck's own text is click-to-edit there, and only there.
@@ -6577,6 +6695,8 @@ function addBankSlides() {
       code: c.code,
       competency: c.id,
       stories: sid ? [sid] : storyIds(c),
+      // In a company deck the answer is Core's, shown live (the same id there).
+      ...(MASTER ? {} : { core: qid(c, i, q, tech) }),
       ...(sid ? { paired: true } : {}),
       ...(sid && bankStory(sid)?.resume_pivot ? { bridge: bankStory(sid).resume_pivot } : {}),
       ...(tech ? { technical: true } : {}),
@@ -6816,7 +6936,7 @@ STORE.bank().then((bank) => {
       w.setAttribute('role', 'alert');
       w.style.margin = '0 0 18px';
       w.textContent =
-        'The Story Bank didn’t load, so story slides and competency questions are missing. Reload while signed in to the Launcher; if it keeps happening, the bank’s sign-in check is refusing this page.';
+        'The Story Bank didn’t load, so story slides and competency questions are missing. Reload while signed in to the AI Home Tool Hub; if it keeps happening, the bank’s sign-in check is refusing this page.';
       $('#main').prepend(w);
     }
     const fromUrl = slideFromHash();

@@ -22,6 +22,19 @@ Usage:
     python resolve_boards.py --file companies.txt      # one name per line
     echo "Acme Co" | python resolve_boards.py
 
+Workday needs a hint, because a Workday site name cannot be derived from the
+company name. Put the tenant and site after a pipe, or paste any Workday URL
+for the employer (the apply link on one of their postings is the usual
+source); the host in the URL is ignored:
+
+    Acme Co | acme/ACMEUS
+    Acme Co | https://acme.wd1.myworkdayjobs.com/ACMEUS
+
+The hinted tenant and site are then tried on every Workday host in
+WORKDAY_HOSTS. The host is the part people get wrong: a board can answer only
+on wd503 while every other live host returns 422 for the same tenant and
+site, and a probe on the wrong host reads as "no board".
+
 Options:
     --slow      2s between probes instead of 0.4s, for large lists
     --loose     also try shortened slugs on platforms that cannot be verified.
@@ -56,7 +69,17 @@ SUFFIXES = {
     "sa", "nv", "ag", "lp", "llp", "pllc", "pc", "the",
 }
 
+# The platforms probed from a bare name. employer_sweep.py sweeps more
+# (workday, icims, smartrecruiters, successfactors, jobvite, avature, adp,
+# oracle), but those slugs cannot be derived from a company name; read them
+# off the employer's apply link instead. Workday is probed from a hint.
 PLATFORMS = ("greenhouse", "lever", "ashby")
+
+# Workday data-center hosts, tried in order for a hinted tenant/site. A host
+# that does not exist fails DNS quickly, so the list errs wide. Seen on live
+# boards: wd1, wd3, wd5, wd108, wd503.
+WORKDAY_HOSTS = ("wd1", "wd2", "wd3", "wd5", "wd10", "wd12", "wd100", "wd101",
+                 "wd102", "wd103", "wd105", "wd108", "wd501", "wd502", "wd503")
 
 
 def norm(s):
@@ -108,8 +131,11 @@ def name_matches(company, board_name):
     return all(norm(w) in bn for w in words_of(company) if norm(w))
 
 
-def fetch(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+def fetch(url, data=None):
+    headers = {"User-Agent": "Mozilla/5.0"}
+    if data is not None:
+        headers["Content-Type"] = "application/json"
+    req = urllib.request.Request(url, data=data, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=20) as r:
             if r.status != 200:
@@ -147,6 +173,37 @@ def probe(platform, slug, company):
             return True, "slug only"
         return False, ""
     return False, ""
+
+
+def workday_hint(hint):
+    """(tenant, site) from "tenant/site" or any myworkdayjobs URL, else None."""
+    m = re.search(r"([a-z0-9-]+)\.wd\d+\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Z]{2}/)?([A-Za-z0-9_-]+)",
+                  hint)
+    if m:
+        return m.group(1), m.group(2)
+    m = re.fullmatch(r"\s*([a-z0-9-]+)\s*/\s*([A-Za-z0-9_-]+)\s*", hint)
+    return (m.group(1), m.group(2)) if m else None
+
+
+def resolve_workday(tenant, site, delay, verbose):
+    """Try one tenant/site on every Workday host. Returns (slug, total) or
+    (None, None).
+
+    Shape is the check: a 200 carrying `total` and `jobPostings`. A wrong host
+    answers 422, so a hit here is the real board, not a near miss. The slug
+    comes back in employer_sweep.py's `host / tenant / site` form.
+    """
+    body = json.dumps({"appliedFacets": {}, "limit": 1, "offset": 0,
+                       "searchText": ""}).encode()
+    for wd in WORKDAY_HOSTS:
+        host = "%s.%s.myworkdayjobs.com" % (tenant, wd)
+        if verbose:
+            print("    trying %-12s %s" % ("workday", host), file=sys.stderr)
+        d = fetch("https://%s/wday/cxs/%s/%s/jobs" % (host, tenant, site), body)
+        if isinstance(d, dict) and "jobPostings" in d and "total" in d:
+            return "%s / %s / %s" % (host, tenant, site), d.get("total")
+        time.sleep(delay)
+    return None, None
 
 
 def resolve(name, delay, verbose, wide=False):
@@ -202,11 +259,22 @@ def main():
     verbose = "--verbose" in sys.argv
     wide = "--loose" in sys.argv
 
-    print("probing %d companies across %s\n" % (len(names), ", ".join(PLATFORMS)),
-          file=sys.stderr)
+    print("probing %d companies across %s (workday for hinted rows)\n"
+          % (len(names), ", ".join(PLATFORMS)), file=sys.stderr)
 
     hits, misses = [], []
-    for n in names:
+    for line in names:
+        n, _, hint = (x.strip() for x in line.partition("|"))
+        wd = workday_hint(hint) if hint else None
+        if hint and not wd:
+            print("  ??   %-28s hint not understood: %s" % (n[:28], hint), file=sys.stderr)
+        if wd:
+            slug, total = resolve_workday(wd[0], wd[1], delay, verbose)
+            if slug:
+                hits.append((n, "workday", slug,
+                             "host probe, %s postings; tenant/site from hint" % total))
+                print("  ok   %-28s workday / %s" % (n[:28], slug), file=sys.stderr)
+                continue
         platform, slug, how = resolve(n, delay, verbose, wide)
         if platform:
             hits.append((n, platform, slug, how))
@@ -216,14 +284,15 @@ def main():
             misses.append(n)
             print("  --   %-28s unresolved" % n[:28], file=sys.stderr)
 
-    unverified = [h for h in hits if h[3] != "" and not h[3].startswith("name match")]
+    unverified = [h for h in hits if h[3] != ""
+                  and not h[3].startswith(("name match", "host probe"))]
 
     print("## Tier A: confirmed boards, swept every cycle\n")
     if hits:
         print("| Company | Platform | Slug | Confirmed by |")
         print("|---|---|---|---|")
         for n, p, s, how in sorted(hits):
-            print("| %s | %s | %s | %s |" % (n, p, s, how))
+            print("| %s | %s | `%s` | %s |" % (n, p, s, how))
         if unverified:
             print("\n> **Spot-check the %d row(s) confirmed by slug only.** Lever "
                   "and Ashby don't publish the board's own name, so those "
@@ -244,7 +313,7 @@ def main():
         print("| Company | Known access |")
         print("|---|---|")
         for n in sorted(misses):
-            print("| %s | unresolved, check their careers page |" % n)
+            print("| %s | unresolved, follow their careers page's apply link |" % n)
     else:
         print("_All names resolved._")
 

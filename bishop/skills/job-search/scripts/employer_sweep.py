@@ -26,16 +26,34 @@ becomes a sweepable set:
     | Example Co | greenhouse | exampleco  |
     | Another Co | lever      | anotherco  |
 
-Supported platforms: greenhouse, lever, ashby, workday, icims. Workday needs
-three parts, written `host / tenant / site`, e.g.
-`acme.wd5.myworkdayjobs.com / acme / ACMEUS`. Slash-separated, not
-pipe-separated: a pipe inside a table cell would break the table.
+Supported platforms and what goes in the Slug column. Every value is read off
+the employer's own board or apply link, never guessed:
 
-The icims slug is the tenant, e.g. `acmecareers` reaches
-`careers-acmecareers.icims.com`. iCIMS has no public JSON API and its listing
-pages are noindex, so keyword search never surfaces its fresh reqs; this is why
-an iCIMS employer belongs here and gets fetched from the tenant's own board
-HTML rather than an API.
+    greenhouse       board token:      boards.greenhouse.io/<slug>
+    lever            company:          jobs.lever.co/<slug>
+    ashby            board:            jobs.ashbyhq.com/<slug>
+    workday          `host / tenant / site`, e.g.
+                     `acme.wd5.myworkdayjobs.com / acme / ACMEUS`
+    icims            tenant:           careers-<slug>.icims.com
+    smartrecruiters  company id:       jobs.smartrecruiters.com/<slug>
+    successfactors   careers host:     careers.acme.com
+    jobvite          company path:     jobs.jobvite.com/<slug>/jobs
+    avature          portal root:      jobs.acme.com/en_US/careers
+    adp              client id (cid) from the ADP career-center link
+    oracle           `host / siteNumber`, e.g.
+                     `acme.fa.us2.oraclecloud.com / CX_1`
+
+Multi-part slugs are slash-separated, not pipe-separated: a pipe inside a
+table cell would break the table.
+
+iCIMS, SuccessFactors, Jobvite and Avature boards are read from the board's
+own HTML, because none of them has a public JSON API and iCIMS and
+SuccessFactors listing pages are noindex, so keyword search never surfaces
+their fresh reqs. The ADP and Oracle readers call the same endpoint the
+employer's careers page calls for itself. Oracle, SuccessFactors and Avature
+host their pages for the employer, so check the employer's careers-site terms
+and robots.txt before adding a row (search-techniques.md, named-employer
+board sweeps).
 
 Title filters come from an HTML comment anywhere in the index, so they stay
 invisible in the rendered document:
@@ -91,6 +109,11 @@ DEFAULT_SENIORITY = r"."         # match anything; the index should narrow this.
 DEFAULT_FUNCTION = r"."          # A shipped default matching only senior titles
                                  # hides every other rung from anyone who never
                                  # writes a sweep-config.
+
+# Paginating readers stop at this many rows and say so. A named-employer
+# sweep is for a few dozen boards, not a 5,000-posting enterprise; a board
+# that hits the cap is reported as partial on the STATUS line.
+MAX_ROWS = 1000
 
 CONFIG_RE = re.compile(r"<!--\s*sweep-config(.*?)-->", re.S | re.I)
 HEADING_RE = re.compile(r"^#{2,4}\s+(.*?)\s*$")
@@ -196,6 +219,17 @@ def get_text(url):
     return urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
 
 
+class PartialRead(Exception):
+    """A board that was read up to a cap. `rows` holds what was read; the
+    sweep still filters them and names the board on the STATUS line, because
+    a cut-off board is a coverage gap even when its first thousand rows were
+    fine.
+    """
+    def __init__(self, why, rows):
+        super().__init__(why)
+        self.rows = rows
+
+
 def pull(platform, slug):
     """Return a list of (title, location, comp_summary) or raise.
 
@@ -270,6 +304,174 @@ def pull(platform, slug):
             pr += 1
             time.sleep(0.2)
         return out
+    if platform == "smartrecruiters":
+        # Public postings API, 100 per page. slug is the company identifier
+        # in the board URL: jobs.smartrecruiters.com/<slug>. Large tenants run
+        # past the 1,000-row cap, so say so rather than return quietly.
+        out, offset, total = [], 0, 0
+        while offset < MAX_ROWS:
+            d = get("https://api.smartrecruiters.com/v1/companies/%s/postings"
+                    "?limit=100&offset=%d" % (slug, offset))
+            rows = d.get("content", [])
+            total = d.get("totalFound") or 0
+            for j in rows:
+                loc = j.get("location") or {}
+                out.append((j.get("name", ""),
+                            ", ".join(x for x in (loc.get("city"), loc.get("region")) if x),
+                            ""))
+            offset += 100
+            if not rows or offset >= total:
+                break
+            time.sleep(0.2)
+        out = list(dict.fromkeys(out))
+        if total > offset:
+            raise PartialRead("%d of %d postings read" % (len(out), total), out)
+        return out
+    if platform == "successfactors":
+        # SAP SuccessFactors Career Site Builder renders results server-side;
+        # there is no JSON call to use. slug is the careers host, e.g.
+        # careers.example.com. Its robots.txt usually bars /services/ and
+        # allows /search/, which is the page read here. Page size is set per
+        # site, so step by what each page returned. Two page templates are in
+        # use, tiles and the older table of data-rows; both are handled.
+        out, seen, start, total = [], set(), 0, 0
+        while start < MAX_ROWS:
+            page = get_text("https://%s/search/?q=&startrow=%d" % (slug, start))
+            tiles = (page.split('class="job-tile job-id-')[1:]
+                     or page.split('<tr class="data-row')[1:])
+            mt = (re.search(r"Showing \d+ to \d+ of (\d+)", page)
+                  or re.search(r"paginationLabel.*?of <b>(\d+)</b>", page))
+            total = int(mt.group(1)) if mt else 0
+            new = 0
+            for tile in tiles:
+                mt = re.search(r'class="jobTitle-link[^"]*"[^>]*>\s*([^<]+?)\s*</a>', tile)
+                mi = re.search(r'href="[^"]*/job/[^"]*/(\d+)/"', tile)
+                if not mt or not mi or mi.group(1) in seen:
+                    continue
+                seen.add(mi.group(1))
+                new += 1
+                ml = (re.search(r'<div id="[^"]*-section-location-value"[^>]*>\s*([^<]+?)\s*<', tile)
+                      or re.search(r'colLocation[^>]*>\s*<span class="jobLocation">\s*([^<]+?)\s*<', tile))
+                out.append((unescape(mt.group(1)),
+                            unescape(ml.group(1)) if ml else "", ""))
+            start += len(tiles)
+            if new == 0 or start >= total:
+                break
+            time.sleep(0.2)
+        if total > len(out):
+            raise PartialRead("%d of %d postings read" % (len(out), total), out)
+        return out
+    if platform == "jobvite":
+        # Jobvite's hosted board lists every opening on one server-rendered
+        # page, grouped by department. slug is the company path in
+        # jobs.jobvite.com/<slug>/jobs.
+        page = get_text("https://jobs.jobvite.com/%s/jobs" % slug)
+        rows = re.findall(r'jv-job-list-name">\s*<a href="[^"]+">([^<]+)</a>\s*</td>'
+                          r'\s*<td class="jv-job-list-location">(.*?)</td>', page, re.S)
+        return [(unescape(t).strip(), re.sub(r"\s+", " ", unescape(l)).strip(), "")
+                for t, l in rows]
+    if platform == "avature":
+        # Avature career portal, server-rendered, read through the portal's
+        # own listing page. slug is the listing root without the scheme, e.g.
+        # jobs.example.com/en_US/careers. Templates differ between portals,
+        # so rows are keyed on the JobDetail links every template carries,
+        # and the location is read from the list-item-location span. Confirm
+        # by hand that page two returns different jobs before adding a
+        # portal: a landing page that ignores jobOffset reads as a short,
+        # complete board. Check the portal's robots.txt allows the path.
+        out, seen, offset, total = [], set(), 0, 0
+        while offset < MAX_ROWS:
+            page = get_text("https://%s/Home/?jobRecordsPerPage=20&jobOffset=%d"
+                            % (slug, offset))
+            mt = re.search(r'aria-label="(\d+) results"', page)
+            total = int(mt.group(1)) if mt else total
+            new = 0
+            parts = re.split(r'(?=<a[^>]+href="[^"]*/JobDetail/)', page)[1:]
+            for part in parts:
+                mh = re.match(r'<a[^>]+href="[^"]*/JobDetail/(?:[^"]*/)?(\d+)/?"[^>]*>(.*?)</a>',
+                              part, re.S)
+                if not mh or mh.group(1) in seen:
+                    continue
+                title = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", mh.group(2))).strip()
+                if not title:
+                    continue
+                seen.add(mh.group(1))
+                new += 1
+                ml = re.search(r'list-item-location"[^>]*>(.*?)</span>\s*(?:</span>|<span class="separator)',
+                               part, re.S)
+                loc = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", ml.group(1))).strip() if ml else ""
+                out.append((unescape(title), unescape(loc), ""))
+            if new == 0:
+                break
+            offset += 20
+            if total and offset >= total:
+                break
+            time.sleep(0.2)
+        if total > len(out):
+            raise PartialRead("%d of %d postings read" % (len(out), total), out)
+        return out
+    if platform == "adp":
+        # ADP Workforce Now career center. slug is the client id (cid), read
+        # off the employer's own careers link, optionally followed by the
+        # locale the link carries: `<cid> / en_CA`. This is the call the
+        # career-center page makes itself. The API serves 20 rows a page
+        # whatever $top asks, and $skip counts from 1. A tenant answers only
+        # in its own locale (an en_CA client returns nothing for en_US), so
+        # a few are tried when none is given.
+        parts = [x.strip().strip("`") for x in re.split(r"[/|,]", slug) if x.strip()]
+        cid = parts[0]
+        locales = parts[1:] or ["en_US", "en_CA", "en_GB"]
+        url = ("https://workforcenow.adp.com/mascsr/default/careercenter/public/"
+               "events/staffing/v1/job-requisitions?cid=%s&ccId=19000101_000001"
+               "&lang=%s&locale=%s&$top=20&$skip=%d")
+        for loc in locales:
+            out, skip, total = [], 1, 0
+            while len(out) < MAX_ROWS:
+                d = get(url % (cid, loc, loc, skip))
+                reqs = d.get("jobRequisitions", [])
+                total = (d.get("meta") or {}).get("totalNumber") or 0
+                out += [(r.get("requisitionTitle", ""),
+                         "; ".join(filter(None, ((l.get("address") or {}).get("cityName")
+                                                 for l in r.get("requisitionLocations", [])))),
+                         "")
+                        for r in reqs]
+                if not reqs or len(out) >= total:
+                    break
+                skip += 20
+                time.sleep(0.2)
+            if out or d.get("meta"):
+                if total > len(out):
+                    raise PartialRead("%d of %d postings read" % (len(out), total), out)
+                return out
+        return []
+    if platform == "oracle":
+        # Oracle Recruiting Cloud candidate site. slug is `host / siteNumber`,
+        # e.g. `example.fa.us2.oraclecloud.com / CX_1`, both read off the
+        # employer's apply link. This is the call the candidate-experience page
+        # makes itself, no auth. Oracle hosts the page for the employer; read
+        # the terms of the employer's own careers site before adding a row.
+        parts = [p.strip().strip("`") for p in re.split(r"[/|,]", slug) if p.strip()]
+        if len(parts) != 2:
+            raise ValueError("oracle slug needs host / siteNumber, got %r" % slug)
+        host, site = parts
+        out, offset, total = [], 0, 0
+        while offset < MAX_ROWS:
+            d = get("https://%s/hcmRestApi/resources/latest/recruitingCEJobRequisitions"
+                    "?onlyData=true&expand=requisitionList.secondaryLocations"
+                    "&finder=findReqs;siteNumber=%s,limit=25,offset=%d,"
+                    "sortBy=POSTING_DATES_DESC" % (host, site, offset))
+            item = (d.get("items") or [{}])[0]
+            reqs = item.get("requisitionList") or []
+            total = item.get("TotalJobsCount") or 0
+            out += [(r.get("Title", ""), r.get("PrimaryLocation", ""), "")
+                    for r in reqs]
+            offset += 25
+            if not reqs or offset >= total:
+                break
+            time.sleep(0.2)
+        if total > len(out):
+            raise PartialRead("%d of %d postings read" % (len(out), total), out)
+        return out
     raise ValueError("unknown platform %r" % platform)
 
 
@@ -315,6 +517,9 @@ def sweep(name, board, seniority, function, stretch, step_down, floor_k, no_pay)
     for company, platform, slug in board:
         try:
             rows = pull(platform, slug)
+        except PartialRead as e:
+            rows = e.rows
+            failed.append("%s (partial: %s)" % (company, e))
         except Exception as e:
             failed.append("%s (%s)" % (company, str(e)[:40]))
             continue
@@ -346,7 +551,7 @@ def sweep(name, board, seniority, function, stretch, step_down, floor_k, no_pay)
         for c, t, tier, reason in sorted(held):
             print("       %-20s | %-40s | %-9s | %s" % (c, t[:40], tier, reason[:24]))
         print("     Add one by hand only with a reason the board cannot show.")
-    print("  scanned %d postings across %d boards" % (scanned, len(board) - len(failed)))
+    print("  scanned %d postings across %d boards" % (scanned, len(board)))
     return failed
 
 
@@ -400,7 +605,7 @@ def main():
 
     print("-" * 60)
     if failed:
-        print("STATUS: INCOMPLETE - unreadable boards: %s" % "; ".join(failed))
+        print("STATUS: INCOMPLETE - unreadable or partly read boards: %s" % "; ".join(failed))
         print("        Report this as a coverage gap in the digest.")
         sys.exit(1)
     print("STATUS: COMPLETE - every listed board read.")

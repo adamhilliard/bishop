@@ -101,7 +101,7 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 **Humblebrag joins as Bishop's interview prep (`/bishop:interview-prep`), and the plugin's name on the Plugins screen becomes plain "Bishop."** It builds a master deck of the questions every interview asks, which the candidate answers once in their own words, and a tailored study deck per interview whose generic questions show those master answers. Each deck is one self-contained HTML file; answers save in the browser and travel as an exported `Master_Answers.json`.
 
-> **Unreleased.** Ships in 2.0 together with Rolodex, the outreach module, still to be built.
+> **Unreleased.** Ships in 2.0 together with the outreach module, still to be built.
 
 > **`assets/` is generated.** `template.html` and `defaults.json` come from Humblebrag's source (`export_bishop.mjs`), the same engine the maintainer's own decks run on, and `build_deck.py` only fills the template's data slots. Fix the engine there and export again; never hand-edit the template. Its output was checked byte for byte against Humblebrag's own builder on a sample deck before the branch was pushed; recheck before 2.0 ships.
 

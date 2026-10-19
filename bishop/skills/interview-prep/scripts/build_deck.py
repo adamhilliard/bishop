@@ -23,10 +23,14 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.normpath(os.path.join(HERE, "..", "assets"))
 
-KINDS = {"readiness", "cover", "hub", "shortlist", "section", "question", "followup",
-         "story", "visual", "match", "notes"}
+KINDS = {"readiness", "cover", "hub", "shortlist", "section", "question", "notes"}
 ORIGINS = {"standard", "jd", "recruiter", "research", "risk"}
-WPM_WARN, WPM_ERROR = 165, 190
+# The candidate writes every answer in the deck, so a deck file never carries answer text: no script,
+# cues, closing or pivot line, or coaching note, and none of the slide kinds built from written answers.
+# The engine drops them too (questionsOnly); this is where they're caught and explained.
+ANSWER_FIELDS = ("script", "beats", "landing", "bridge", "avoid", "gateNote", "strategic", "lens", "extras", "framing")
+ANSWER_KINDS = {"story", "visual", "match"}
+ANSWER_DECK = ("gates", "beatLabels", "storyTargets", "stageLabels")
 DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
@@ -95,25 +99,26 @@ def validate(meta, content, defaults):
                 errors.append("section %s: missing %s" % (s.get("id", "?"), f))
     role_of = {s["id"]: s.get("role") for s in sections if "id" in s}
     themes = {t["id"] for t in defaults["askThemes"]} | {t.get("id") for t in deck.get("askThemes") or []}
+    for f in ANSWER_DECK:
+        if f in deck:
+            errors.append("deck.%s: answer coaching isn't used; the candidate writes every answer. Remove it." % f)
     for c in content:
         cid, kind = c.get("id", "?"), c.get("kind")
-        if kind not in KINDS:
+        if kind == "followup":
+            errors.append("%s: follow-ups aren't used. Make it a question of its own, or cut it." % cid)
+        elif kind in ANSWER_KINDS:
+            errors.append('%s: a "%s" slide is built from a written answer, and the candidate writes every answer. Cut it.' % (cid, kind))
+        elif kind not in KINDS:
             errors.append('%s: unknown kind "%s"' % (cid, kind))
         if "section" not in c:
             errors.append("%s: missing section" % cid)
-        if kind in ("question", "followup"):
+        for f in ANSWER_FIELDS:
+            if f in c:
+                errors.append("%s: %s is answer text, and the candidate writes every answer in the deck. Remove it." % (cid, f))
+        if kind == "question":
             for f in ("title", "why", "target"):
                 if f not in c:
                     errors.append("%s: question missing %s" % (cid, f))
-            # No script is the normal case: the candidate writes every answer in the deck.
-            if c.get("target") and c.get("script"):
-                wpm = len(c["script"].split()) / (c["target"] / 60.0)
-                if wpm > WPM_ERROR:
-                    errors.append("%s: %d words a minute; cut the script" % (cid, wpm))
-                elif wpm > WPM_WARN:
-                    warnings.append("%s: %d words a minute, fast for speech" % (cid, wpm))
-        if kind == "followup":
-            errors.append("%s: follow-ups aren't used. Make it a question of its own, or cut it." % cid)
         role = role_of.get(c.get("section"))
         if kind == "question" and role in ("hard", "ask"):
             if c.get("origin") not in ORIGINS:

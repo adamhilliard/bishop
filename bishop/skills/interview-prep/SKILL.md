@@ -113,7 +113,7 @@ The candidate's answers live in their browser as they type, and travel in `Maste
 ## Check it before handing it over
 
 - `--check` reports zero errors.
-- No question carries a script, beats, or a landing line you wrote.
+- No `why` hints at what to say. The builder rejects answer fields, but it can't read a `why` that slips one in ("lead with your retention numbers").
 - Every custom question cites where it came from, and every fact about the company in a `why` has a source.
 - The tough questions are actually tough: if nothing in the deck is uncomfortable to answer, it isn't finished.
 - The deck would be wrong for a different candidate for this role, or for this candidate at a different company.

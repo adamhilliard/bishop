@@ -3735,6 +3735,21 @@ const CONTENT = JSON.parse(document.getElementById('deck-content').textContent);
 
 const META = JSON.parse(document.getElementById('deck-meta').textContent);
 
+// A questions-only build (Bishop's, from export_bishop.mjs) shows the candidate's own answers and nothing
+// else: any answer text a deck file carries (a script, cues, closing or pivot lines, coaching notes) and
+// the slide kinds built from written answers (story timelines, framework drills, the match drill) are
+// dropped before anything renders. Bishop's builder rejects them too; this holds if one gets past it.
+const ANSWER_FIELDS = ['script', 'beats', 'landing', 'bridge', 'avoid', 'gateNote', 'strategic', 'lens', 'extras', 'framing'];
+const ANSWER_KINDS = ['story', 'visual', 'match'];
+if (META.deck?.site?.questionsOnly) {
+  for (let i = CONTENT.length - 1; i >= 0; i--) {
+    if (ANSWER_KINDS.includes(CONTENT[i].kind)) CONTENT.splice(i, 1);
+    else for (const f of ANSWER_FIELDS) delete CONTENT[i][f];
+  }
+  for (const f of ['gates', 'beatLabels', 'storyTargets', 'stageLabels']) delete META.deck[f];
+  META.stories = [];
+}
+
 // The Story Bank: bank.json in the Core deck's folder, served at /api/bank by the AI Home Tool Hub.
 // Story slides and behavioral answers read from it; edits to it save as Core's deck edits (ServerStore).
 // Opened anywhere else, it comes from the master set (LocalStore), or stays null.
@@ -3976,6 +3991,15 @@ const LocalStore = (() => {
   };
 })();
 const STORE = SERVED ? ServerStore : LocalStore;
+// What the page says about saving depends on where it saves: the AI Home Tool Hub (signed in, every
+// device) or this browser only (a deck opened as a file, as Bishop's are).
+const SAVED_WHERE = SERVED ? 'on every device' : 'in this browser';
+const TRY_AGAIN = SERVED
+  ? 'Check you’re signed in, then try again.'
+  : 'Try again. If it keeps failing, this browser may be blocking saved data (a private window does).';
+const TYPE_AGAIN = SERVED
+  ? 'Check you’re signed in, then type again.'
+  : 'Type again. If it keeps failing, this browser may be blocking saved data (a private window does).';
 const editTimers = new Map();
 // Save one field to the AI Home Tool Hub a moment after typing stops. Back to the original text removes the saved edit.
 function saveEdit(id, field, before, after) {
@@ -3990,7 +4014,7 @@ function saveEdit(id, field, before, after) {
         else await STORE.saveEdit(DECK_SLUG, { id, field, before, after });
         updateEditUI();
       } catch (e) {
-        toast('That edit didn\u2019t save. Check you\u2019re signed in, then type again.');
+        toast('That edit didn\u2019t save. ' + TYPE_AGAIN);
       }
     }, 700),
   );
@@ -4252,7 +4276,7 @@ async function saveAnswer(id, text) {
     else ANSWERS.delete(id);
     return true;
   } catch (e) {
-    toast('That answer didn’t save. Check you’re signed in, then try again.');
+    toast('That answer didn’t save. ' + TRY_AGAIN);
     return false;
   }
 }
@@ -4470,7 +4494,7 @@ async function hideLine(storyId) {
     await refreshBank();
     toast('Resume line removed.');
   } catch (e) {
-    toast('Couldn\u2019t remove that line. Check you\u2019re signed in, then try again.');
+    toast('Couldn\u2019t remove that line. ' + TRY_AGAIN);
   }
 }
 document.addEventListener(
@@ -4490,7 +4514,7 @@ async function deleteQuestion(id) {
   const fromBank = /^[qt]-/.test(id) && s.competency && BANK;
   if (
     !confirm(
-      `Delete this question?\n\n“${s.title}”\n\n${fromBank ? 'It comes from the Story Bank, so it leaves every deck.' : 'It is removed from this deck on every device.'}`,
+      `Delete this question?\n\n“${s.title}”\n\n${fromBank ? 'It comes from the Story Bank, so it leaves every deck.' : 'It is removed from this deck ' + SAVED_WHERE + '.'}`,
     )
   )
     return;
@@ -4518,7 +4542,7 @@ async function deleteQuestion(id) {
     render();
     toast('Question deleted.');
   } catch (e) {
-    toast('Couldn’t delete that question. Check you’re signed in, then try again.');
+    toast('Couldn’t delete that question. ' + TRY_AGAIN);
   }
 }
 // A deck question added from the page, placed after the last item of its section. It joins the built
@@ -4595,7 +4619,7 @@ async function addQuestion(where, title) {
     }
     toast('Question added.');
   } catch (e) {
-    toast('Couldn’t add that question. Check you’re signed in, then try again.');
+    toast('Couldn’t add that question. ' + TRY_AGAIN);
     render();
   }
 }
@@ -4776,7 +4800,7 @@ document.addEventListener('click', async (e) => {
 function secStatusHTML(s) {
   const b = linkedStory(s);
   const linked = b && draftOf(s).some((x) => x.field);
-  return `<span class="sec-status" id="sec-status" role="status">${linked ? `Story sections edit \u201C${esc(b.title)}\u201D in the Story Bank. Saves as you type.` : 'Saves as you type, on every device.'}</span>${orgPickHTML(s)}${lockHTML(s)}`;
+  return `<span class="sec-status" id="sec-status" role="status">${linked ? `Story sections edit \u201C${esc(b.title)}\u201D in the Story Bank. Saves as you type.` : 'Saves as you type, ' + SAVED_WHERE + '.'}</span>${orgPickHTML(s)}${lockHTML(s)}`;
 }
 // The opening of a question's answer: its first section with words in it, first paragraph only.
 function answerPreview(q) {
@@ -4843,7 +4867,7 @@ function queueSections(s, wait = 800) {
       const plain = secs.map((x) => (x.field ? { name: x.name, field: x.field } : { name: x.name, text: x.text }));
       const ok = await saveAnswer(s.id + '--sections', JSON.stringify(plain));
       if (ok && s.verify) markVerified(s, false);
-      secStatus(ok ? 'Saved.' : 'Didn’t save. Check you’re signed in, then type again.');
+      secStatus(ok ? 'Saved.' : 'Didn’t save. ' + TYPE_AGAIN);
     }, wait),
   );
 }
@@ -4864,7 +4888,7 @@ function queueStoryPart(s, field, val) {
         secStatus('Saved.');
         markVerified(s, true);
       } catch (e) {
-        secStatus('Didn’t save. Check you’re signed in, then type again.');
+        secStatus('Didn’t save. ' + TYPE_AGAIN);
       }
     }, 700),
   );
@@ -5030,7 +5054,7 @@ function openMoveMenu(btn) {
     try {
       await moveItem(item, from, o.to, o.ref ? dragItemOf(o.ref) : null, o.after);
     } catch (err) {
-      toast('Couldn’t move that. Check you’re signed in, then try again.');
+      toast('Couldn’t move that. ' + TRY_AGAIN);
     }
   });
   m.addEventListener('focusout', (e) => {
@@ -5144,7 +5168,7 @@ document.addEventListener('drop', async (e) => {
   try {
     await moveItem(d.item, d.from, to, p.ref ? dragItemOf(p.ref) : null, p.after);
   } catch (err) {
-    toast('Couldn’t move that. Check you’re signed in, then try again.');
+    toast('Couldn’t move that. ' + TRY_AGAIN);
   }
 });
 
@@ -5171,7 +5195,7 @@ async function renameBankQuestion(s, next) {
     syncHash('replace');
     toast('Question renamed.');
   } catch (e) {
-    toast('Couldn\u2019t rename that question. Check you\u2019re signed in, then try again.');
+    toast('Couldn\u2019t rename that question. ' + TRY_AGAIN);
   }
 }
 document.addEventListener('focusout', (e) => {
@@ -5386,7 +5410,9 @@ const lines = (t) =>
     .split('\n')
     .filter(Boolean);
 const NO_BANK =
-  '<div class="empty-message">This comes from the Story Bank, which didn’t load. Open this deck from the AI Home Tool Hub while signed in.</div>';
+  SERVED
+  ? '<div class="empty-message">This comes from the Story Bank, which didn’t load. Open this deck from the AI Home Tool Hub while signed in.</div>'
+  : '<div class="empty-message">This comes from the Story Bank, which has nothing saved in this browser yet.</div>';
 // The four STAR parts. Script shows the words, Beats the cues.
 function starHTML(b, s) {
   const L = layer(),
@@ -6033,11 +6059,11 @@ document.addEventListener('input', (e) => {
   ownNotesTimer = setTimeout(async () => {
     const ok = await saveAnswer(id + '--own', val);
     const st = document.getElementById('own-notes-status');
-    if (st) st.textContent = ok ? 'Saved.' : 'Not saved. Check your connection.';
+    if (st) st.textContent = ok ? 'Saved.' : SERVED ? 'Not saved. Check your connection.' : 'Not saved. ' + TYPE_AGAIN;
   }, 600);
 });
 function ownNotesHTML(s) {
-  return `<div class="own-notes"><div class="own-notes-head"><b>Your notes from the call</b><span class="sec-status" id="own-notes-status" role="status">Saves as you type, on every device.</span></div><textarea data-own-notes="${esc(s.id)}" rows="4" spellcheck="true" aria-label="Your notes from the call" placeholder="Type or paste your notes from the conversation here.">${esc(ANSWERS.get(s.id + '--own') || '')}</textarea></div>`;
+  return `<div class="own-notes"><div class="own-notes-head"><b>Your notes from the call</b><span class="sec-status" id="own-notes-status" role="status">Saves as you type, ${SAVED_WHERE}.</span></div><textarea data-own-notes="${esc(s.id)}" rows="4" spellcheck="true" aria-label="Your notes from the call" placeholder="Type or paste your notes from the conversation here.">${esc(ANSWERS.get(s.id + '--own') || '')}</textarea></div>`;
 }
 function renderNotes(s) {
   return `<div class="eyebrow">${esc(s.eyebrow || 'Preparation notes, not spoken copy')}</div><h1 style="margin-top:17px">${esc(s.title)}</h1>${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ''}${ownNotesHTML(s)}${(s.cards || []).map((c, ci) => `<div class="evidence-card"><h3>${esc(c.title)}</h3>${(c.paragraphs || []).map((p, pi) => `<p${p.startsWith('VERIFY') ? ' class="verify-inline"' : ''}${editAttrs(s, 'cards.' + ci + '.paragraphs.' + pi, true)}>${esc(p)}</p>`).join('')}${(c.bullets || []).length ? `<ul>${c.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}</div>`).join('')}${(s.links || []).length ? `<div class="chain-links">${s.links.map((l) => `<button data-go="${esc(l.id)}">${esc(l.label || l.id)} ↗</button>`).join('')}</div>` : ''}`;
@@ -6619,7 +6645,7 @@ document.addEventListener('input', (e) => {
         await STORE.putStory(b.id, { [field]: value });
         toast('Saved to the Story Bank.');
       } catch (err) {
-        toast('Couldn’t save to the Story Bank. Check your connection and sign-in.');
+        toast(SERVED ? 'Couldn’t save to the Story Bank. Check your connection and sign-in.' : 'Couldn’t save to the Story Bank. ' + TRY_AGAIN);
       }
     }, 600),
   );
@@ -6935,8 +6961,9 @@ STORE.bank().then((bank) => {
       w.className = 'verify-inline';
       w.setAttribute('role', 'alert');
       w.style.margin = '0 0 18px';
-      w.textContent =
-        'The Story Bank didn’t load, so story slides and competency questions are missing. Reload while signed in to the AI Home Tool Hub; if it keeps happening, the bank’s sign-in check is refusing this page.';
+      w.textContent = SERVED
+        ? 'The Story Bank didn’t load, so story slides and competency questions are missing. Reload while signed in to the AI Home Tool Hub; if it keeps happening, the bank’s sign-in check is refusing this page.'
+        : 'The Story Bank didn’t load in this browser, so story slides and competency questions are missing. Try reloading the page.';
       $('#main').prepend(w);
     }
     const fromUrl = slideFromHash();

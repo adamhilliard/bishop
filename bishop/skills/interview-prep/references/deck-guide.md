@@ -97,10 +97,10 @@ One folder per deck, named by its slug, inside `Interview_Prep/`: a `meta.json`,
 python <this skill>/scripts/build_deck.py Interview_Prep/<slug> --master Interview_Prep/Master_Answers.json
 ```
 
-The builder checks before it writes: duplicate ids, missing fields, any follow-up (a second angle is a question of its own), a tough question or question to ask with no `origin`, a custom one with no `source`, a question to ask with no `theme`, a risk no tough question covers, no top risk on the cover, and a question written for this interview that doesn't say where it came from. Fix every error, and treat every warning as one unless you can say why it doesn't apply. **If you added a question to the master deck, rebuild `core.html` too.**
+The builder checks before it writes: duplicate ids, missing fields, any answer text (a script, cues, a closing or pivot line), any follow-up (a second angle is a question of its own), a tough question or question to ask with no `origin`, a custom one with no `source`, a question to ask with no `theme`, a risk no tough question covers, no top risk on the cover, and a question written for this interview that doesn't say where it came from. Fix every error, and treat every warning as one unless you can say why it doesn't apply. **If you added a question to the master deck, rebuild `core.html` too.**
 
 **Then check by hand:**
-- No question carries a script, beats, or a landing line.
+- No `why` hints at what to say. The builder rejects answer fields, but it can't read a `why` that slips one in.
 - Every company fact in the deck has its source and date in the evidence notes.
 - The deck would be wrong for a different candidate for this role, or for this candidate at a different company. If it wouldn't, it isn't tailored yet.
 

@@ -1,6 +1,6 @@
 {
   "_about": "Written by apps/13-humblebrag/export_bishop.mjs. Don't edit by hand; edit Humblebrag and export again.",
-  "engine": "07f0b3d6b1c3",
+  "engine": "d1a59f200aba",
   "masterFormat": {
     "format": "humblebrag.master",
     "version": 1
@@ -8,7 +8,8 @@
   "site": {
     "brand": "Humblebrag",
     "masterSlug": "core",
-    "storyBankUrl": ""
+    "storyBankUrl": "",
+    "questionsOnly": true
   },
   "askThemes": [
     {

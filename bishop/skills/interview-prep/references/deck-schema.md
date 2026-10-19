@@ -23,7 +23,7 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 
 > **No follow-ups.** A second angle on a question is a question of its own; the builder rejects `"kind": "followup"`.
 
-> **Leave the answer fields empty.** `script`, `beats`, `landing`, `bridge`, `avoid` and `gateNote` exist in the engine, but the candidate writes every answer in the deck. Don't fill them.
+> **No answer fields.** The candidate writes every answer in the deck, so the builder rejects any answer text on a slide (`script`, `beats`, `landing`, `bridge`, `avoid`, `gateNote`, `strategic`, `lens`, `extras`, `framing`), answer coaching in `meta.deck` (`gates`, `beatLabels`), and the slide kinds built from a written answer (`story`, `visual`, `match`).
 
 ```json
 {"kind": "question", "id": "QA1", "section": "A", "chain": "QA1",
@@ -56,8 +56,6 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 **hub**: the priority page, right after the cover in section `I`. `priorities: [{id, title, quote, detail, answers: [slide ids]}]`. The quote is the hiring team's own words (relayed words are fine, attributed in `detail`: "Priya, via the recruiter"); leave it out rather than paraphrasing into quotation marks.
 
 > **Priorities are written twice, for two jobs.** The hub's list is what the candidate sees: the quote, the evidence, and the questions that answer each one. `META.priorities` is the map the builder checks against: ids, titles, and `partial`. Same ids and titles in both.
-
-**visual**: a drill revealed one step at a time. `labels` and `details` (same length), `note`, `mode` (`"map"` for a hub-and-spoke, anything else for steps).
 
 **notes**: `eyebrow`, `intro`, `cards: [{title, paragraphs, bullets}]`. A paragraph starting with `VERIFY` shows as an open item.
 

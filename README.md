@@ -2,7 +2,7 @@
 
 Bishop is an AI agent that runs recurring job searches in Claude. One setup interview saves your profile and scoring rules onto your own computer. A scheduled task then sources roles from job boards, applicant tracking systems, and the job pages startup investors keep for their companies. Bishop then checks each posting is real, scores it against what you actually want, and hands you a ranked digest.
 
-When an interview lands, **Humblebrag**, Bishop's interview prep, builds a study deck you practice out loud: the question shows, the answer hides, the timer runs. You answer the questions every interview asks once, in your own words, and each interview gets its own deck tailored to the posting and the people you'll meet.
+When an interview lands, Bishop builds a deck you practice out loud: the question shows, the answer hides, the timer runs. You answer the questions every interview asks once, in your own words, and each company gets one deck, tailored to the posting and the people you'll meet in every round.
 
 Free, MIT licensed, and it works at any career level, from first job to executive search.
 
@@ -83,7 +83,7 @@ In a new conversation, say:
 |---|---|
 | `/bishop:job-search` | The main skill. Setup interview, search techniques, verification rules, the recurring cycle, and a weekly quality audit that checks whether the search is mechanically doing what it claims. |
 | `/bishop:dashboard` | Optional. Turns your tracking files into a private web dashboard at a bookmarkable link that refreshes every cycle. Run it after your first cycle. |
-| `/bishop:interview-prep` | Humblebrag. Builds your master deck (the questions every interview asks, answered in your own words) and a tailored study deck for each interview. Each deck is one file that opens in any browser. Say *"Help me prep for my interview with…"* |
+| `/bishop:interviews` | Interview practice. Builds your master deck (the questions every interview asks, answered in your own words) and a tailored study deck for each interview. Each deck is one file that opens in any browser. Say *"Help me prep for my interview with…"* |
 
 You don't need to type any of these names. Describe what you want, or use the name you gave your search, and Claude picks the right one.
 

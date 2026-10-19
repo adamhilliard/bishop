@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
-"""Build one interview study deck: a single HTML file that opens anywhere, with no server.
+"""Build one interview deck: a single HTML file that opens anywhere, with no server.
 
-    python build_deck.py <deck folder> [--master <master file>] [-o <out.html>] [--check]
+    python build_deck.py <deck folder> [--master <answers file>] [--round <id>] [-o <out.html>] [--check]
 
 A deck folder holds meta.json and content/*.json (references/deck-schema.md). The page is
 assets/template.html with its three slots filled: the deck's content, its meta, and, when given,
-the user's master-set file (references/master-set.md), which lets a company deck show the answers
-the user wrote in their master deck. The page lands next to the deck folder as <slug>.html, so
-every deck sits side by side and a deck's "Edit in Core" link finds core.html.
+the candidate's answers file (references/answers-file.md), which lets a company deck show the
+answers they wrote in their master deck. The page lands next to the deck folder as <slug>.html, so
+every deck sits side by side and a deck's "Edit in the master deck" link finds core.html.
 
---check validates without writing. Exits 1 on any error.
+One deck per company covers every round of its process: meta.deck.rounds lists them and
+meta.deck.round picks the one coming up. --round builds or checks another round without changing
+the files. The top bar carries the name the candidate gave their search, read from
+Reference_Profile.md in the Bishop folder above the deck.
 
-Mirrors Humblebrag's own builder (build_deck.mjs): the template and defaults.json are exported from
-it, so only the filling happens here. Python 3.8+, standard library only.
+--check validates without writing. Exits 1 on any error. Python 3.8+, standard library only.
 """
 import datetime
 import json
@@ -57,6 +59,77 @@ def load(folder):
     return meta, content
 
 
+def search_name(folder):
+    """The name the candidate gave their search at setup: Reference_Profile.md's Bot Name field,
+    else its title ("# Wall-E Reference Profile: Maya Chen"), in the nearest folder above the deck."""
+    d = os.path.abspath(folder)
+    for _ in range(4):
+        d = os.path.dirname(d)
+        p = os.path.join(d, "Reference_Profile.md")
+        if not os.path.isfile(p):
+            continue
+        with open(p, encoding="utf-8") as f:
+            lines = [x.rstrip() for x in f]
+        for i, line in enumerate(lines):
+            if re.match(r"^#+\s*Bot Name\s*$", line):
+                for nxt in lines[i + 1 :]:
+                    if nxt.strip().startswith("#"):
+                        break
+                    if nxt.strip():
+                        return nxt.strip().strip("*").strip()
+        for line in lines:
+            m = re.match(r"^#\s+(.+?)\s+Reference Profile\b", line)
+            if m:
+                return m.group(1).strip()
+        return None
+    return None
+
+
+def apply_round(meta, content, round_id, errors):
+    """One deck per company, every round in it: keep the picked round's shortlist and its questions
+    (a slide with "rounds" is only for those rounds), name the questions-to-ask section for that
+    round's interviewer, put the round's guide first on the cover, and set the interview line."""
+    deck = dict(meta.get("deck") or {})
+    rounds = deck.get("rounds")
+    if not rounds:
+        return meta, content
+    if not isinstance(rounds, list):
+        errors.append("deck.rounds: a list of the process's rounds")
+        return meta, content
+    ids = [r.get("id") for r in rounds]
+    for r in rounds:
+        if not r.get("id") or not r.get("label"):
+            errors.append("deck.rounds: every round needs an id and a label (%s)" % json.dumps(r))
+    pick = round_id or deck.get("round")
+    cur = next((r for r in rounds if r.get("id") == pick), None)
+    if not cur:
+        errors.append('deck.round "%s" is not one of deck.rounds (%s)' % (pick, ", ".join(str(i) for i in ids)))
+        return meta, content
+    for c in content:
+        for r in c.get("rounds") or []:
+            if r not in ids:
+                errors.append('%s: rounds names "%s", which is not in deck.rounds' % (c.get("id", "?"), r))
+    keep = lambda c: (c.get("round") in (None, cur["id"])) if c.get("kind") == "shortlist" else (not c.get("rounds") or cur["id"] in c["rounds"])
+    dropped = {c.get("id") for c in content if not keep(c)}
+    content = [c for c in content if keep(c)]
+    deck["round"] = cur["id"]
+    deck["interview"] = {"date": cur.get("date"), "time": cur.get("time"), "round": cur.get("label")}
+    if cur.get("guide"):
+        cover = dict(deck.get("cover") or {})
+        cover["guides"] = [cur["guide"]] + list(cover.get("guides") or [])
+        deck["cover"] = cover
+    out = dict(meta)
+    out["deck"] = deck
+    ask = next((s for s in meta.get("sections") or [] if s.get("role") == "ask"), None)
+    if ask and cur.get("ask"):
+        title = "Questions for %s" % cur["ask"]
+        out["sections"] = [dict(s, title=title, questionLabel="Ask %s" % cur["ask"]) if s is ask else s for s in meta["sections"]]
+        content = [dict(c, title=title) if c.get("kind") == "section" and c.get("section") == ask.get("id") else c for c in content]
+    if meta.get("risks"):
+        out["risks"] = [dict(rk, answers=[a for a in rk.get("answers") or [] if a not in dropped]) for rk in meta["risks"]]
+    return out, content
+
+
 def slug_of(text):
     return re.sub(r"[^a-z0-9]+", "-", str(text).lower()).strip("-")
 
@@ -70,10 +143,12 @@ def interview_line(iv):
     return " · ".join(p for p in parts if p)
 
 
-def prepare_meta(meta, defaults):
+def prepare_meta(meta, defaults, name=None):
     deck = dict(meta.get("deck") or {})
     deck["askThemes"] = list(defaults["askThemes"]) + list(deck.get("askThemes") or [])
     deck["site"] = dict(defaults["site"])
+    if name:
+        deck["site"]["brand"] = name
     line = interview_line(deck.get("interview"))
     if line:
         deck["sidebar"] = [line] + list(deck.get("sidebar") or [])
@@ -157,28 +232,31 @@ def to_script(obj):
     return json.dumps(obj, indent=2, ensure_ascii=False).replace("</", "<\\/")
 
 
-def build(meta, content, defaults, master=None):
+def build(meta, content, defaults, master=None, name=None):
     with open(os.path.join(ASSETS, "template.html"), encoding="utf-8") as f:
         html = f.read()
     fills = [
         ("__CONTENT__", to_script(content)),
-        ("__META__", to_script(prepare_meta(meta, defaults))),
+        ("__META__", to_script(prepare_meta(meta, defaults, name))),
         ("__MASTER_DATA__", '<script type="application/json" id="master-data">%s</script>' % to_script(master) if master else ""),
     ]
     for token, value in fills:
         if html.count(token) != 1:
-            sys.exit("assets/template.html needs exactly one %s; export it again from Humblebrag" % token)
+            sys.exit("assets/template.html needs exactly one %s; rebuild it with build_template.py" % token)
         html = html.replace(token, value, 1)
     return html
 
 
 def main(argv):
-    args, opts = [], {"master": None, "out": None, "check": False}
+    args, opts = [], {"master": None, "out": None, "check": False, "round": None}
     i = 0
     while i < len(argv):
         a = argv[i]
         if a == "--master":
             opts["master"] = argv[i + 1]
+            i += 1
+        elif a == "--round":
+            opts["round"] = argv[i + 1]
             i += 1
         elif a in ("-o", "--out"):
             opts["out"] = argv[i + 1]
@@ -194,7 +272,10 @@ def main(argv):
     folder = os.path.abspath(args[0])
     defaults = read_json(os.path.join(ASSETS, "defaults.json"))
     meta, content = load(folder)
+    round_errors = []
+    meta, content = apply_round(meta, content, opts["round"], round_errors)
     errors, warnings = validate(meta, content, defaults)
+    errors = round_errors + errors
     for w in warnings:
         print("WARN:  " + w)
     for e in errors:
@@ -205,13 +286,13 @@ def main(argv):
     master = None
     if opts["master"]:
         master = read_json(opts["master"])
-        want = defaults["masterFormat"]
+        want = defaults["answersFile"]
         if master.get("format") != want["format"] or master.get("version") != want["version"]:
-            print("ERROR: %s is not a master-set file this version reads" % opts["master"])
+            print("ERROR: %s is not an answers file this version reads" % opts["master"])
             return 1
     slug = (meta.get("deck") or {}).get("slug") or slug_of(os.path.basename(folder))
     out = opts["out"] or os.path.join(os.path.dirname(folder), slug + ".html")
-    html = build(meta, content, defaults, master)
+    html = build(meta, content, defaults, master, search_name(folder))
     with open(out, "w", encoding="utf-8", newline="\n") as f:
         f.write(html)
     n = lambda k: sum(1 for c in content if c.get("kind") == k)

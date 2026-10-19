@@ -1,6 +1,6 @@
 {
   "name": "bishop",
-  "description": "Bishop runs your job search and preps you for the interviews it lands. A setup interview writes your profile and scoring rubric; a scheduled task then sources, verifies, scores, and ranks roles into a digest. Humblebrag, its interview prep, builds study decks you drill out loud: a master deck of the questions every interview asks, answered once in your own words, and a tailored deck for each interview. Includes an optional private web dashboard. You name your own copy during setup.",
+  "description": "Bishop runs your job search and preps you for the interviews it lands. A setup interview writes your profile and scoring rubric; a scheduled task then sources, verifies, scores, and ranks roles into a digest. Its interview practice builds decks you drill out loud: a master deck of the questions every interview asks, answered once in your own words, and one tailored deck per company. Includes an optional private web dashboard. You name your own copy during setup.",
   "version": "2.0.0",
   "author": {
     "name": "Adam Hilliard"

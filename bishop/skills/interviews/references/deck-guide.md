@@ -1,6 +1,6 @@
-# Building an interview deck
+# Building a company's deck
 
-How to turn one interview into a deck of questions the candidate will practice answering: collect, map, write the questions, build, check. The fields are in `deck-schema.md`.
+How to turn one company's interview process into a deck of questions the candidate will practice answering: collect, map, write the questions, build, check. **One deck per company covers every round,** and two companies never share a deck. The fields are in `deck-schema.md`.
 
 > **Questions only.** You write what will be asked and why. The candidate writes every answer, in the deck, and that's the practice. No scripts, sample answers, recall cues, closing lines, or "a strong answer covers…" notes.
 
@@ -15,7 +15,7 @@ Ask for everything in one round. Don't interview the candidate about their work 
 - `Interview_Prep/core/`: the master questions this deck can link to.
 
 **Ask the candidate**
-1. Who is interviewing, their title, and how they connect to the role
+1. Who is interviewing, their title, and how they connect to the role, and who they expect in every round after this one
 2. The format, length, date and platform
 3. Notes from any earlier round, especially a recruiter screen. **A recruiter's exact words are the most valuable input in the whole build:** they say what the hiring team thinks the job actually is.
 4. Anything they know is coming, or have already answered badly
@@ -32,7 +32,16 @@ Read every source, then show the map in chat. Every item gets an id, so the deck
 | **Priorities** (5 to 7) | P1… | What this hire is really being brought in to solve, ranked by what the hiring team said out loud, not the order the posting lists things. Each carries its evidence: a recruiter quote or a posting line. A hiring manager's words relayed by a recruiter are still a quote; attribute them as relayed ("Priya, via the recruiter"). Mark any the candidate can only partly speak to (`partial`). |
 | **Gaps and risks** | R1… | Where the interview will press: a requirement they lack, scope they can't claim, the level or tenure or layoff question, the one they've fumbled before, and anything research found that an interviewer will raise. Each carries its source. |
 | **Research findings** | F1… | Fact, source, date, and the question it leads to. |
+| **The loop** | round ids | Every round of the process, mapped now: who's in it, their seat, what they decide, and what they'll test. Unknown rounds come from the usual pattern (below), named by seat. |
 | **Master questions** | master ids | Which master questions each priority will draw on. A priority none of them covers needs a new master question: add it to `core` for the candidate to answer, in the section it belongs to (a resume bullet goes in Resume, even past the rigor's count, since this interview needs it), and say so in the map ("I'll add one question to your master deck: …"). |
+
+**The usual rounds, when nobody has said:**
+
+| Process | Rounds |
+|---|---|
+| Search firm | The associate's screen, the search lead, the hiring manager, then a panel or the CEO |
+| In-house recruiter | Recruiter or talent screen, the hiring manager, a panel of peers, an executive |
+| Warm intro | The introducer, the decision-maker, the team |
 
 Show the map. Ask for corrections: the candidate will fix the priorities and add what you couldn't know. Then write the questions.
 
@@ -58,7 +67,7 @@ Every map item becomes a question before any standard one is added, and a standa
 | **B. Their priorities** | One question per priority, asked the way this hiring team would ask it. A second angle on a priority is a question of its own. **Resume questions go here too:** each one points at a bullet that answers a priority ("Our clinics take 90 days to go live. You cut time-to-live from 60 to 35 days. How?"). |
 | **C. Behavioral** | Tell me about a time, aimed at the priorities. Link each to the master question it draws on (`core`). |
 | **E. Tough Questions** (`role: "hard"`) | At least two custom questions that press mapped risks, each with its `origin` and `source`. Then the master deck's tough questions that apply, linked with `core`. Every risk in `META.risks` is covered. |
-| **F. Questions to ask** (`role: "ask"`) | 3 or 4 custom questions from the posting, the recruiter or research, each citing its `source`, then 2 or 3 standard ones. Close with one that surfaces their doubts while the candidate can still answer them. Every one carries a `theme`. |
+| **F. Questions to ask** (`role: "ask"`) | 3 or 4 custom questions from the posting, the recruiter or research, each citing its `source`, then 2 or 3 standard ones. Close with one that surfaces their doubts while the candidate can still answer them. Every one carries a `theme`. A question meant for one round's interviewer carries `rounds` (`["hm"]`); one any round can answer carries none. |
 | **N. Evidence notes** | The research findings, each with its source and date, and anything the candidate should confirm before the interview. |
 
 **Tags.** Every question in Tough Questions or Questions to Ask carries an `origin`: `standard`, `jd` (the posting), `recruiter`, `research` or `risk`. Anything but `standard` also cites its `source`. The deck shows the tag on each card.
@@ -87,6 +96,14 @@ A recruiter screen or 30-minute round takes the lower end; a full loop with a hi
 
 **Resume questions:** pick the resume bullets this role makes relevant, put each in Their Priorities, and link it to its master question (`core`), worded the way this interviewer would ask it.
 
+### Rounds
+
+**List every round in `meta.deck.rounds` at the first build, and pick the one coming up with `meta.deck.round`.** Each round has an `id`, a `label`, and `ask` (the name in "Questions for …"), plus `date` and `time` once booked. Two optional extras help when the round calls for them:
+- **A `guide`** (`{title, body}`): who this interviewer is and what they'll test. It shows first on the cover.
+- **A `shortlist`** slide naming its `round`: the 8 to 12 questions that interviewer is most likely to ask, reached from a tab.
+
+**When the next round comes, update this deck:** set `deck.round`, add that round's questions and any guide or shortlist, rebuild. Never start a second deck for the same company.
+
 ### Writing the files
 
 One folder per deck, named by its slug, inside `Interview_Prep/`: a `meta.json`, and one file per section in `content/` (`00-intro.json` holds the `cover` and the priority `hub`, in section `I`, listed first in `sections` as `{"id": "I", "title": "Overview"}`; then `10-opening.json`, `20-priorities.json`, `30-behavioral.json`, `40-hard.json`, `50-ask.json`, `90-notes.json`). Every section that holds questions starts with a `section` slide. The fields are in `deck-schema.md`.
@@ -96,6 +113,8 @@ One folder per deck, named by its slug, inside `Interview_Prep/`: a `meta.json`,
 ```
 python <this skill>/scripts/build_deck.py Interview_Prep/<slug> --master Interview_Prep/Master_Answers.json
 ```
+
+Then `--check --round <id>` for every other round in `deck.rounds`, since a build checks only the round it builds.
 
 The builder checks before it writes: duplicate ids, missing fields, any answer text (a script, cues, a closing or pivot line), any follow-up (a second angle is a question of its own), a tough question or question to ask with no `origin`, a custom one with no `source`, a question to ask with no `theme`, a risk no tough question covers, no top risk on the cover, and a question written for this interview that doesn't say where it came from. Fix every error, and treat every warning as one unless you can say why it doesn't apply. **If you added a question to the master deck, rebuild `core.html` too.**
 

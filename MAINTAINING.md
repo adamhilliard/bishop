@@ -17,11 +17,12 @@ bishop/                              the plugin
     │   └── scripts/                 sweep, audit, and capture tooling
     ├── dashboard/                   /bishop:dashboard
     │   └── SKILL.md
-    └── interview-prep/              /bishop:interview-prep (Humblebrag)
+    └── interviews/                  /bishop:interviews
         ├── SKILL.md
         ├── references/              deck guide, deck schema, the answers file
-        ├── scripts/build_deck.py    fills the template with a deck's data
-        └── assets/                  template.html and defaults.json: generated, never edited here
+        ├── engine/                  the deck page's source: shell.html, engine.css, engine.js, answers.js
+        ├── scripts/                 build_template.py (engine/ to assets/template.html), build_deck.py (fills it)
+        └── assets/                  template.html (built from engine/), defaults, question banks
 build_package.py                     builds the handoff zip
 ```
 
@@ -35,7 +36,7 @@ build_package.py                     builds the handoff zip
 
 **`python build_package.py` still builds `bishop.zip`**, which stays useful for two things: attaching to a GitHub Release for people not installing from a marketplace, and `claude --plugin-dir bishop.zip` for a one-session trial. The zip is not committed; it's a release asset.
 
-> **Verify before announcing.** `claude plugin validate ./bishop`, then load the plugin and confirm all three skills come up as `/bishop:job-search`, `/bishop:dashboard` and `/bishop:interview-prep`.
+> **Verify before announcing.** `claude plugin validate ./bishop`, then load the plugin and confirm all three skills come up as `/bishop:job-search`, `/bishop:dashboard` and `/bishop:interviews`.
 >
 > **`validate` only reads `plugin.json`.** It checks the manifest and never opens a skill file, so a plugin with broken skill frontmatter validates clean, installs clean, lists clean, and then does nothing when someone asks it for a job search. That shipped once already (`af31`, "fix the job-search skill's frontmatter, which failed to parse"). **Only loading it actually proves it loads.**
 
@@ -85,6 +86,8 @@ Extracted from a live executive job search that has been running daily since Jul
 
 **That search is a separate repository and this one does not read from it.** Fixes flow here as releases rather than as a live dependency, so a lagging copy here means an unreleased change, not a broken link.
 
+**The interviews module was extracted the same way,** from the maintainer's own interview prep tool, which keeps running separately. It has its own engine in `engine/`; nothing here reads from that tool, and a fix that would help any candidate is ported on purpose.
+
 ## Attribution rules
 
 **Attribution lives in six places, and nowhere else on purpose:** the root README, the plugin README recipients read at install, the `author` field in `plugin.json`, a one-line header in each bundled script, **a short signed letter shown once at the top of setup**, and **the refusal Bishop gives when asked to write an application** (1.6.2), which names the author and links his LinkedIn as the human-review alternative.
@@ -99,11 +102,11 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 ### 2.0.0 (unreleased)
 
-**Humblebrag joins as Bishop's interview prep (`/bishop:interview-prep`), and the plugin's name on the Plugins screen becomes plain "Bishop."** It builds a master deck of the questions every interview asks, which the candidate answers once in their own words, and a tailored study deck per interview whose generic questions show those master answers. Each deck is one self-contained HTML file; answers save in the browser and travel as an exported `Master_Answers.json`.
+**Interview practice joins Bishop (`/bishop:interviews`), and the plugin's name on the Plugins screen becomes plain "Bishop."** It builds a master deck of the questions every interview asks, which the candidate answers once in their own words, and one deck per company, covering every round of that company's process, whose standard questions show those master answers. Each deck is one self-contained HTML file in Bishop's look (the robot and the search's name in the top bar, as on the dashboard); answers save in the browser and travel as an exported `Master_Answers.json`.
 
 > **Unreleased.** Ships in 2.0 together with the outreach module, still to be built.
 
-> **`assets/` is generated.** `template.html` and `defaults.json` come from Humblebrag's source (`export_bishop.mjs`), the same engine the maintainer's own decks run on, and `build_deck.py` only fills the template's data slots. Fix the engine there and export again; never hand-edit the template. Its output was checked byte for byte against Humblebrag's own builder on a sample deck before the branch was pushed; recheck before 2.0 ships.
+> **`engine/` is the source; `assets/template.html` is built from it.** Edit the engine files, run `python scripts/build_template.py`, and commit both; `build_template.py --check` fails if the committed template is stale. Never hand-edit the template. The robot mark and favicon come from the dashboard's `assets/robot.svg`, so the two pages share one mark.
 
 ### 1.9.0
 

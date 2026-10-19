@@ -2,7 +2,7 @@
 
 A recurring job search that runs itself in Claude. It interviews you once to learn what you're after, then works on a schedule: finding new roles across job boards and company career pages, checking each posting is real and still says what it said, ranking them against what actually matters to you, and handing you a ranked digest.
 
-When an interview lands, Humblebrag, Bishop's interview prep, builds a study deck you practice out loud, tailored to that interview.
+When an interview lands, Bishop builds a deck you practice out loud, one per company, tailored to that company's interviews.
 
 Works at any career level, from first job to executive search.
 
@@ -79,7 +79,7 @@ It'll also ask for a one-time OK so it doesn't have to interrupt you at every st
 |---|---|
 | `/bishop:job-search` | The main skill: the setup interview, the recurring search, and a weekly self-check. |
 | `/bishop:dashboard` | Optional. Turns your search into a private web dashboard at a bookmarkable link. Run it after your first search. |
-| `/bishop:interview-prep` | Humblebrag, the interview prep. A master deck of the questions every interview asks, answered once in your own words, and a study deck for each interview. Say *"Help me prep for my interview with…"* |
+| `/bishop:interviews` | Interview practice. A master deck of the questions every interview asks, answered once in your own words, and a study deck for each interview. Say *"Help me prep for my interview with…"* |
 
 You don't need to type any of these names. Just describe what you want and Claude picks the right one.
 

@@ -1,20 +1,22 @@
 ---
-name: interview-prep
+name: interviews
 description: >-
-  Humblebrag, Bishop's interview prep. Builds interactive study decks the candidate drills out loud: a master deck of the questions every interview asks, and a deck for each interview with the questions that interview will ask, tailored to the posting, the interviewers, and the candidate's real gaps. The candidate writes every answer themselves, in the deck, and practices saying it. Each deck is one HTML file that opens in any browser with no account or server; answers save as they type, recordings play back with a transcript, and weak answers loop in a drill. Use this whenever someone has an interview coming up, wants to practice for one, wants a study deck, asks about "Humblebrag," or wants to prep for a role their Bishop search found.
+  Bishop's interview practice. Builds interactive decks the candidate drills out loud: a master deck of the questions every interview asks, and one deck per company with the questions that company's interviews will ask, round by round, tailored to the posting, the interviewers, and the candidate's real gaps. The candidate writes every answer themselves, in the deck, and practices saying it. Each deck is one HTML file that opens in any browser with no account or server; answers save as they type, recordings play back with a transcript, and weak answers loop in a drill. Use this whenever someone has an interview coming up, wants to practice for one, wants a study deck or interview prep, or wants to prep for a role their Bishop search found. Users name their own copy of Bishop during setup, so a request to their named job bot for interview help belongs here.
 ---
 
-# Humblebrag: interview prep
+# Bishop Interviews
 
-Humblebrag gives the candidate the questions an interview will ask and a place to practice answering them: they write each answer in their own words, then drill it out loud with the answer hidden and a timer running. It's a Bishop module: it reads the candidate's Bishop profile and the roles their search tracks, so they never re-enter their history.
+This module gives the candidate the questions an interview will ask and a place to practice answering them: they write each answer in their own words, then drill it out loud with the answer hidden and a timer running. It reads the candidate's Bishop profile and the roles their search tracks, so they never re-enter their history. Every deck wears the same Bishop frame as the dashboard: the robot and their search's name in the top bar.
 
 > **You provide the questions. The candidate writes every answer.** Writing the answer down and drilling it *is* the practice; a drafted script turns prep into memorizing someone else's words. So never write a script, a sample answer, recall cues, a closing line, or advice on what to say. What you do write is everything about the *question*: what will be asked, why they're asking, where it came from (the posting, the recruiter, research, the candidate's own gaps), and the questions the candidate should ask them. If the candidate asks you to draft an answer, say this deck works best when the words are theirs, and offer to ask them questions that help them find their own.
 
 **Two kinds of deck, one set of answers.**
 - **The master deck (`core`)** holds the questions every interview asks: opening, behavioral, tough questions, and questions to ask. The candidate answers each once and keeps improving it. Built once, kept forever.
-- **An interview deck** holds the questions one interview will ask: about the role's priorities, the candidate's gaps against them, and questions to ask this company. Where it asks what the master deck asks, it links to it (`core`) and shows the candidate's master answer until they write a version for this interview, so an answer improved once improves every deck.
+- **A company deck** holds the questions one company's interviews will ask, every round of its process: the role's priorities, the candidate's gaps against them, and questions to ask, aimed at each round's interviewer. Where it asks what the master deck asks, it links to it (`core`) and shows the candidate's master answer until they write a version for this company, so an answer improved once improves every deck.
 
-> **Say it in plain language.** The candidate never needs to hear "JSON," "slug," "meta," or a script name. They have a *master deck*, *interview decks*, and *their answers*.
+> **One deck per company, never more, never shared.** A later round updates that company's deck; it never gets a deck of its own. Two companies never share a deck.
+
+> **Say it in plain language.** The candidate never needs to hear "JSON," "slug," "meta," or a script name. They have a *master deck*, a *deck for each company*, and *their answers*.
 
 **Runs in Claude Code, like the rest of Bishop.** It needs a shell, file access, and Python 3 (the same as the job search). Before anything else, confirm those work; if they don't, say so in one plain sentence and stop.
 
@@ -25,14 +27,16 @@ In the candidate's Bishop folder (the one holding `Reference_Profile.md`), in a 
 ```
 Interview_Prep/
   core/                 the master deck's source: meta.json, content/*.json
-  <company>/            one folder per interview deck, named by its slug (acme-robotics)
+  <company>/            one folder per company, named by its slug (acme-robotics), every round in it
   core.html             the built decks, side by side
   <company>.html
   Master_Answers.json   the candidate's answers, exported from the master deck
   <resume file>         their resume, saved here with their OK (Bishop's setup doesn't keep one)
 ```
 
-Build a deck with `python scripts/build_deck.py Interview_Prep/<deck> --master Interview_Prep/Master_Answers.json` (the path to this skill's `scripts/`). It writes `<deck>.html` next to the folder. Leave out `--master` when the file doesn't exist yet. `--check` validates without writing.
+Build a deck with `python scripts/build_deck.py Interview_Prep/<deck> --master Interview_Prep/Master_Answers.json` (the path to this skill's `scripts/`). It writes `<deck>.html` next to the folder. Leave out `--master` when the file doesn't exist yet. `--check` validates without writing; `--round <id>` builds or checks a round other than the one coming up.
+
+**After changing anything under `engine/`** (the deck page's source, for the maintainer), run `python scripts/build_template.py` to rebuild `assets/template.html`, then rebuild the decks.
 
 ## Job 1: build the master deck (once)
 
@@ -91,20 +95,22 @@ Use the bank's wording exactly; it's been reviewed and every question is balance
 
 ### Step 2: build it and hand it over
 
-Give every question a `why` (what the interviewer is trying to learn, in one sentence), a `target` in seconds (120 for tell me about yourself, 60 to 90 for the rest, 0 for questions to ask) and no `script`. Set `"deck": {"slug": "core", "title": "Master Deck", "brandTitle": "<their name>", "master": true, "evergreen": true, "rigor": "medium", "theme": {"accent": "#e2541b"}, "jd": {"none": "Every interview"}}`, sections in the order of the table above, open with a `readiness` slide (id `cover`, section `I`, listed first in `sections`), start each section with its `section` slide, build it, and open `core.html` for them.
+Give every question a `why` (what the interviewer is trying to learn, in one sentence), a `target` in seconds (120 for tell me about yourself, 60 to 90 for the rest, 0 for questions to ask) and no `script`. Set `"deck": {"slug": "core", "title": "Master Deck", "brandTitle": "Master deck", "master": true, "evergreen": true, "rigor": "medium", "theme": {"accent": "#e2541b"}, "jd": {"none": "Every interview"}}`, sections in the order of the table above, open with a `readiness` slide (id `cover`, section `I`, listed first in `sections`), start each section with its `section` slide, build it, and open `core.html` for them.
 
 **Tell them how to use it:** in **Study**, click into a question and write the answer the way they'd say it; **+ Add STAR** splits a "tell me about a time" into Situation, Task, Action, Result; **Lock In** marks an answer done; **+ Add Question** adds their own. Readiness shows what's left to write and lock. Then **Export Answers** (bottom of the sidebar) saves `Master_Answers.json`: ask them to save it into `Interview_Prep/`, or find it in their Downloads folder and move it there with their OK.
 
-## Job 2: build a deck for an interview
+## Job 2: build a company's deck, and update it each round
 
-When an interview is booked. Follow `references/deck-guide.md`, in order:
+When the first interview with a company is booked. Follow `references/deck-guide.md`, in order. **Map every round of the process at the first build** (the guide lists the usual patterns), so a later round is an update, not a new deck:
 
 1. **Collect the inputs in one round:** the posting (from the tracking file, or ask), who's interviewing and their role, the format and date, notes from any earlier round (a recruiter's exact words are the most valuable input there is), and anything they're worried about. Research the company: public, recent, and dated.
 2. **Map it,** in chat: the role's priorities, the candidate's gaps and risks against them, research findings, and which master questions each priority will draw on. The candidate corrects the map; then build the deck.
 3. **Write the questions.** Custom first: every priority, risk and finding becomes a question before any standard question is added. A question that asks what a master question asks links to it with `"core"`. Questions to ask cite their source.
 4. **Build it** with `--master` so their master answers show, fix every error, and open it. If the map added a question to their master deck, rebuild `core.html` too, and tell them before anything else.
 
-The deck and the field reference are in `references/deck-schema.md`; the answers file is in `references/master-set.md`.
+**When the next round is booked,** open that company's deck folder, not a new one: set `deck.round` to it, add what's new for that interviewer (questions to ask tagged with `rounds`, a shortlist or a guide if they help), and rebuild. Answers, flags and ticks carry over, because it's the same deck.
+
+The deck and the field reference are in `references/deck-schema.md`; the answers file is in `references/answers-file.md`.
 
 ## Keeping the decks in step
 
@@ -118,4 +124,4 @@ The candidate's answers live in their browser as they type, and travel in `Maste
 - The tough questions are actually tough: if nothing in the deck is uncomfortable to answer, it isn't finished.
 - The deck would be wrong for a different candidate for this role, or for this candidate at a different company.
 
-Then tell them how to practice: **Study** to write each answer, **Test** to say it out loud with the answer hidden and reveal it to check (Script shows their answer, Beats shows the first words of each part), flag what comes out wrong, and press **D** to loop only those.
+Then tell them how to practice: **Study** to write each answer, **Test** to say it out loud with the answer hidden and reveal it to check (Answer shows their whole answer, Beats shows the first words of each part), flag what comes out wrong, and press **D** to loop only those.

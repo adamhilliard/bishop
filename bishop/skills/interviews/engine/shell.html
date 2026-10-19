@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#1a2944">
+<script>(function(){var m=window.matchMedia&&matchMedia('(prefers-color-scheme: light)');function set(){document.documentElement.dataset.theme=m&&m.matches?'light':'dark';}set();m&&m.addEventListener&&m.addEventListener('change',set);})();</script>
+<link rel="icon" href="__FAVICON__">
+<title>Interview practice</title>
+__ENGINE_CSS__
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to Content</a>
+<header class="topbar"><div class="brand"><div class="brandmark" aria-hidden="true">__ROBOT__</div><div><strong id="brand-title"></strong><small id="brand-sub"></small></div></div><div class="top-actions"><a id="jd-link" class="jd-link" target="_blank" rel="noopener" hidden>Job Description <span aria-hidden="true">↗</span></a><span id="jd-none" class="pill jd-none" hidden></span><div class="purpose-group" role="group" aria-label="Study or test"><button data-purpose="study" aria-pressed="true">Study</button><button data-purpose="test" aria-pressed="false">Test</button></div><div class="mode-group" aria-label="Recall level"><button data-global="1" aria-pressed="true"><span class="mode-key" aria-hidden="true">1</span>Answer</button><button data-global="2" aria-pressed="false"><span class="mode-key" aria-hidden="true">2</span>Beats</button></div><button data-go="top10" class="quiet" id="top10-tab" hidden>Shortlist</button><button data-action="help" class="quiet" aria-label="Keyboard controls">? <span class="mobile-title">Controls</span></button></div></header>
+<div class="layout"><aside><nav id="section-nav" aria-label="Sections"></nav><div class="side-bottom"><div id="side-meta"></div><span id="side-flags">0 slides flagged</span><br>Your answers, flags and timings are saved in this browser.</div></aside><main id="main" tabindex="-1"><div class="slide-status"><div class="left"><span id="section-label" class="eyebrow"></span><span id="mode-label" class="pill"></span><span id="run-label" class="pill" hidden></span></div><div class="right" id="counter"></div></div><div id="slide" class="slide-content"></div></main></div>
+<footer class="footer"><ol id="steps" class="steps" aria-label="Deck progress"></ol><div class="footer-row"><div class="transport"><button data-action="prev" aria-label="Previous slide">←</button><button data-action="reveal" id="reveal-btn" class="primary">Reveal <kbd>Space</kbd></button><button data-action="next" aria-label="Next slide">→</button></div><div class="tools"><button data-action="flag" id="flag-btn" aria-pressed="false">Flag <kbd>F</kbd></button><button data-action="drill" id="drill-btn" aria-pressed="false">Drill Flagged <kbd>D</kbd></button></div><div class="timer" id="timer"><button data-action="timer" id="timer-btn" aria-label="Record your answer"><span class="rec-icon">●</span> <span id="time">0:00</span> <span id="target-time">/ 1:00</span></button><button data-action="reset-timer" class="quiet" aria-label="Reset speaking timer" title="Reset timer">↺</button></div></div><div class="footer-caption"><span id="footer-hint">Space reveals. Arrow keys navigate.</span><span id="footer-mode"></span></div></footer>
+
+<dialog id="help"><div class="dialog-top"><h2>Practice controls</h2><button data-close="help" aria-label="Close controls">×</button></div><p class="intro">Write your answers in Study. In Test, say each answer out loud first, then reveal it to check. Press ● (or T) to record a take with a transcript, kept only in this browser. Every keyboard action also has an on-screen control, and on a phone you can swipe left or right to move.</p><div class="shortcut-grid"><p>Previous / next slide <kbd>← / →</kbd></p><p>Reveal your answer <kbd>Space</kbd></p><p>Answer / Beats <kbd>1 / 2</kbd></p><p>Flag this slide <kbd>F</kbd></p><p>Drill flagged slides <kbd>D</kbd></p><p>Record / stop your answer (and its timer) <kbd>T</kbd></p><p>Show / close controls <kbd>?</kbd></p><p>Close an open panel <kbd>Esc</kbd></p></div><div class="evidence-card"><h3>Choose what Test reveals</h3><div class="hero-actions"><button data-global="1">1 Answer</button><button data-global="2">2 Beats</button></div><p><b>Answer:</b> question first; reveal your full answer.<br><b>Beats:</b> reveal only the first words of each part, to build recall.</p></div><p class="tiny muted">Drill can be switched off at any time. The timer pauses when you leave a slide.</p></dialog>
+
+<div id="toast" class="toast" role="status" hidden></div>
+<noscript><p style="padding:40px">This deck needs JavaScript enabled. It runs on your computer, with no internet connection needed.</p></noscript>
+<script type="application/json" id="deck-content">__CONTENT__</script>
+<script type="application/json" id="deck-meta">__META__</script>
+__MASTER_DATA__
+__ENGINE_JS__
+</body>
+</html>

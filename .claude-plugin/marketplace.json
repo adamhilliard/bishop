@@ -4,14 +4,14 @@
     "name": "Adam Hilliard",
     "url": "https://github.com/adamhilliard"
   },
-  "description": "Bishop — a recurring job search that runs itself in Claude Code.",
+  "description": "Bishop: a recurring job search that runs itself in Claude Code, with interview prep for the roles it finds.",
   "plugins": [
     {
       "name": "bishop",
-      "displayName": "Bishop Job Search",
+      "displayName": "Bishop",
       "source": "./bishop",
-      "description": "A recurring job search that runs itself. A setup interview writes your profile and scoring rubric, then a scheduled task sources, verifies, scores, and ranks roles into a digest you actually read. Includes an optional private web dashboard. Works at any career level.",
-      "version": "1.9.0",
+      "description": "A recurring job search that runs itself, and interview prep for the roles it finds. A setup interview writes your profile and scoring rubric, then a scheduled task sources, verifies, scores, and ranks roles into a digest you actually read. Humblebrag builds interview study decks you practice out loud, tailored to each interview. Includes an optional private web dashboard. Works at any career level.",
+      "version": "2.0.0",
       "author": {
         "name": "Adam Hilliard",
         "url": "https://adamhilliard.com"
@@ -20,8 +20,16 @@
       "repository": "https://github.com/adamhilliard/bishop",
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["job search", "career", "recruiting", "job tracker", "digest", "scheduled"]
+      "keywords": [
+        "job search",
+        "career",
+        "recruiting",
+        "job tracker",
+        "digest",
+        "scheduled",
+        "interview prep",
+        "interview practice"
+      ]
     }
   ]
 }
-

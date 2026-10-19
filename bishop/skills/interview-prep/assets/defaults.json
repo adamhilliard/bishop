@@ -1,0 +1,63 @@
+{
+  "_about": "Written by apps/13-humblebrag/export_bishop.mjs. Don't edit by hand; edit Humblebrag and export again.",
+  "engine": "f665ea02b601",
+  "masterFormat": {
+    "format": "humblebrag.master",
+    "version": 1
+  },
+  "site": {
+    "brand": "Humblebrag",
+    "masterSlug": "core",
+    "storyBankUrl": ""
+  },
+  "askThemes": [
+    {
+      "id": "history",
+      "code": "F1",
+      "title": "Role History",
+      "testing": "Why the seat is open, and who held it before."
+    },
+    {
+      "id": "structure",
+      "code": "F2",
+      "title": "Team and Reporting",
+      "testing": "Where the seat sits, and where it's headed."
+    },
+    {
+      "id": "scope",
+      "code": "F3",
+      "title": "Scope",
+      "testing": "What the role owns, and what it doesn't."
+    },
+    {
+      "id": "stability",
+      "code": "F4",
+      "title": "Stability and Runway",
+      "testing": "Whether the company can fund the plan."
+    },
+    {
+      "id": "first-year",
+      "code": "F5",
+      "title": "The First Year",
+      "testing": "What the job is, day to day."
+    },
+    {
+      "id": "leadership",
+      "code": "F6",
+      "title": "Leadership and Culture",
+      "testing": "How the people above this seat lead."
+    },
+    {
+      "id": "terms",
+      "code": "F7",
+      "title": "Terms",
+      "testing": "Format, on-site days and pay."
+    },
+    {
+      "id": "close",
+      "code": "F8",
+      "title": "Before You Leave",
+      "testing": "Their doubts, and the next step."
+    }
+  ]
+}

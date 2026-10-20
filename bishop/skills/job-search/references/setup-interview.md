@@ -20,7 +20,7 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 - **Never celebrate the occasion.** A meaningful share of people opening this were laid off last week. Warm and matter-of-fact, never upbeat about the situation itself.
 - **Announce nothing you'll ask later.** Naming a cadence or a setting before its question reads as a decision already made.
 
-> **Reactive levers, not questions.** Two things are never asked up front; the closing note tells the user how to trigger them later: a second job-family track, and rules about company type ("too small," "wrong industry"). Both are triggered by the user saying **"make a rule."**
+> **Reactive levers, not questions.** Two things are never asked up front; the closing note tells the user how to trigger them later: a second job-family track, and rules about company type ("too small," "wrong industry"). Both are triggered by the user saying **"make a rule,"** and each rule goes where `feedback-loop.md`'s routing table says.
 
 ---
 

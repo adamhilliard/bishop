@@ -35,7 +35,8 @@ Usage:
 
 Input is one URL per line, optionally followed by a tab and a label echoed
 back. Output is one line per row, then CANARY, COUNT, and STATUS. The COUNT
-line is what the weekly audit reads; keep its shape.
+and CANARY lines supply the numbers for the cycle's Search Notes RESOLVE line,
+and that RESOLVE line is what the weekly audit reads (check E8); keep its shape.
 """
 
 import argparse
@@ -241,7 +242,7 @@ def main():
                     help="one URL per line, optional tab-separated label")
     ap.add_argument("--canary",
                     help="a URL known to be live. Without one, nothing is "
-                         "marked expired and the run reports NO-CANARY.")
+                         "marked expired and the run reports CANARY: NONE.")
     args = ap.parse_args()
 
     rows = read_rows(args.urls_file)

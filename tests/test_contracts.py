@@ -104,6 +104,8 @@ for f in tracks:
             report("%s: column for %s (dashboard)" % (f, why), k in head or (k == "link" and "apply" in head), "header: " + head)
         report("%s: apply links are links (dashboard, interviews)" % f, bool(re.search(r"https?://", text)), "no link in the file")
         bad = [r for r in live[0][1] if not re.search(r"\*\*Stage: (open|applied \d{4}-\d{2}-\d{2}|interviewing \d{4}-\d{2}-\d{2})\*\*", " | ".join(r))]
+        no_next = [r for r in live[0][1] if r not in bad and "next:" not in " | ".join(r)]
+        report("%s: every live row names its next step (dashboard)" % f, not no_next, "%d row(s) without next:" % len(no_next))
         report("%s: every live row opens Key Context with its stage (dashboard, interviews)" % f, not bad,
                "%d row(s) without a stage token" % len(bad))
     report("%s: search notes block (dashboard)" % f, bool(re.search(r"search notes", text, re.I)), "no search notes")

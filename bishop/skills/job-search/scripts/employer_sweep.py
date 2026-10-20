@@ -511,18 +511,62 @@ def classify(tier, comp_summary, floor_k, no_pay):
 # Sweeping
 # --------------------------------------------------------------------------
 
-def sweep(name, board, seniority, function, stretch, step_down, floor_k, no_pay):
+def member(slug):
+    """The Search Notes member name for a board: its slug, or the first part of
+    a multi-part slug (`acme.wd5.myworkdayjobs.com / acme / ACMEUS` ->
+    `acme.wd5.myworkdayjobs.com`). One lowercase token, because the audit
+    reads a member's name as the first word of its COVERAGE field."""
+    first = re.split(r"[/|,]", slug.strip().strip("`"))[0]
+    return re.sub(r"[\s\u00b7:]+", "-", first.strip().strip("`")).lower() or "?"
+
+
+def coverage_line(results):
+    """The employers fragment of the Search Notes COVERAGE line, in the shape
+    scaffolding.md fixes: `employers <read>/<total> COMPLETE|INCOMPLETE`, then
+    one `<member> <count>` per board, zeros included. A partly read board
+    carries INCOMPLETE and an unreadable one FAILED, never a zero: a board
+    nobody read is a coverage gap, not an empty market.
+
+    results: [(member, count or None, state)], state one of ok/partial/failed.
+    A board listed in two sets is reported once."""
+    seen, parts = set(), []
+    for name, n, state in results:
+        if name in seen:
+            continue
+        seen.add(name)
+        if state == "failed":
+            parts.append("%s FAILED" % name)
+        elif state == "partial":
+            parts.append("%s %d INCOMPLETE" % (name, n))
+        else:
+            parts.append("%s %d" % (name, n))
+    done = sum(1 for p in parts if not p.endswith(("FAILED", "INCOMPLETE")))
+    head = "employers %d/%d %s" % (done, len(parts),
+                                   "COMPLETE" if done == len(parts) else "INCOMPLETE")
+    return u" \u00b7 ".join([head] + parts)
+
+
+def sweep(name, board, seniority, function, stretch, step_down, floor_k, no_pay,
+          results=None):
+    """Sweep one set. Returns the failed-board notes for the STATUS line, and
+    appends (member, count, state) per board to results, for the COVERAGE
+    fragment main() prints."""
     hits, held, failed, scanned = [], [], [], 0
+    counts = []
     print("=== %s (%d boards) ===" % (name, len(board)))
     for company, platform, slug in board:
         try:
             rows = pull(platform, slug)
+            state = "ok"
         except PartialRead as e:
             rows = e.rows
+            state = "partial"
             failed.append("%s (partial: %s)" % (company, e))
         except Exception as e:
             failed.append("%s (%s)" % (company, str(e)[:40]))
+            counts.append((member(slug), None, "failed"))
             continue
+        counts.append((member(slug), len(rows), state))
         scanned += len(rows)
         for title, loc, comp in rows:
             if not function.search(title):
@@ -552,6 +596,14 @@ def sweep(name, board, seniority, function, stretch, step_down, floor_k, no_pay)
             print("       %-20s | %-40s | %-9s | %s" % (c, t[:40], tier, reason[:24]))
         print("     Add one by hand only with a reason the board cannot show.")
     print("  scanned %d postings across %d boards" % (scanned, len(board)))
+    # One line per board, zeros included. Zero is the value this exists to
+    # carry: a board at zero while its peers return rows is a wrong slug,
+    # and that is invisible in a total.
+    for m, n, state in counts:
+        print("  %s %s" % (m, "FAILED" if n is None
+                           else "%d INCOMPLETE" % n if state == "partial" else n))
+    if results is not None:
+        results += counts
     return failed
 
 
@@ -598,12 +650,14 @@ def main():
         no_pay = "all"
 
     print("index: %s" % path)
-    failed = []
+    failed, results = [], []
     for heading, board in sets:
         failed += sweep(heading.upper(), board, seniority, function, stretch,
-                        step_down, floor_k, no_pay)
+                        step_down, floor_k, no_pay, results)
 
     print("-" * 60)
+    print("COVERAGE fragment (paste into the Search Notes COVERAGE line):")
+    print(coverage_line(results))
     if failed:
         print("STATUS: INCOMPLETE - unreadable or partly read boards: %s" % "; ".join(failed))
         print("        Report this as a coverage gap in the digest.")

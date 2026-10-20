@@ -10,8 +10,8 @@ so improvements here reach every search already running.
 | Section | What it covers | When it matters |
 |---|---|---|
 | **Search Integrity** | The seven rules that keep a partial sweep from reporting as a complete one | Read first; every technique below depends on it |
-| **Sourcing Techniques** | Source cadence, query design, the catch-up sweep, ATS site-search, VC boards, named-employer and association boards, recruiter postings, contact discovery, browser handling, volume management | Step 3 of the cycle |
-| **Verification Techniques** | Authority order, workplace type, time-zone restrictions, freshness, expiry, dating a posting, apply links, scope ownership, years-of-experience | Steps 2 and 4 of the cycle |
+| **Sourcing Techniques** | Source cadence, query design, the catch-up sweep, ATS site-search, VC boards, named-employer and association boards, recruiter postings, contact discovery, browser handling, volume management | Step 4 of the cycle |
+| **Verification Techniques** | Authority order, workplace type, time-zone restrictions, freshness, expiry, dating a posting, apply links, scope ownership, years-of-experience | Steps 3 and 7 of the cycle |
 
 > **`quality-audit.md` is the companion to Search Integrity and runs weekly, not per cycle.** These rules make a broken source detectable; that file is what actually goes looking.
 
@@ -73,7 +73,7 @@ The most expensive failure here is not a bad search. It's a search that ran inco
 **A status is a claim about a group; a count is evidence about a member.** `ATS: COMPLETE 25/25` was true and useless. The group passed, so nothing ever asked which hosts contributed, and four hosts returning nothing stayed invisible.
 
 - **List the exact query terms and sources run, every cycle**, and point at the source section rather than re-typing the list. A copied title list stops covering new targets the moment one is added, and nothing announces that.
-- **Log a result count per member for any grouped or paginating source, zeros included:** `ATS 25/25 COMPLETE · lever 6 · greenhouse 4 · ashby 3 · icims 0 · bamboohr 0`. It costs one line per cycle and replaces nothing. **Zero is the value the line exists to carry.** A member at zero for three cycles while its peers return results is a wrong address, and that inference is impossible from a group status and trivial from a count.
+- **Log a result count per member for any grouped or paginating source, zeros included:** `ATS 25/25 COMPLETE · lever 6 · greenhouse 4 · ashby 3 · icims 0 · bamboohr 0`. It costs one line per cycle and replaces nothing. **The example is abbreviated: a real line lists every host.** The named-employer sweep's per-board counts come straight from the script's output, so copy them rather than recounting. **Zero is the value the line exists to carry.** A member at zero for three cycles while its peers return results is a wrong address, and that inference is impossible from a group status and trivial from a count.
 - **Count parseable results, never roles that made the table.** A healthy source produces zero tracked roles for months; that is the market, not a defect. A source producing zero *parseable results* is broken. **Conflating the two demotes working sources and protects broken ones.**
 - **Log returned against claimed on anything paginated:** `getro 412/10976`. **A count that is exactly 20, 25, 50, 100, 250, 500, 750 or 1000 against a large inventory is a truncation signature**, not a result. One board API served exactly 20 rows per board against boards carrying 25,000.
 
@@ -431,7 +431,7 @@ An unattended run can't click a browser picker, and the properties that look lik
 **Four rules, in order of how much they save:**
 
 1. **Cap the scored table, not the search.** Score down to the band's table cap recorded in Career Level. Everything else that cleared the hard filters gets a one-line row in BELOW THE CAP: title, company, link, date found. Nothing is dropped, and nothing below the cap costs research time.
-2. **Research per company, not per role.** One employer with nine openings is one culture lookup and one stability lookup, cached with its verification date. This alone can cut research time by half in fields where large employers post constantly.
+2. **Research per company, not per role.** One employer with nine openings is one culture lookup and one stability lookup, cached with its verification date. **Refresh the cache once that date is more than 14 days old**, at any volume. This alone can cut research time by half in fields where large employers post constantly.
 3. **Filter before you research, never after.** Hard excludes and the location filter run on the posting text, which is already in hand. Culture and stability research runs only on what survived and made the cap.
 4. **Deduplicate before scoring.** The same requisition reaches the table three times from three sources with three URLs. Match on employer plus title plus location, keep the most durable link (company ATS over aggregator), and note the other sources on the row.
 
@@ -579,7 +579,7 @@ Two cautions:
 
 - **Capture at the cycle that first sees the role staged as applied.** Users apply between cycles, so nothing enforces this unless the run checks. Cross-check the tracking files against the folder every cycle and report the result even when nothing is missing, since a silent pass and a skipped check look identical.
 - **Check before you capture. This one bit hard.** A run once found four newly-applied roles, generated fresh files, and overwrote the user's own hand-saved captures without reading them first. They were recovered from git. **The test is "does a capture already exist for this role," and the answer "yes" means do nothing.**
-- **A browser capture of the live page beats a generated one.** `scripts/jd2pdf.py` renders a posting's own description block verbatim to PDF and is the fallback for reqs the user can no longer reach, not the default path for roles they still have open.
+- **A browser capture of the live page beats a generated one.** `scripts/jd2pdf.py` renders a posting's own description block verbatim to PDF and is the fallback for reqs the user can no longer reach, not the default path for roles they still have open. **It reads LinkedIn only and needs `reportlab`; never run it when LinkedIn is declined.**
 - **Never fabricate or paraphrase a description.** If it can't be retrieved, say so and move on. The file is only worth having if it's verbatim.
 - **Roles that arrived inbound from a recruiter are a different set** from roles the user applied to. Keep them apart, or the record stops answering "what did I actually pursue."
 
@@ -636,7 +636,7 @@ Two cautions:
 | # | Check | Trips when | Defined in |
 |---|---|---|---|
 | **R1** | **Posting age vs. displayed date.** Interpolate the job ID | The ID implies **3+ weeks older** than the displayed date | *Dating a posting for free* |
-| **R2** | **Prior appearance.** Grep the resolved index for company + title | The same seat resolved before, on **any** outcome | Dedupe index, `scaffolding.md` |
+| **R2** | **Prior appearance.** Grep every section of the tracking file (and `Index_` once split) for company + title | The same seat resolved before, on **any** outcome | Dedupe index, `scaffolding.md` |
 | **R3** | **Employer named.** Is there a real company on the posting | The employer is stripped, "Confidential," or unidentifiable | *Recruiter and undisclosed-employer postings* |
 | **R4** | **On the employer's own board.** Is the requisition on their careers page or ATS | The employer is named, their board is readable, and the requisition **is not on it** | *Apply-link rules* |
 

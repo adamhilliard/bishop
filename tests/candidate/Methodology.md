@@ -33,7 +33,7 @@ other tier reports `OFF-CADENCE` on every cycle, never a nil.
 ### Standing Techniques
 Per search-techniques.md. Deviations:
 
-- **Named-employer sweep:** run `scripts/employer_sweep.py` against Employer_Index.md every cycle. The index's unresolved row is a coverage gap, reported as such.
+- **Named-employer sweep:** run `employer_sweep.py`, from scripts/ in the Bishop plugin's job-search skill directory (absolute path in Operating_Procedures.md's File Map), against Employer_Index.md every cycle. Its per-board counts go into the COVERAGE line as printed. The index's unresolved row is a coverage gap, reported as such.
 
 ### Verification
 Per search-techniques.md. No deviations.

@@ -35,6 +35,17 @@ import sys
 ROUND_NUMBERS = (20, 25, 50, 100, 250, 500, 750, 1000)
 STATUSES = ("COMPLETE", "INCOMPLETE", "SAMPLED", "FAILED", "OFF-CADENCE", "CUT")
 DEFAULT_READ_BUDGET_KB = 200
+SPLIT_THRESHOLD_KB = 50      # one tracking file past this splits (scaffolding.md)
+
+# The silent-failure windows are stated in weeks and days in quality-audit.md,
+# so they are measured in days from the Search Notes entry dates. Counting
+# cycles instead makes a twice-weekly search trip in half the documented time.
+STEADY_DAYS = 28             # S3: above zero for 4+ weeks
+RISING_STEP_DAYS = 7         # S4: rising two weeks running, week over week
+CANARY_DEBT_DAYS = 14        # S5: debt older than 14 days
+COMPLETE_ZERO_DAYS = 21      # S6: COMPLETE at zero 3+ weeks running
+UNQUERIED_DAYS = 28          # S7: live 4+ weeks, query always empty
+CANARY_DEBT = ("OWED", "FAIL", "DUE", "PENDING")
 
 # Hosts a role's apply link can sit on, for the cross-surface check (S8).
 ATS_HOSTS = {
@@ -51,22 +62,26 @@ ATS_HOSTS = {
 }
 
 trips = []
+track_tag = [""]             # "Tracking_X.md: " while a per-track check runs
 
 
 def trip(check, msg):
+    msg = track_tag[0] + msg
     trips.append((check, msg))
     print("  [TRIP %-3s] %s" % (check, msg))
 
 
 def ok(check, msg):
-    print("  [ ok  %-3s] %s" % (check, msg))
+    print("  [ ok  %-3s] %s" % (check, track_tag[0] + msg))
 
 
 def blocked(check, msg):
-    print("  [blkd %-3s] %s" % (check, msg))
+    print("  [blkd %-3s] %s" % (check, track_tag[0] + msg))
 
 
 def section(title):
+    if track_tag[0]:
+        title += "  [%s]" % track_tag[0].rstrip(": ")
     print("\n" + title)
     print("-" * len(title))
 
@@ -106,10 +121,27 @@ def parse_member(token):
     return {"name": name, "got": got, "claimed": claimed, "status": status}
 
 
+def parse_date(stamp):
+    """'2026-08-04' or '8/4/26' -> datetime.date, or None if not a real date."""
+    try:
+        if "-" in stamp:
+            return datetime.date(*(int(x) for x in stamp.split("-")))
+        mo, dy, yr = (int(x) for x in stamp.split("/"))
+        return datetime.date(yr + 2000 if yr < 100 else yr, mo, dy)
+    except ValueError:
+        return None
+
+
 def parse_cycles(text):
-    """Split a tracking file's Search Notes into dated entries with their
-    COVERAGE and CANARY lines. Newest last."""
-    cycles = []
+    """Split ONE tracking file's Search Notes into dated entries with their
+    COVERAGE and CANARY lines, sorted by entry date, newest last.
+
+    Returns (cycles, undated). The windowed checks measure days between
+    entries, so an entry whose date does not parse is counted and left out
+    rather than guessed into place. The sort is stable, and it matters: a log
+    appended out of order would otherwise make an old entry read as this
+    cycle's."""
+    cycles, undated = [], 0
     marks = list(ENTRY.finditer(text))
     for i, m in enumerate(marks):
         body = text[m.end():marks[i + 1].start() if i + 1 < len(marks) else len(text)]
@@ -127,19 +159,40 @@ def parse_cycles(text):
                     if len(w) >= 2:
                         can[w[0].lower()] = w[1].upper()
         if cov or can:
-            cycles.append({"date": m.group(1), "coverage": cov, "canary": can})
-    return cycles
+            day = parse_date(m.group(1))
+            if day is None:
+                undated += 1
+                continue
+            cycles.append({"date": m.group(1), "day": day, "coverage": cov,
+                           "canary": can})
+    cycles.sort(key=lambda c: c["day"])
+    return cycles, undated
 
 
 def series(cycles, name):
     """Per-cycle counts for one member, oldest first, skipping cycles where it
-    did not appear or was off cadence."""
+    did not appear or was off cadence. Each entry carries its cycle's date
+    ("day") and that member's canary word in the same entry ("canary")."""
     out = []
     for c in cycles:
         for m in c["coverage"]:
             if m["name"] == name and m["status"] != "OFF-CADENCE":
-                out.append(m)
+                out.append(dict(m, day=c["day"], canary=c["canary"].get(name)))
     return out
+
+
+def trailing(s, test):
+    """The newest unbroken run of entries in s that pass test, oldest first."""
+    run = []
+    for m in reversed(s):
+        if not test(m):
+            break
+        run.append(m)
+    return run[::-1]
+
+
+def days_between(a, b):
+    return (b["day"] - a["day"]).days
 
 
 # --------------------------------------------------------------- checks
@@ -182,63 +235,102 @@ def silent_failure(cycles):
     else:
         ok("S2", "no round-number counts this cycle")
 
-    # S3 trend break
-    broke = []
+    # S3 trend break: above zero for 4+ weeks (by entry date, not by cycle
+    # count) and now exactly zero. A zero the same entry's canary vouched for
+    # is a market fact on a live source, not recipe decay.
+    broke, vouched = [], []
     for n in names:
         s = series(cycles, n)
-        if len(s) >= 5 and (s[-1]["got"] or 0) == 0:
-            prior = [m["got"] or 0 for m in s[-5:-1]]
-            if all(p > 0 for p in prior):
-                broke.append("%s (was %s)" % (n, "/".join(str(p) for p in prior)))
+        if not s or (s[-1]["got"] or 0) != 0:
+            continue
+        steady = trailing(s[:-1], lambda m: (m["got"] or 0) > 0)
+        if not steady or days_between(steady[0], s[-1]) < STEADY_DAYS:
+            continue
+        if s[-1]["canary"] == "PASS":
+            vouched.append(n)
+            continue
+        broke.append("%s (was %s over %d days)" % (
+            n, "/".join(str(m["got"]) for m in steady[-4:]),
+            days_between(steady[0], s[-1])))
+    note = ("; zero vouched by a same-entry CANARY PASS: %s" % ", ".join(vouched)
+            if vouched else "")
     if broke:
-        trip("S3", "averaged above zero for 4+ cycles and hit exactly zero: %s"
-             % "; ".join(broke))
+        trip("S3", "averaged above zero for 4+ weeks and hit exactly zero: %s%s"
+             % ("; ".join(broke), note))
     else:
-        ok("S3", "no source dropped from a steady rate to zero")
+        ok("S3", "no source dropped from a steady rate to zero%s" % note)
 
-    # S4 unvouched nils, rising
+    # S4 unvouched nils, rising two weeks running: this entry against the
+    # latest one a week or more before it, and that one against a week before.
     def unvouched(c):
         return [m["name"] for m in c["coverage"]
                 if (m["got"] or 0) == 0 and m["status"] != "OFF-CADENCE"
-                and m["name"] not in c["canary"]]
-    counts = [len(unvouched(c)) for c in cycles[-3:]]
-    if len(counts) == 3 and counts[0] < counts[1] < counts[2]:
-        trip("S4", "unvouched nils rising: %s" % " -> ".join(str(c) for c in counts))
-    else:
-        ok("S4", "unvouched nils this cycle: %d" % (counts[-1] if counts else 0))
+                and c["canary"].get(m["name"]) != "PASS"]
 
-    # S5 canary debt
+    def week_before(c):
+        back = c["day"] - datetime.timedelta(days=RISING_STEP_DAYS)
+        earlier = [x for x in cycles if x["day"] <= back]
+        return earlier[-1] if earlier else None
+    picked = [cycles[-1]]
+    while len(picked) < 3:
+        prev = week_before(picked[0])
+        if prev is None:
+            break
+        picked.insert(0, prev)
+    counts = [len(unvouched(c)) for c in picked]
+    if len(counts) == 3 and counts[0] < counts[1] < counts[2]:
+        trip("S4", "unvouched nils rising two weeks running: %s" % " -> ".join(
+            "%d (%s)" % (n, c["date"]) for n, c in zip(counts, picked)))
+    else:
+        ok("S4", "unvouched nils this cycle: %d" % counts[-1])
+
+    # S5 canary debt: a canary owed or failing is a source nobody can vouch
+    # for. Debt runs from the first entry that recorded it until a later
+    # entry clears it, and trips once older than 14 days by entry date.
     owed = {}
     for c in cycles:
         for n, v in c["canary"].items():
-            if v in ("OWED", "DUE", "PENDING"):
-                owed.setdefault(n, c["date"])
+            if v in CANARY_DEBT:
+                owed.setdefault(n, c)
             elif n in owed:
                 del owed[n]
-    if owed:
-        trip("S5", "canary owed: %s" % ", ".join("%s since %s" % kv for kv in owed.items()))
+    age = dict((n, days_between(c, cycles[-1])) for n, c in owed.items())
+
+    def debt(n):
+        return "%s %s since %s (%d days)" % (n, owed[n]["canary"][n],
+                                            owed[n]["date"], age[n])
+    old = [debt(n) for n in sorted(owed) if age[n] > CANARY_DEBT_DAYS]
+    if old:
+        trip("S5", "canary debt older than %d days: %s"
+             % (CANARY_DEBT_DAYS, ", ".join(old)))
+    elif owed:
+        ok("S5", "canary debt, none older than %d days: %s"
+           % (CANARY_DEBT_DAYS, ", ".join(debt(n) for n in sorted(owed))))
     else:
         ok("S5", "no canary debt")
 
-    # S6 success either way
+    # S6 success either way: COMPLETE at zero for 3+ weeks running.
     bad = []
     for n in names:
-        s = series(cycles, n)[-3:]
-        if len(s) == 3 and all(m["status"] == "COMPLETE" and (m["got"] or 0) == 0
-                               for m in s):
-            bad.append(n)
+        run = trailing(series(cycles, n),
+                       lambda m: m["status"] == "COMPLETE" and (m["got"] or 0) == 0)
+        if run and days_between(run[0], run[-1]) >= COMPLETE_ZERO_DAYS:
+            bad.append("%s (since %s)" % (n, run[0]["day"]))
     if bad:
-        trip("S6", "reporting COMPLETE at zero results 3 cycles running: %s"
+        trip("S6", "reporting COMPLETE at zero results 3+ weeks running: %s"
              % ", ".join(bad))
     else:
         ok("S6", "no source reporting success either way")
 
-    # S7 canary passes, query never does
+    # S7 canary passes, query never does: at zero for 4+ weeks with a passing
+    # canary for that member somewhere in the same span.
     bad = []
     for n in names:
-        s = series(cycles, n)[-4:]
-        passes = [c["canary"].get(n) == "PASS" for c in cycles[-4:]]
-        if len(s) == 4 and all((m["got"] or 0) == 0 for m in s) and any(passes):
+        run = trailing(series(cycles, n), lambda m: (m["got"] or 0) == 0)
+        if not run or days_between(run[0], run[-1]) < UNQUERIED_DAYS:
+            continue
+        if any(c["canary"].get(n) == "PASS" for c in cycles
+               if run[0]["day"] <= c["day"] <= run[-1]["day"]):
             bad.append(n)
     if bad:
         trip("S7", "canary passes and the real query never returns: %s" % ", ".join(bad))
@@ -327,19 +419,33 @@ def execution(project, prompt_path, budget_kb):
             else:
                 ok("E3", "the prompt states no rule it does not own")
 
-    # E4 per-cycle read budget
+    # E4 per-cycle read budget. The documented trigger is one tracking file
+    # past ~50 KB (scaffolding.md, "when a file splits"); the total across
+    # every per-cycle file is the secondary check.
     hot = ["Reference_Profile.md", "Methodology.md", "Operating_Procedures.md"]
-    hot += [os.path.basename(p) for p in glob.glob(os.path.join(project, "Tracking_*.md"))]
+    tracks = sorted(os.path.basename(p)
+                    for p in glob.glob(os.path.join(project, "Tracking_*.md")))
+    hot += tracks
     total = sum(os.path.getsize(os.path.join(project, f))
                 for f in hot if os.path.exists(os.path.join(project, f)))
     kb = total / 1024.0
+    track_kb = dict((f, os.path.getsize(os.path.join(project, f)) / 1024.0)
+                    for f in tracks)
+    oversize = ["%s %.0f KB" % (f, k) for f, k in sorted(track_kb.items())
+                if k > SPLIT_THRESHOLD_KB]
     if not total:
         blocked("E4", "none of the per-cycle files found in %s" % project)
-    elif kb > budget_kb:
-        trip("E4", "per-cycle read is %.0f KB against a %d KB budget; split the "
-                   "largest tracking file (see scaffolding.md)" % (kb, budget_kb))
     else:
-        ok("E4", "per-cycle read %.0f KB of %d KB" % (kb, budget_kb))
+        if oversize:
+            trip("E4", "tracking file past the %d KB split threshold: %s; split it "
+                       "(see scaffolding.md)" % (SPLIT_THRESHOLD_KB, ", ".join(oversize)))
+        if kb > budget_kb:
+            trip("E4", "per-cycle read is %.0f KB against a %d KB budget; split the "
+                       "largest tracking file (see scaffolding.md)" % (kb, budget_kb))
+        if not oversize and kb <= budget_kb:
+            ok("E4", "per-cycle read %.0f KB of %d KB; largest tracking file "
+                     "%.0f KB of %d KB" % (kb, budget_kb, max(track_kb.values() or [0]),
+                                          SPLIT_THRESHOLD_KB))
 
     # E5 open trials have a review date, and none is overdue
     log = read(os.path.join(project, "Decisions_Log.md"))
@@ -380,12 +486,21 @@ def execution(project, prompt_path, budget_kb):
     # E7 the reliability gate ran. A clean gate writes nothing, so a skipped
     # week and a quiet week produce the same tracking file. The GATE count in
     # the Search Notes log is the only artifact that separates them.
-    notes, entries = [], []
-    for path in glob.glob(os.path.join(project, "Tracking_*.md")):
-        notes.append(read(path))
-    for text in notes:
-        entries += re.split(r"^###\s+", text, flags=re.M)[1:]
-    scored = [e for e in entries if re.search(r"^COVERAGE:", e, re.M)]
+    # first: index into scored of each tracking file's earliest-dated entry,
+    # which E8 lets run with `canary NONE` (nothing is confirmed live yet).
+    scored, first = [], set()
+    for path in sorted(glob.glob(os.path.join(project, "Tracking_*.md"))):
+        mine = [e for e in re.split(r"^###\s+", read(path), flags=re.M)[1:]
+                if re.search(r"^COVERAGE:", e, re.M)]
+        dated = []
+        for i, e in enumerate(mine):
+            m = re.match(r"(\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/\d{2,4})\b", e)
+            day = parse_date(m.group(1)) if m else None
+            if day:
+                dated.append((day, i))
+        if dated:
+            first.add(len(scored) + min(dated)[1])
+        scored += mine
     with_gate = [e for e in scored if re.search(r"^GATE:", e, re.M)]
     if not scored:
         blocked("E7", "no Search Notes entries found; nothing to check")
@@ -417,16 +532,23 @@ def execution(project, prompt_path, budget_kb):
         blocked("E8", "no entry reports a RESOLVE line yet; link resolution is "
                       "not in use on this search (see search-techniques.md)")
     else:
-        gaps, untrusted = [], []
-        for e in scored:
+        # `canary NONE` is allowed only where no ACTIVE/ROLLING row can have
+        # been confirmed live yet. The file holds today's table, not the table
+        # as it stood at each entry, so "the table was empty then" is not
+        # knowable here: NONE is accepted on each track's first logged cycle
+        # only. FAIL is never accepted.
+        gaps, untrusted, first_none = [], [], []
+        for i, e in enumerate(scored):
             head = e.splitlines()[0][:40] if e.splitlines() else "?"
             m = re.search(r"^EVENTS:.*?(\d+)\s+new", e, re.M)
             added = int(m.group(1)) if m else 0
             r = re.search(r"^RESOLVE:\s*(.+)$", e, re.M)
             if added and not r:
                 gaps.append(head)
-            elif r and re.search(r"canary\s*(fail|none)", r.group(1), re.I):
+            elif r and re.search(r"canary\s*fail", r.group(1), re.I):
                 untrusted.append(head)
+            elif r and re.search(r"canary\s*none", r.group(1), re.I):
+                (first_none if i in first else untrusted).append(head)
         if gaps:
             trip("E8", "entr(ies) added rows with no RESOLVE count, so an "
                        "unrun resolver is indistinguishable from a clean one: "
@@ -437,7 +559,10 @@ def execution(project, prompt_path, budget_kb):
                        % ", ".join(untrusted))
         else:
             ok("E8", "%d of %d entries report a resolve count; every entry "
-                     "adding a row has one" % (len(with_resolve), len(scored)))
+                     "adding a row has one%s" % (
+                         len(with_resolve), len(scored),
+                         "; canary NONE accepted on a first logged cycle: %s"
+                         % ", ".join(first_none) if first_none else ""))
 
     # E6 index and archive agree, once a tracking file has been split
     idx = glob.glob(os.path.join(project, "Index_*.md"))
@@ -457,6 +582,10 @@ def execution(project, prompt_path, budget_kb):
             if orphan_refs or orphan_anchors:
                 trip("E6", "%s: %d index lines point at nothing, %d archived rows "
                            "have no index line" % (track, len(orphan_refs), len(orphan_anchors)))
+            elif not refs:
+                # Nothing on either side is nothing compared, not agreement.
+                blocked("E6", "%s: no index references (#anchor) and no archived "
+                              "anchors to compare" % track)
             else:
                 ok("E6", "%s: %d index lines, all resolving" % (track, len(refs)))
 
@@ -472,13 +601,29 @@ def main():
 
     print("QUALITY AUDIT  %s  %s" % (datetime.date.today().isoformat(), project))
 
-    tracking = sorted(glob.glob(os.path.join(project, "Tracking_*.md")))
-    text = u"".join(read(p) for p in tracking)
-    cycles = parse_cycles(text)
-    print("read %d tracking file(s), %d logged cycle(s)" % (len(tracking), len(cycles)))
+    # One track per tracking file. Each track's entries are sorted by date
+    # and checked on their own, so "this cycle" is that track's latest entry,
+    # never whichever file happened to sort last.
+    tracks = []
+    for path in sorted(glob.glob(os.path.join(project, "Tracking_*.md"))):
+        text = read(path)
+        cycles, undated = parse_cycles(text)
+        tracks.append((os.path.basename(path), text, cycles, undated))
+    print("read %d tracking file(s), %d logged cycle(s)"
+          % (len(tracks), sum(len(t[2]) for t in tracks)))
+    for name, _, _, undated in tracks:
+        if undated:
+            print("  %s: %d entr(ies) with an unreadable date left out of the "
+                  "dated checks" % (name, undated))
 
-    silent_failure(cycles)
-    cross_surface(cycles, text)
+    if not tracks:
+        silent_failure([])
+        cross_surface([], u"")
+    for name, text, cycles, _ in tracks:
+        track_tag[0] = "%s: " % name if len(tracks) > 1 else ""
+        silent_failure(cycles)
+        cross_surface(cycles, text)
+    track_tag[0] = ""
     execution(project, args.prompt, args.budget_kb)
 
     section("RESULT")

@@ -27,6 +27,16 @@ The bot gets meaningfully better around cycle three or four, and only if you clo
 
 **Correct the bot in conversation, not by editing rows.** Tell it what it got wrong; have it write the corrected rule into the right file and the reasoning into the log. Nearly every technique in `search-techniques.md` originated as a correction.
 
+**When the user says "make a rule," route it by what the rule does:**
+
+| The rule | Goes in |
+|---|---|
+| **Removes roles** from the search | The profile's Hard Excludes |
+| **Ranks roles**, raising or lowering them and removing none | The profile's Company Profile, or the motivator buckets |
+| **Has a review trigger** (a stage, a date, or an event that reopens it) | Stage-Tied Rules, and only these |
+
+**On a new hard exclude, re-screen ACTIVE/ROLLING.** Rows that now fail move to NOT INTERESTED with `Excluded by rule [DL-xx]`, and the digest names them. If the named example matches no tracked employer, say so in one line.
+
 > **Writing the rule down is half the correction.** The other half is changing whatever executes it, in the same pass. A widened criterion that no query can reach, or a new tier of role that every sweep still filters out, reads as fixed and behaves as if you never touched it. See "A rule that lives only in prose is not in effect" in `search-techniques.md`.
 
 ### Open Trials: every rule on trial, in one table, with a review date

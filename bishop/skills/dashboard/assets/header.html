@@ -2,14 +2,19 @@
   Bishop dashboard header: reference markup and styles. Copy these into dashboard.html;
   do not redraw them. Open this file in a browser to see it.
 
-  Fill in:
-    {{WORDMARK}}  The user's name has a file in headers/ (bishop, data, wall-e, baymax, tars,
-                  johnny-5, r2-d2, rosie, kitt, optimus, astro): paste that file's <svg> here.
-                  Any other name: use <span class="stock">Their Name</span> instead.
-    {{ROBOT}}     The <svg> from robot.svg, with everything inside it wrapped in <g id="bm-robot">.
-                  The second robot is the <use> already in the markup, which draws the same group.
-    {{SEARCH}}    "Search 7 · Mon 3/16 · 24 roles · 2 interviewing", built from the data.
-  The squares and the source list are rendered by the page script (see SKILL.md, Step 3).
+  Fill in each slot in the markup below (slot names are written here without their braces,
+  so a find-and-replace can't fill this comment):
+    WORDMARK  The user's name has a file in headers/ (bishop, data, wall-e, baymax, tars,
+              johnny-5, r2-d2, rosie, kitt, optimus, astro): paste that file's <svg> here.
+              Any other name: use <span class="stock">Their Name</span> instead.
+    ROBOT     The <svg> from robot.svg, with everything inside it wrapped in <g id="bm-robot">.
+              The second robot is the <use> already in the markup, which draws the same group.
+    SEARCH    "Search 7 · Mon 3/16 · 24 roles · 2 interviewing", built from the data.
+    RUNWORD   "ok" when no source square is a gap, otherwise "gaps".
+    RUNCLASS  The matching class: ok (green) or gaps (gap blue).
+  Fill the squares and rows at build time from the latest COVERAGE line: one square per
+  top-level source (groups, not members). COMPLETE is clean; SAMPLED, INCOMPLETE, CUT AT n
+  and FAILED are a gap; OFF-CADENCE is off. Sources declined at setup get no square.
 
   Color is 60/30/10. 60 neutral (ground, cards); 30 navy (this header, tinted surfaces);
   10 the user's accent from setup (buttons, links, focus, score bars). The header itself is
@@ -32,6 +37,7 @@
   /* The name sits centered between two robots. */
   .hd-brand { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3.5cqi, 32px); min-width: 0; }
   .hd-mark { width: clamp(36px, 9cqi, 84px); height: auto; flex: none; display: block; }
+  .hd-mark > svg { display: block; width: 100%; height: auto; }
   .hd h1 { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; font: inherit; }
   /* Width follows the letter count, so every name gets the same letter height. */
   .hd .wordmark { width: calc(var(--cols) * clamp(2.6px, .78cqi, 8.6px)); max-width: 100%; height: auto; display: block; }
@@ -44,7 +50,7 @@
   .hd-line { display: flex; gap: 8px; align-items: center; margin: 0; min-width: 0; }
   .hd-line .k { color: var(--hd-dim); }
   .hd-line .dots { flex: 1 1 24px; min-width: 16px; border-bottom: 2px dotted var(--hd-rule); }
-  .hd-line > .ok { color: var(--hd-clean); }
+  .hd-line > .ok { color: var(--hd-clean); } .hd-line > .gaps { color: var(--hd-gap); }
   /* ">" means "this opens". Only the sources line carries it; it turns down when open. */
   .hd-sources > summary { list-style: none; cursor: pointer; }
   .hd-sources > summary::-webkit-details-marker { display: none; }
@@ -64,8 +70,8 @@
   .hd-list .clean .st { color: var(--hd-clean); } .hd-list .gap .st { color: #9ccbff; } .hd-list .off .st { color: var(--hd-dim); }
   @container (max-width: 480px) {
     .hd-line { display: block; } .hd-line .dots { display: none; }
-    .hd-line > .ok, .hd-line > .hd-squares, .hd-line > .more { margin-left: 8px; vertical-align: middle; }
-    .hd-sources > summary .hd-line { padding-block: 10px; min-height: 0; }
+    .hd-line > .ok, .hd-line > .gaps, .hd-line > .hd-squares, .hd-line > .more { margin-left: 8px; vertical-align: middle; }
+    .hd-sources > summary .hd-line { padding-block: 10px; min-height: var(--tap); }
     .hd-sources > summary .hd-line::before { margin-right: 8px; }
     .hd-list > div { grid-template-columns: 1fr; }
   }
@@ -79,7 +85,7 @@
     <svg class="hd-mark" viewBox="0 0 64 64" aria-hidden="true"><use href="#bm-robot"/></svg>
   </div>
   <div class="hd-log">
-    <p class="hd-line"><span>{{SEARCH}}</span><span class="dots"></span><span class="ok">ok</span></p>
+    <p class="hd-line"><span>{{SEARCH}}</span><span class="dots"></span><span class="{{RUNCLASS}}">{{RUNWORD}}</span></p>
     <details class="hd-sources">
       <summary><span class="hd-line"><span class="k">sources</span><span class="dots"></span>
         <span class="hd-squares" role="img" aria-label="9 clean, 2 gaps, 3 skipped this run"><!-- one <i class="clean|gap|off"> per source --></span>

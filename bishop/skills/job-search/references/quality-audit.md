@@ -62,9 +62,9 @@
 |---|---|---|---|
 | **S1** | **Per-member liveness.** Cycles since each member of a grouped source last returned any parseable result | 3+ cycles at zero while peers return results | A wrong address reading as a dead market |
 | **S2** | **Round-number counts.** Any reported count of exactly 20, 25, 50, 100, 250, 500, 750, 1000 | Any | Pagination caps reported as exhaustion |
-| **S3** | **Trend break.** A source averaging above zero for 4+ weeks that drops to exactly zero | Any | Recipe decay. Markets decline; they don't hit exactly zero |
+| **S3** | **Trend break.** A source averaging above zero for 4+ weeks that drops to exactly zero. Skipped when the same entry's `CANARY` line passes that member | Any | Recipe decay. Markets decline; they don't hit exactly zero |
 | **S4** | **Unvouched nils.** Nils reported with no canary behind them | Rising two weeks running | Accumulating unverifiable claims |
-| **S5** | **Canary debt.** Canaries owed, and for how long | Older than 14 days | A source whose nils nobody can vouch for |
+| **S5** | **Canary debt.** Canaries owed (`CANARY: <member> OWED`, which an unvouched zero writes, or `FAIL`), and for how long | Older than 14 days | A source whose nils nobody can vouch for |
 | **S6** | **Success either way.** A source reporting `COMPLETE` at zero parseable results 3+ weeks running | Any | The defect that reports success regardless of outcome |
 | **S7** | **Canary passes, query never does.** Source live 4+ weeks with a passing canary and an always-empty real query | Any | The source works and the query is wrong. Different fix from S1 |
 | **S8** | **Cross-surface contradiction.** A role found on one surface whose host was swept the same cycle and returned nothing | Any | Direct proof a sweep is blind |
@@ -221,6 +221,7 @@ Reply with the numbers you approve, e.g. "approve 1". Anything you skip stays he
 | **No stem matches** | "{{Role}} was missed because its title, '{{title}}', isn't one Bishop searches for." | Decision: "Add '{{phrase}}' to your job-title searches?" |
 | **Source not covered** | "{{Role}} was only posted on {{where}}, which none of your sources check." | Decision: "Add {{where}} to your sources?" |
 | **Structurally unreachable** | "{{Role}} was only reachable from {{where}}, which Bishop can't read on a schedule." | One line under "Did it find what it should?", the first time only |
+| **Couldn't run** | "The spot check couldn't run this week; it runs again {{day}}." | One line under "Did it find what it should?", the first week only. Not shown after |
 
 - **Name the role, the pay if posted, and the location.** A missed role the user would want is the most persuasive line in the report.
 - **If a missed role is still open, offer it:** "Add {{role}} to your tracker?" It is the one decision that can put a job in front of them this week.

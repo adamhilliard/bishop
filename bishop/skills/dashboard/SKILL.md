@@ -24,7 +24,7 @@ Turns a job search's tracking files into a private, interactive web dashboard th
 
 ### Step 1: Read the existing bot
 
-Read, in full: `Reference_Profile.md`, `Operating_Procedures.md`, and every `Tracking_*.md` in the project folder. (Older setups keep all of this in one profile file; read whatever exists.) From them, derive rather than asking the user for anything readable:
+Read, in full: `Reference_Profile.md`, `Methodology.md` (its Sources table), `Operating_Procedures.md`, and every `Tracking_*.md` in the project folder. (Older setups keep all of this in one profile file; read whatever exists.) From them, derive rather than asking the user for anything readable:
 
 - **The search's name**, from the profile's Bot Name field. It goes in the header and the page title, and it picks the header art: Bishop and the ten Surprise Me robots each have a pre-made file in `assets/headers/` (`bishop`, `data`, `wall-e`, `baymax`, `tars`, `johnny-5`, `r2-d2`, `rosie`, `kitt`, `optimus`, `astro`). Any other name gets the stock header.
 - **The palette and any accessibility adjustments**, from the profile's Customization section: accent color, plus any of larger text, higher contrast, reduced motion, and colorblind-safe colors. **Setup asks for the accent, so don't ask again.** Setup does not ask about the adjustments; default to none, and honor any the user names later, writing them into Customization.
@@ -40,7 +40,8 @@ Read, in full: `Reference_Profile.md`, `Operating_Procedures.md`, and every `Tra
 **Everything is derivable, including the color.** Setup's customization block records the accent, so read it and build.
 
 - **Only ask if the profile has no Customization section**, which means an older setup. Then, one question: *"Pick an accent color for the dashboard, or say 'surprise me.'"* Write the answer back into the profile so it's asked once, ever.
-- **If they name a brand or hand over brand guidelines**, extract that palette and typography and use it. Otherwise pick a clean accent and validate it (see Step 3 checks).
+- **If they name a brand or hand over brand guidelines**, extract that palette and typography and use it. Otherwise pick a clean accent.
+- **Derive a dark-theme accent** (lighten until links and the score bar reach 4.5:1 on the dark card), and check both values. This applies to the accent setup recorded too.
 - **Honor every accessibility adjustment recorded**, and treat them as independent rather than as one mode:
 
 | Adjustment | What changes |
@@ -56,7 +57,7 @@ Read, in full: `Reference_Profile.md`, `Operating_Procedures.md`, and every `Tra
 
 One self-contained file: inline CSS, inline vanilla JS, **zero external requests**. Artifact pages block all external fetches, so no CDNs, no webfonts, no remote images. Embed the role data as a JS array in the file. The file is regenerated from the tracking files each cycle, so it never goes stale and never needs to fetch anything.
 
-**Give the page a favicon so the browser tab is never blank.** Put an inline SVG data-URI link in the head, right after the `<title>`, so the tab shows an icon even when the file is opened directly rather than through the artifact. **Default to the Bishop robot from `assets/robot.svg`**, URL-encoded into the `href` (`#` becomes `%23`). Setup doesn't ask for a brand emoji. If the user names one later, use the emoji form below instead and record it with the URL (Step 5):
+**Give the page a favicon so the browser tab is never blank.** Put an inline SVG data-URI link in the head, right after the `<title>`, so the tab shows an icon even when the file is opened directly rather than through the artifact. **If the Dashboard entry records an emoji, use it; otherwise the Bishop robot** from `assets/robot.svg`, URL-encoded into the `href` (`#` becomes `%23`). Setup doesn't ask for an emoji. If the user names one later, record it in the Dashboard entry and use the emoji form below:
 
 ```html
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🤖</text></svg>'>
@@ -68,23 +69,24 @@ Single-quote the `href` so the SVG's own double quotes need no escaping. This is
 
 - **Header: copy `assets/header.html`, never redraw it.** It is the Bishop brand, so it looks the same for every user: a navy panel under an orange bar, the name centered between two Bishop robots, and a two-line run log.
   - **The name:** paste the matching file from `assets/headers/` as the wordmark. **Any other name** uses the template's stock header (the name set in heavy orange type), which wraps on a phone.
-  - **The run line:** "Search 7 · Mon 3/16 · 24 roles · 2 interviewing". The word is *search*, never "cycle," anywhere on the page.
-  - **The sources line:** one colored square per source, sorted **green (clean), blue (a gap), white (skipped this run on purpose)**. "Details" opens the full list in the same order, **each named in plain words, never by platform slug**. Surfacing failed sources is a core feature of the bot, so it stays one tap away.
-  - **">" means "this opens."** Only the sources line and the "since your last search" list carry it, and it turns down when open. Nothing else on the page gets one.
+  - **The run line:** "Search 7 · Mon 3/16 · 24 roles · 2 interviewing". The word is *search*, never "cycle," anywhere on the page. It ends in a status word, the template's RUNWORD slot with class RUNCLASS: **"ok" when no square is a gap, otherwise "gaps"** (styled in the gap blue). A source skipped on purpose doesn't count against it.
+  - **Dates:** render every date on the page in the profile's Country date format, including dates inside `next:` text.
+  - **The sources line:** **one square per top-level COVERAGE source (groups, not members)**, sorted **green (clean), blue (a gap), white (skipped this run on purpose)**. `COMPLETE` is clean; `SAMPLED`, `INCOMPLETE`, `CUT AT n` and `FAILED` are a gap; `OFF-CADENCE` is off. **Sources declined at setup get no square.** "Details" opens the full list in the same order, **each named in plain words, never by platform slug**: `ats` is "company hiring systems," `employers` is "companies you named and ones nearby," `getro` is "startup investor job pages," and `aggregators` is "the big job-listing sites." Surfacing failed sources is a core feature of the bot, so it stays one tap away.
+  - **">" means "this opens."** Only the sources line, the "since your last search" list and the phone Filters disclosure carry it, and it turns down when open. Nothing else on the page gets one.
   - **No taglines and no stat tiles.** Top score and an average pay figure were tried and cut as not useful.
-- **"Since your last search":** 3 to 6 short plain lines under the header (what was added, applied to, passed on, closed), collapsible like the sources list and open by default. Regenerated every run.
-- **Sticky toolbar of filter buttons:** track tabs (All plus one per track) · min-score thresholds · **stage filter: Fresh / In play / All, defaulting to Fresh, each button showing its live count** (a stage with none dims but stays tappable) · status views: Active / Saved / Archived · **Pay listed**, **Remote only**, and **Hide closed roles** toggles (**Hide closed on by default**; the count of what it hides shows next to it, so nothing disappears silently) · a "N shown · N saved · N archived" counter. Keep stage and status in visually separate groups; see the stage section below for why.
+- **"Since your last search":** 3 to 6 short plain lines under the header (what was added, applied to, passed on, closed), collapsible like the sources list and open by default. Regenerated every run. **Build these lines from the latest EVENTS counts**, naming roles whose Key Context found, stage or posting date falls after the previous Search Notes date, plus applied rows past their follow-up date.
+- **Toolbar of filter buttons:** track tabs (All plus one per track) · min-score thresholds · **stage filter: Fresh / In play / All, defaulting to Fresh, each button showing its live count** (a stage with none dims but stays tappable) · status views: Active / Saved / Archived · **Pay listed**, **Remote only**, and **Hide closed roles** toggles (**Hide closed on by default**; the count of what it hides shows next to it, so nothing disappears silently) · a "N shown · N saved · N archived" counter. Keep stage and status in visually separate groups; see the stage section below for why. **Hide closed roles applies to open (Fresh) roles only**; in-play roles always show, whatever their posting status. **Make the toolbar sticky only at 768px wide and up**; on phones keep it in normal flow, or collapse it behind a "Filters" disclosure.
 
 > **Open on Fresh, not on All.** The page exists to answer "what haven't I dealt with yet," and once most of the board is in play, an unfiltered default buries that answer under roles needing nothing. Ordering the control Fresh · In play · All puts the default first and the firehose last.
 
-- **Ranked cards**, grouped by stage (see below), highest score first within each group, ties broken by disclosed comp midpoint:
+- **Ranked cards**, grouped by stage (see below). **Order cards the way the tracking file is ranked:** score, then the profile's Rank Overrides as bands (no-pay below everything that clears the floor), then live above closed, then comp midpoint. Never re-rank on score alone. Each card carries:
   - a **score bar**: one small segment per scoring bucket in their rubric order, filled in the accent color for a pass, empty for a miss, hatched for not yet known, with `score/N` beside it
   - company name (hyperlinked, verified homepage) plus one-line bio and location
   - title; comp in tabular numerals (undisclosed styled muted/italic)
   - one **check per scoring bucket** as a plain inline list (✓ / ✗ / ? and the check's name), with the 4 to 12-word reason as the `title` tooltip. **Give the row a one-line legend** (“green means it matches what you asked for”); an unexplained ? reads as a bug
   - **flags** as small callout rows (stretch flags, below-bar comp, level ambiguity, whatever the tracking file carries)
   - a details expander listing every bucket's full reason, ending in an **Apply button** with the real link
-- **Card actions (top-right):** ☆ save-for-later (toggles; saved roles get a SAVED tag and populate the Saved view) and ✕ archive (hides from Active; the Archived view shows an ↩ Restore button). Persist statuses in `localStorage` keyed by a stable id (`encodeURIComponent(company + "|" + title)`) so they survive republishes. Event-delegate clicks on the card list; re-render (including the stage counts) after every change. **Suppress ✕ archive on in-play cards.** Hiding a role you have applied to is a footgun.
+- **Card actions (top-right):** ☆ save-for-later (toggles; saved roles get a SAVED tag and populate the Saved view) and ✕ archive (hides from Active; the Archived view shows an ↩ Restore button). Persist statuses in `localStorage` keyed by a stable id (`encodeURIComponent(company + "|" + title)`) so they survive republishes. Wrap every `localStorage` read and write in try/catch and fall back to an in-memory object. Event-delegate clicks on the card list; re-render (including the stage counts) after every change. **Suppress ✕ archive on in-play cards.** Hiding a role you have applied to is a footgun.
 
 **Pipeline stage (build this only if the tracking files carry a stage concept):**
 
@@ -97,15 +99,15 @@ The point of the dashboard is answering "what haven't I dealt with yet." Once a 
 
 - **In-play cards show different information.** Stage tag, date, and a one-line "what happens next" callout. Score is history once you have applied, so it stops being the headline.
 - **Applied roles render as one-line rows** (title, company, "Applied 12 days ago," the score bar) that open the full card in place. Interviewing roles keep the full card. **Each role is still exactly one card element**, so the Step 4 count is unchanged.
-- **Compute day counts at load, not at generation.** `Applied 12 days ago` stays accurate between cycles, and it is the one thing a static page genuinely cannot do otherwise. Flag an application with no reply past a threshold (10 days works) in the card.
+- **Compute day counts at load, not at generation.** `Applied 12 days ago` stays accurate between cycles, and it is the one thing a static page genuinely cannot do otherwise. Flag an application with no reply past its follow-up date in the card. Use the row's `follow up` date when present; fall back to 10 days only when it's missing. If a computed day count is negative, show the date instead.
 - **Keep the vocabulary tiny:** `open`, `applied`, `interviewing`. Resist encoding how a role arrived (inbound vs outbound) as a stage; that is a note. Stage tracks what happens next.
 - **Posting status is a separate axis from stage, and never a stage value.** Stage is what the user does next; posting status (live / expired / unverified) is a fact about the requisition. **Render it as a badge on the card, not as a stage chip**, so "Applied · Expired" stays expressible. That combination is the one users most need to see: the application is live even though the posting closed. Folding expiry into stage would overwrite the fact that they applied.
   - **Badge wording is plain:** **Closed** for expired, **Couldn’t check** for unverified, and nothing at all for live. Never "expired" as a bare status code, and never show a badge on a live role.
   - **Grey out the apply button on a closed role** rather than removing the card. The row still carries its research and its score.
   - **Sort live above closed at equal score.** A closed role holding the #2 slot in a stack-rank is the complaint this came from.
-- **Two collapsible panels at the bottom:** (1) a compact restatement of how roles are scored, so the numbers explain themselves — **head these panels "How roles are scored," "What each check means," "Your pay floor," and "What I always skip," never "rubric," "buckets," "comp bar," or "hard excludes"**; (2) notes from the latest search plus decisions needed, mirroring whatever the latest digest flagged, with resolved decisions marked as decided rather than deleted.
+- **Two collapsible panels at the bottom:** **"How roles are scored"** (with sub-headings **"What each check means," "Your pay floor," and "What I always skip"**) and **"Notes from your latest search."** Never "rubric," "buckets," "comp bar," or "hard excludes." The first is a compact restatement of how roles are scored, so the numbers explain themselves. The second holds notes from the latest search plus decisions needed, with resolved decisions marked as decided rather than deleted. **Take decisions from `Weekly_Check.md`'s open decisions and the open trials in `Decisions_Log.md` due within 7 days.**
 
-> **The rubric panel is a second copy of rules that live in the profile, and second copies go stale silently.** A superseded comp floor once survived on a published page for a full cycle after the real rule changed, because regeneration only ever touched the roles array. Two mitigations, and do both: generate the panel's text from the profile every regeneration rather than hand-writing it once, and put the profile's last-updated date in the panel so a lagging copy is visible on the page.
+> **The rubric panel is a second copy of rules that live in the profile, and second copies go stale silently.** A superseded comp floor once survived on a published page for a full cycle after the real rule changed, because regeneration only ever touched the roles array. Two mitigations, and do both: generate the panel's text from the profile every regeneration rather than hand-writing it once, and put the date of the most recent Search Notes entry in the panel so a lagging copy is visible on the page.
 
 > **Drive every recurring value from one variable, or from none.** A cycle number that lives in a JS constant *and* in hardcoded masthead and footer text will ship wrong the first time someone updates the constant and assumes that was enough. Either bind the text nodes to the variable, or accept the hardcoding and follow the grep rule in Step 6.
 
@@ -133,7 +135,7 @@ Two more checks either way:
 
 ### Step 4: Verify before publishing
 
-**Reconcile the card count, and refuse to publish on a mismatch.** Count the live rows across every tracking file, count the rendered cards with the stage filter on All, and compare. **Report the reconciled number in the cycle notes even when it matches**, because a check that leaves no trace is indistinguishable from a check that was skipped.
+**Reconcile the card count, and refuse to publish on a mismatch.** Count the ACTIVE/ROLLING rows across every tracking file, count the rendered cards with stage = All, view = Active, and every toggle off, and compare. **Report the reconciled number in the cycle notes even when it matches** (as `· dashboard <rows>/<cards>` at the end of that cycle's EVENTS line), because a check that leaves no trace is indistinguishable from a check that was skipped.
 
 > **This exists because a role was invisible for two days.** It was added to the tracking file at a high score with the best disclosed pay on the board, and the regeneration simply never wrote it into the roles array. **The defect is that regeneration reports success either way:** it renders whatever is in the array, so a dropped role and a correct run produce identical output. It surfaced only when the user asked why three unrelated roles were missing. Nothing in the pipeline noticed, and nothing would have. **The count is the only cheap signal that separates the two.**
 
@@ -143,17 +145,19 @@ If Node is available, smoke-test: extract the `<script>` block, stub `document` 
 
 ### Step 5: Publish as a private artifact
 
-Publish `dashboard.html` with the Artifact tool. **Never pass `icon`.** It replaces the page's own favicon for good, and the dashboard's favicon is the Bishop robot already inline in the page (Step 3). **Record the returned URL**, which goes into the scheduled task next. Tell the user the page is private until they share it from the page's share menu.
+Publish `dashboard.html` with the Artifact tool. **If the Dashboard entry already holds a real artifact URL, publish with it as `url`; publish without `url` only when the entry is empty.** **Never pass `icon`, even on a first publish where the tool suggests one.** It replaces the page's own favicon for good, and the dashboard's favicon is already inline in the page (Step 3). **Record the returned URL**, which goes into the scheduled task next. Tell the user the page is private until they share it from the page's share menu.
 
 > **Record the URL in the procedures file's Dashboard entry.** Every republish goes to that URL; it is not recoverable from the live page or the repo, so an unrecorded URL means the next publish makes a second page.
 
 ### Step 6: Wire regeneration into the scheduled task
 
-Append a step to the existing scheduled search task's prompt, after the scoring/writing step and before the digest:
+Add a step to the existing scheduled search task's prompt. **Insert it between WRITE and COMMIT, and renumber the steps after it.**
 
 > REGENERATE THE DASHBOARD: rewrite `dashboard.html` with the fresh full role set. Keep the existing design, structure, filters, theme and header; never redraw the header art. Refresh the embedded data array, the search number and date, the source squares and list, the "since your last search" lines, the decisions panel, and **the rubric panel, re-derived from the profile rather than carried over**.
 >
 > Before publishing, **search the whole file for the previous cycle number and date and fix every hit**, not just the variable. Masthead and footer text is frequently hardcoded and will not follow a variable you edited.
+>
+> Before republishing, **count ACTIVE/ROLLING rows across every tracking file and the rendered cards** (stage All, view Active, toggles off). On a mismatch, don't publish; say so in the digest. Either way, append `· dashboard <rows>/<cards>` to this cycle's EVENTS line.
 >
 > Republish with the Artifact tool **passing the recorded URL as `url`** so the same link updates in place. Never mint a new artifact URL.
 
@@ -162,7 +166,7 @@ Include the actual URL literally in the prompt. This is the difference between a
 **Four operational notes learned the hard way:**
 
 - If a republish returns a **version conflict** ("another session published a newer version"), don't force-overwrite. Fetch the live artifact, compare, merge if it actually differs, then publish. Manual "Run now" clicks on the scheduled task are the usual cause.
-- When a source dies permanently (for example a board starts returning 403 to every method), **retire it everywhere at once**: the profile's source list (with the reason and date), the dashboard's source strip, and the scheduled task's prompt. A half-retired source resurfaces forever.
+- When a source dies permanently (for example a board starts returning 403 to every method), **retire it everywhere at once**: Methodology.md's Sources table (with the reason and date), the dashboard's source strip, and the scheduled task's prompt. A half-retired source resurfaces forever.
 - **A cycle published under the wrong number is the standard failure here**, and it happens because updating the one obvious variable looks sufficient. Grep, don't assume.
 - **Interim chat edits update the tracking file, not the dashboard.** When a role changes between cycles, edit the tracking file and stop; the next scheduled run regenerates the page from it. Six single-role changes given six full rewrite-verify-publish-commit passes is several times the cost of the same end state. **The page lagging a few days is the designed behavior.** Ask whether they want it current now if a session changed a lot; one question is cheaper than six republishes.
 

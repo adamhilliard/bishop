@@ -145,7 +145,7 @@ def test_canary_gate():
 
 
 def test_count_line():
-    print("the COUNT line the audit reads")
+    print("the COUNT line behind the Search Notes RESOLVE line")
     table = {
         LIVE_URL: (200, LIVE_URL, PAGE),
         "https://b.example.com/a": (200, "https://b.example.com/a", PAGE),
@@ -161,11 +161,28 @@ def test_count_line():
     check("counts sum to rows read", sum(counts.values()), 3)
 
 
+def test_help_names_the_printed_canary_state():
+    print("help text and output agree on the no-canary state")
+    import os
+    import subprocess
+    script = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "resolve_links.py")
+    p = subprocess.run([sys.executable, script, "--help"], capture_output=True,
+                       text=True, encoding="utf-8", errors="replace")
+    help_text = " ".join((p.stdout or "").split())
+    check("help names CANARY: NONE", "CANARY: NONE" in help_text, True)
+    check("help no longer says NO-CANARY", "NO-CANARY" in help_text, False)
+    _, out = run([("https://b.example.com/a", "")], None,
+                 {"https://b.example.com/a": (200, "https://b.example.com/a", PAGE)})
+    check("output prints the same state", "CANARY: NONE" in out, True)
+
+
 if __name__ == "__main__":
     test_classification()
     test_real_world_markers()
     test_canary_gate()
     test_count_line()
+    test_help_names_the_printed_canary_state()
     print()
     if FAILURES:
         print("%d FAILED: %s" % (len(FAILURES), ", ".join(FAILURES)))

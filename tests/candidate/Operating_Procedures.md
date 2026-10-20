@@ -15,6 +15,8 @@ The one copy; every other file points here.
 | Employer_Index.md | Every named-employer list and its board endpoints |
 | Weekly_Check.md | Sam's plain-language weekly report (written by the weekly audit) |
 | dashboard.html | The private dashboard, regenerated every cycle |
+| `C:/Users/sam/.claude/scheduled-tasks/wall-e-field-service/SKILL.md` | The cycle task's prompt, outside the project (test placeholder) |
+| `C:/Users/sam/.claude/plugins/bishop/skills/job-search` | The Bishop plugin's job-search skill directory; both task prompts call its scripts/ (test placeholder) |
 
 ### Read Contracts
 | File | Contract |
@@ -28,7 +30,7 @@ The one copy; every other file points here.
 - **One track:** Field Service, in `Tracking_Field_Service.md`.
 - **Sections:** ACTIVE/ROLLING, REJECTED, EXPIRED / NO LONGER POSTED, NOT INTERESTED, Search Notes / Observations. No BELOW THE CAP section: this is a senior search.
 - **Applied and interviewing roles stay in ACTIVE/ROLLING.**
-- **Freshness pass priority:** interviewing rows first, then applied rows, then open rows by score, highest first.
+- **Freshness pass priority:** interviewing rows first, then applied rows, then open rows by score, highest first; unverified and "Apply link unconfirmed" rows first within each.
 - **Closed sections use the same columns** as the live table. A row that was never scored carries `—` in Score and every bucket cell, and its Stage token keeps the last stage the role had before it closed.
 
 ### Results Table Format
@@ -48,9 +50,10 @@ Locked layout, in this order:
 | Apply | A working link to the requisition |
 
 **Stage and posting status tokens.** Key Context always opens with
-`**Stage: <stage>** · Posting: <status>`, then any dates, separated by ` · `.
+`**Stage: open|applied YYYY-MM-DD|interviewing YYYY-MM-DD** · Posting: live|expired YYYY-MM-DD|unverified`,
+then `next: <one line>`, and on applied rows `follow up YYYY-MM-DD`, separated by ` · `.
 
-- **Stage** (what Sam does next): `open` · `applied <YYYY-MM-DD>` · `interviewing <YYYY-MM-DD>`, then `next: <one line>`. Applied rows add `follow up <YYYY-MM-DD>`.
+- **Stage** (what Sam does next): `open` · `applied <YYYY-MM-DD>` · `interviewing <YYYY-MM-DD>`.
 - **Posting status** (a fact about the requisition): `live` · `expired <YYYY-MM-DD>` · `unverified`. Never two on one row.
 
 ### Ranking & Rank Overrides
@@ -64,7 +67,6 @@ run; never append.
 - **Cap:** none. Senior band; every new role is listed.
 - **Order:** new roles, freshness changes, follow-ups due, decisions needed.
 - **Every digest ends with the coverage note**, four buckets in plain words: Searched in full · Checked partly · Not this run (with the day it next runs) · Couldn't reach (always shown, even as "none"). Status words and platform names are translated, never printed.
-- **Dashboard:** `https://claude.ai/code/artifact/00000000-0000-4000-8000-000000000000` (test placeholder). Favicon 🤖 on every republish.
 
 ### Search Notes Shape
 Fixed shape, about 4KB per entry at most. Counts, events, and tags; never reasoning.
@@ -72,12 +74,16 @@ Fixed shape, about 4KB per entry at most. Counts, events, and tags; never reason
 ```
 ### <YYYY-MM-DD> · cycle <N>
 COVERAGE: <source> <status> <count> · <member> <count> · ...
-CANARY: <member> PASS|FAIL ...
-EVENTS: <n> new · <n> expired · <n> applied · <n> interviewing · <n> not-interested
+CANARY: <member> PASS|FAIL|OWED ...
+EVENTS: <n> new · <n> expired · <n> applied · <n> interviewing · <n> not-interested · dashboard <rows>/<cards>
 GATE: <n> assessed · <n> flagged
-RESOLVE: <n> read · <n> live · <n> expired · <n> unverified · canary PASS|FAIL
+RESOLVE: <n> read · <n> live · <n> expired · <n> unverified · canary PASS|FAIL|NONE
 NOTE: <one line, only when something needs saying>
 ```
+
+### Dashboard
+- **URL:** `https://claude.ai/code/artifact/00000000-0000-4000-8000-000000000000` (test placeholder).
+- **Favicon:** Bishop robot (default).
 
 ### Prose & Writing Rules
 Plain language in anything Sam reads: no file paths, script names, platform

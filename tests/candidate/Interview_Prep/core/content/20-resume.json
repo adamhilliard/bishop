@@ -1,0 +1,21 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "SR",
+      "section": "R",
+      "title": "Resume",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QR1",
+      "section": "R",
+      "chain": "QR1",
+      "title": "I see you cut first-visit fix time by 30%. Walk me through how.",
+      "why": "They want to see you own a number.",
+      "target": 90,
+      "source": "Acme Robotics, 2021 to now: Cut first-visit fix time by 30% by rebuilding parts staging"
+    }
+  ]
+}

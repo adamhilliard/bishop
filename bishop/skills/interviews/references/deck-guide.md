@@ -88,9 +88,9 @@ Size it to the candidate's rigor, then to the round. **Read rigor from the maste
 
 | Rigor | Questions |
 |---|---|
-| Light | About 10 |
-| Medium | About 20 |
-| Heavy | About 30 |
+| Light | About 18 |
+| Medium | About 25 |
+| Heavy | About 35 |
 
 A recruiter screen or 30-minute round takes the lower end; a full loop with a hiring manager or panel the higher. **The count is a guide, the coverage is the rule:** every priority and every risk gets its question even when that runs past the number. Linked questions count toward the total, so a priority the master deck already covers costs nothing extra to practice.
 
@@ -102,7 +102,13 @@ A recruiter screen or 30-minute round takes the lower end; a full loop with a hi
 - **A `guide`** (`{title, body}`): who this interviewer is and what they'll test. It shows first on the cover.
 - **A `shortlist`** slide naming its `round`: the 8 to 12 questions that interviewer is most likely to ask, reached from a tab.
 
-**When the next round comes, update this deck:** set `deck.round`, add that round's questions and any guide or shortlist, rebuild. Never start a second deck for the same company.
+**When the next round comes, update this deck:** never start a second one for the same company.
+1. **Set `deck.round`** to it, with its `date`, `time` and `who` (the interviewer's name and title, which leads the sidebar).
+2. **Re-run the map with the earlier round's notes:** re-rank the priorities, put the recruiter's exact words on the hub cards, and add any new risk with the tough question that presses it.
+3. **Add what's new for this interviewer:** questions to ask tagged with `rounds`, and a shortlist or a guide if they help.
+4. **Rebuild,** then `--check --round` every other round.
+
+The builder puts the round, date and time first on the cover and in the sidebar, so `cover.description` and `deck.sidebar` hold only what's true in every round. Answers, flags and ticks carry over, because it's the same deck.
 
 ### Writing the files
 
@@ -116,7 +122,7 @@ python <this skill>/scripts/build_deck.py Interview_Prep/<slug> --master Intervi
 
 Then `--check --round <id>` for every other round in `deck.rounds`, since a build checks only the round it builds.
 
-The builder checks before it writes: duplicate ids, missing fields, any answer text (a script, cues, a closing or pivot line), any follow-up (a second angle is a question of its own), a tough question or question to ask with no `origin`, a custom one with no `source`, a question to ask with no `theme`, a risk no tough question covers, no top risk on the cover, and a question written for this interview that doesn't say where it came from. Fix every error, and treat every warning as one unless you can say why it doesn't apply. **If you added a question to the master deck, rebuild `core.html` too.**
+The builder checks before it writes: duplicate ids, missing fields, any answer text (a script, cues, a closing or pivot line), any follow-up (a second angle is a question of its own), a tough question or question to ask with no `origin`, a custom one with no `source`, a question to ask with no `theme`, a risk no tough question covers, no top risk on the cover, a link that lands nowhere (a `core` link to a master question that isn't there, a hub card or cover button pointing at a missing question), an answers file the deck page couldn't read, and a question written for this interview that doesn't say where it came from. Fix every error, and treat every warning as one unless you can say why it doesn't apply. **If you added a question to the master deck, rebuild `core.html` too.**
 
 **Then check by hand:**
 - No `why` hints at what to say. The builder rejects answer fields, but it can't read a `why` that slips one in.

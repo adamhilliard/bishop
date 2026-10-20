@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "deck": {
+      "slug": "core",
+      "title": "Master Deck",
+      "brandTitle": "Master deck",
+      "master": true,
+      "evergreen": true,
+      "rigor": "light",
+      "theme": {
+        "accent": "#e2541b"
+      },
+      "jd": {
+        "none": "Every interview"
+      }
+    },
+    "sections": [
+      {
+        "id": "I",
+        "title": "Readiness",
+        "color": "#e2541b"
+      },
+      {
+        "id": "A",
+        "title": "Opening",
+        "color": "#e2541b"
+      },
+      {
+        "id": "R",
+        "title": "Resume",
+        "color": "#e2541b"
+      },
+      {
+        "id": "C",
+        "title": "Behavioral",
+        "color": "#e2541b"
+      },
+      {
+        "id": "E",
+        "title": "Tough Questions",
+        "color": "#e2541b",
+        "role": "hard"
+      },
+      {
+        "id": "F",
+        "title": "Questions to Ask",
+        "color": "#e2541b",
+        "role": "ask"
+      }
+    ]
+  }
+}

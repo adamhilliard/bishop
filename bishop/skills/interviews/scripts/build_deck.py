@@ -114,6 +114,10 @@ def apply_round(meta, content, round_id, errors):
     content = [c for c in content if keep(c)]
     deck["round"] = cur["id"]
     deck["interview"] = {"date": cur.get("date"), "time": cur.get("time"), "round": cur.get("label")}
+    # Who this round is with ("Priya Shah, Recruiter") leads the sidebar's people; deck.sidebar holds only
+    # what's true in every round.
+    if cur.get("who"):
+        deck["sidebar"] = [cur["who"]] + list(deck.get("sidebar") or [])
     if cur.get("guide"):
         cover = dict(deck.get("cover") or {})
         cover["guides"] = [cur["guide"]] + list(cover.get("guides") or [])
@@ -127,6 +131,8 @@ def apply_round(meta, content, round_id, errors):
         content = [dict(c, title=title) if c.get("kind") == "section" and c.get("section") == ask.get("id") else c for c in content]
     if meta.get("risks"):
         out["risks"] = [dict(rk, answers=[a for a in rk.get("answers") or [] if a not in dropped]) for rk in meta["risks"]]
+    content = [dict(c, priorities=[dict(p, answers=[a for a in p.get("answers") or [] if a not in dropped]) for p in c["priorities"]])
+               if c.get("kind") == "hub" and c.get("priorities") else c for c in content]
     return out, content
 
 
@@ -152,12 +158,28 @@ def prepare_meta(meta, defaults, name=None):
     line = interview_line(deck.get("interview"))
     if line:
         deck["sidebar"] = [line] + list(deck.get("sidebar") or [])
+        # A deck with rounds puts the round coming up first on the cover too; its description holds only
+        # what's true in every round.
+        if deck.get("rounds"):
+            cover = dict(deck.get("cover") or {})
+            cover["description"] = [line] + list(cover.get("description") or [])
+            deck["cover"] = cover
     out = dict(meta)
     out["deck"] = deck
     return out
 
 
-def validate(meta, content, defaults):
+def master_ids(folder, meta):
+    """The question ids in the master deck beside this one (Interview_Prep/core), or None if it isn't there."""
+    slug = ((meta.get("deck") or {}).get("site") or {}).get("masterSlug") or "core"
+    core = os.path.join(os.path.dirname(os.path.abspath(folder)), slug)
+    if not os.path.isfile(os.path.join(core, "meta.json")):
+        return None
+    _, content = load(core)
+    return {c.get("id") for c in content if c.get("kind") == "question"}
+
+
+def validate(meta, content, defaults, masters=None):
     errors, warnings = [], []
     deck = meta.get("deck") or {}
     ids = [c.get("id") for c in content]
@@ -169,7 +191,7 @@ def validate(meta, content, defaults):
     idset = set(ids)
     sections = meta.get("sections") or []
     for s in sections:
-        for f in ("id", "title", "color"):
+        for f in ("id", "title"):
             if f not in s:
                 errors.append("section %s: missing %s" % (s.get("id", "?"), f))
     role_of = {s["id"]: s.get("role") for s in sections if "id" in s}
@@ -205,8 +227,31 @@ def validate(meta, content, defaults):
         # An interview deck's own question (not linked to the master deck) says where it came from.
         elif kind == "question" and not deck.get("evergreen") and not c.get("core") and not str(c.get("source") or "").strip():
             warnings.append("%s: a question written for this interview cites its source (the posting line, recruiter's words, finding, or resume line)" % cid)
+    for a in (deck.get("cover") or {}).get("actions") or []:
+        if a.get("go") not in idset:
+            errors.append("cover button '%s' goes to %s, which is not in the deck" % (a.get("label", "?"), a.get("go")))
     if deck.get("evergreen"):
         return errors, warnings
+    # A linked question shows its master answer, so the master question has to exist.
+    linked = [c for c in content if c.get("kind") == "question" and c.get("core")]
+    if linked and masters is None:
+        warnings.append("no master deck beside this one (Interview_Prep/core), so its links can't be checked")
+    for c in linked:
+        if masters is not None and c["core"] not in masters:
+            errors.append("%s: core names %s, which isn't a question in the master deck" % (c.get("id", "?"), c["core"]))
+    # The hub's links land on questions, and the hub and META.priorities describe the same priorities.
+    hub_ids = set()
+    for c in content:
+        if c.get("kind") != "hub":
+            continue
+        for p in c.get("priorities") or []:
+            hub_ids.add(p.get("id"))
+            for a in p.get("answers") or []:
+                if a not in idset:
+                    errors.append("hub %s: question %s isn't in the deck" % (p.get("id"), a))
+    for p in meta.get("priorities") or []:
+        if hub_ids and p.get("id") not in hub_ids:
+            warnings.append("priority %s has no card on the hub" % p.get("id"))
     # Every risk is pressed by a tough question, and the top one is on the cover.
     hard_ids = {c.get("id") for c in content if role_of.get(c.get("section")) == "hard"}
     risks = meta.get("risks") or []
@@ -247,19 +292,39 @@ def build(meta, content, defaults, master=None, name=None):
     return html
 
 
+def check_answers_file(f, want):
+    """The same checks the deck page runs (engine/answers.js checkFile): a file that fails them would
+    silently show no master answers, so it stops the build instead."""
+    if not isinstance(f, dict):
+        return ["not an answers file"]
+    p = []
+    if f.get("format") != want["format"]:
+        p.append('format is "%s", expected "%s"' % (f.get("format"), want["format"]))
+    if f.get("version") != want["version"]:
+        p.append("version is %s; this reads version %s" % (f.get("version"), want["version"]))
+    decks = f.get("decks")
+    if not isinstance(decks, dict):
+        return p + ["decks must be an object keyed by deck slug"]
+    for slug, d in decks.items():
+        if not re.match(r"^[a-z0-9-]{1,60}$", slug):
+            p.append('deck "%s": slug must be lowercase letters, digits and dashes' % slug)
+        for qid, box in ((d or {}).get("answers") or {}).items():
+            if box.get("sections") is not None and not isinstance(box["sections"], list):
+                p.append("deck %s, %s: sections must be a list of {name, text}" % (slug, qid))
+    return p
+
+
 def main(argv):
     args, opts = [], {"master": None, "out": None, "check": False, "round": None}
     i = 0
     while i < len(argv):
         a = argv[i]
-        if a == "--master":
-            opts["master"] = argv[i + 1]
-            i += 1
-        elif a == "--round":
-            opts["round"] = argv[i + 1]
-            i += 1
-        elif a in ("-o", "--out"):
-            opts["out"] = argv[i + 1]
+        if a in ("--master", "--round", "-o", "--out"):
+            if i + 1 >= len(argv) or argv[i + 1].startswith("-"):
+                print("%s needs a value\n" % a)
+                print(__doc__)
+                return 1
+            opts[{"-o": "out", "--out": "out"}.get(a, a.lstrip("-"))] = argv[i + 1]
             i += 1
         elif a == "--check":
             opts["check"] = True
@@ -274,7 +339,7 @@ def main(argv):
     meta, content = load(folder)
     round_errors = []
     meta, content = apply_round(meta, content, opts["round"], round_errors)
-    errors, warnings = validate(meta, content, defaults)
+    errors, warnings = validate(meta, content, defaults, master_ids(folder, meta))
     errors = round_errors + errors
     for w in warnings:
         print("WARN:  " + w)
@@ -285,10 +350,18 @@ def main(argv):
         return 1 if errors else 0
     master = None
     if opts["master"]:
-        master = read_json(opts["master"])
-        want = defaults["answersFile"]
-        if master.get("format") != want["format"] or master.get("version") != want["version"]:
-            print("ERROR: %s is not an answers file this version reads" % opts["master"])
+        if not os.path.isfile(opts["master"]):
+            print("ERROR: no answers file at %s (build without --master until the candidate exports one)" % opts["master"])
+            return 1
+        try:
+            master = read_json(opts["master"])
+        except ValueError as e:
+            print("ERROR: %s isn't readable JSON (%s)" % (opts["master"], e))
+            return 1
+        problems = check_answers_file(master, defaults["answersFile"])
+        for problem in problems:
+            print("ERROR: %s: %s" % (opts["master"], problem))
+        if problems:
             return 1
     slug = (meta.get("deck") or {}).get("slug") or slug_of(os.path.basename(folder))
     out = opts["out"] or os.path.join(os.path.dirname(folder), slug + ".html")

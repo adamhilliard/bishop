@@ -1,0 +1,31 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "SA",
+      "section": "A",
+      "title": "Opening",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QA1",
+      "section": "A",
+      "chain": "QA1",
+      "title": "Walk me through your background.",
+      "why": "The opener, worded the way Priya asks it.",
+      "target": 90,
+      "core": "QA1"
+    },
+    {
+      "kind": "question",
+      "id": "QA20",
+      "section": "A",
+      "chain": "QA20",
+      "title": "Why Hooli?",
+      "why": "Whether you know what they do and why it fits.",
+      "target": 60,
+      "source": "The posting: robots in 400 hospitals"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "SC",
+      "section": "C",
+      "title": "Behavioral",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QC1",
+      "section": "C",
+      "chain": "QC1",
+      "title": "Tell me about a time a project went wrong. What did you do?",
+      "why": "Ownership when things break.",
+      "target": 90,
+      "source": "Behavioral bank: Setbacks"
+    }
+  ]
+}

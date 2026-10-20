@@ -1,0 +1,21 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "SE",
+      "section": "E",
+      "title": "Tough Questions",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QE1",
+      "section": "E",
+      "chain": "QE1",
+      "title": "What's your biggest weakness?",
+      "why": "Self-awareness, and whether you're working on it.",
+      "target": 60,
+      "origin": "standard"
+    }
+  ]
+}

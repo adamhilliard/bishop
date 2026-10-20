@@ -1,0 +1,27 @@
+{
+  "content": [
+    {
+      "kind": "cover",
+      "id": "cover",
+      "section": "I",
+      "title": "Hooli"
+    },
+    {
+      "kind": "hub",
+      "id": "hub",
+      "section": "I",
+      "title": "Their priorities",
+      "priorities": [
+        {
+          "id": "P1",
+          "title": "Scale the field org",
+          "quote": "We need someone who's built regions before.",
+          "detail": "Priya, via the recruiter call.",
+          "answers": [
+            "QB1"
+          ]
+        }
+      ]
+    }
+  ]
+}

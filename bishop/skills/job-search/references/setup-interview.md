@@ -172,6 +172,7 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
       "Write", "Edit",
       "WebSearch", "WebFetch",
       "Bash(python:*)",
+      "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)"
     ]
@@ -181,9 +182,10 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 
 - **Merge, never overwrite.** If the file already exists, add any missing entries to `permissions.allow` and leave everything else in it alone. A user who already tuned their own settings should not lose them to this step.
 - **What is deliberately absent, and stays absent:** `Bash(git push:*)`, any delete or `rm`, and any blanket `Bash(*)`. Bishop commits locally; nothing here sends anything outward, and a cycle that wants a command outside this list should stop and ask. **Do not widen the list to clear a prompt.** If a run keeps stopping on something, that is worth the user seeing.
-- **`Bash(python:*)` is the broadest line here** and it is what runs the bundled sweeps and the weekly audit. It is scoped to this project by virtue of living in the project's own settings file.
+- **`Bash(python:*)` is the broadest line here** and it is what runs the bundled sweeps and the weekly audit. It is scoped to this project by virtue of living in the project's own settings file. **Write it for whichever binary the probe found:** `Bash(python:*)` or `Bash(python3:*)`.
+- **Two entries wait on later answers.** Add `Artifact` once they choose the dashboard in D, and `mcp__claude-in-chrome__*` once LinkedIn connects. Merge each into the same file at that point, the same way.
 
-**Then say, in one plain line:** this covers their scheduled searches and every future session, and this one session might still ask a couple more times before it takes effect.
+**Then say, in one plain line:** this covers their scheduled searches and every future session, and this session will still ask for permission often, especially during their first search.
 
 ---
 
@@ -197,11 +199,11 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 
 **Step 2 · One review · free text.** Parse the document for level, current role, and location, then:
 
-> Here's what I read: {your level, current role, and that you're based in {city}}. Any corrections?
+> Here's what I read: {your level, current role, that you're based in {city}, and any license or clearance you hold}. Any corrections?
 
 **No resume · free text:**
 
-> No problem. Tell me about your background: your most recent role, roughly your level, where you're based, and the kind of work you do.
+> No problem. Tell me about your background: your most recent role and the ones before it with rough years, roughly your level, where you're based, and the kind of work you do.
 
 **Deriving level.** From the parse or the free-text answer, place them on a rung and a band. **Never ask for the band directly.** If there's no resume, or their correction disputes the level, ask the two cold pickers:
 
@@ -210,11 +212,11 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
   - **Manages people:** First-line manager · Senior manager · Director · Executive.
   - **Individual contributor:** Entry level professional · Mid level professional · Senior professional · Functional or technical lead.
 
-| Rung | Band |
-|---|---|
-| Entry level professional | **Early career** |
-| Mid · Senior professional · First-line manager · Senior manager | **Mid** |
-| Functional or technical lead · Director · Executive | **Senior / exec** |
+| Rung | Band | Scored table cap | Digest |
+|---|---|---|---|
+| Entry level professional | **Early career** | 25 rows | top 10 |
+| Mid · Senior professional · First-line manager · Senior manager | **Mid** | 15 rows | top 10 |
+| Functional or technical lead · Director · Executive | **Senior / exec** | no row cap | every new role |
 
 **What the band changes** (it drives volume, table cap, and research depth): early career returns hundreds of roles a cycle and researches at shortlist only; mid returns dozens and researches scored rows; senior/exec returns 0 to 5 and researches every role. **Career changers sit in two bands:** run them as early career for volume and comp, mid for positioning.
 
@@ -251,12 +253,14 @@ Show only their band's set, "Full-time only" first:
 
 Anything besides full-time is ranked as a band below full-time by default; no follow-up.
 
-**Location · picker,** one call. **Say:**
+**Location · picker.** **Say:**
 
 > Where and how do you want to work?
 
 - **`Arrangement`**, multi-select: Fully remote · Hybrid in/near my city · 5 days a week on-site, near my city · Open to relocating to a new city
 - **`Commute`**, single-select, "What's the longest you'd travel to work, one way?" → *Up to 20 minutes · Up to 40 minutes · Up to 60 minutes · More than 60 minutes*
+
+Ask `Commute` only if `Arrangement` includes hybrid or on-site, so it goes in its own call once `Arrangement` is answered.
 
 **Then, only if onsite or hybrid, drive-time opt-in · picker,** single-select, header `Drive time`. **Say:**
 
@@ -303,6 +307,8 @@ Anything besides full-time is ranked as a band below full-time by default; no fo
 
 **Two pay screens, kept separate.** A posting that states a number **below the floor** isn't shown; that's a hard screen, and the equity "lower my expectations" options can pull the floor down so a below-floor role with equity can still pass. A posting that states **no pay at all** is governed entirely by the "No salary posted" answer above: shown-and-flagged for everything, shown-except-step-downs, or excluded outright. **When a no-pay role is shown it's flagged and ranked below any role that clears the floor on a stated number, and never counts as clearing.**
 
+**How equity counts, by default.** Unless they chose "No value, only salary," public shares stated in the posting count at year-one value toward the floor; startup options count at zero unless the third equity option was chosen, then at half their stated value. Record the rule in Compensation.
+
 **Visa · picker,** single-select, header `Visa`. **Say:**
 
 > One quick check: do you need visa sponsorship to take a role?
@@ -317,12 +323,14 @@ Options: *No · Yes*. Postings state this, so it's a reliable screen and the one
 
 > My default settings will rank the roles on the following:
 > - Pay clears your comp floor
-> - Title progression (a step up ranks above a lateral move, a step down below)
+> - Title progression (a step up scores; a lateral move doesn't; a step down ranks a band below laterals)
 > - Commute time / location / fully remote
 > - Estimated company stability (based on my research)
 > - Employer review scores
 >
 > Cut any that don't matter, and add anything I'm missing.
+
+**The list order is the rank order; confirm it.** It becomes the profile's Motivator Buckets, in that order.
 
 **These rank, they don't screen.** A low score sorts a role down; only the hard screens (floor, location, visa) remove one. **Only offer factors a posting or public data can answer** on every role; a factor that can't be checked is a wish, not a score. **The review bar defaults silently to 3.0 on Glassdoor and Indeed** under "employer review scores," adjustable later via "make a rule."
 
@@ -400,7 +408,7 @@ Options: *Bishop* (Recommended) · *Surprise me*. The automatic Other is the tex
 
 ---
 
-**→ Build the files and run the first search** (see "After the interview"). Then the closing note.
+**→ Essentials: build the files and run the first search** (see "After the interview"), then the closing note. **Everything: run E to G below first.**
 
 **Closing note · say:**
 
@@ -426,7 +434,7 @@ Options: *Yes, find them · No thanks*. **On yes, fix the geographic anchor firs
 
 > Any companies here you wouldn't want to work for? Tell me which to drop, or say "looks good" and I'll keep them all.
 
-**Then resolve the kept names to boards** with `scripts/resolve_boards.py`; the result becomes `Employer_Index.md`, swept every cycle. A named list changes which employers get looked at, never a screen.
+**Then resolve the kept names to boards** with `scripts/resolve_boards.py`; the result becomes `Employer_Index.md` in the shape of scaffolding.md's Employer index skeleton, with the sweep-config set from the profile, swept every cycle. A named list changes which employers get looked at, never a screen.
 
 ### F. Your field's sources (~2 min)
 
@@ -442,7 +450,7 @@ Vet each source once and record the verdict, so no later cycle re-chases a dead 
 
 > These are optional, and each one saves you manual work. Connect any that help.
 
-- **Digest delivery · picker, multi-select,** header `Also send to`: "Besides chat and your dashboard, want your digest anywhere else? Pick any." → *Slack DM · Email to you*.
+- **Digest delivery · picker, multi-select,** header `Also send to`: "Besides chat, want your digest anywhere else? Pick any." (Say "Besides chat and your dashboard" when they chose the dashboard.) → *None · Slack DM · Email to you*.
 - **Calendar assistant:** "I put interviews, follow-up dates, and deadlines on your calendar automatically, and I can add a short review block after each run so digests don't pile up unread." **Keep event titles discreet** (say "Interview" or the role, never the employer name), since a work calendar's titles can be visible to colleagues. This is the one place a search can leak, so it holds whether or not anything else is shared.
 - **Email tracking · read-only:** "I watch your inbox for application confirmations and rejections and keep your tracker current without you typing anything. I never reply, send to anyone else, or delete."
 
@@ -454,7 +462,7 @@ Vet each source once and record the verdict, so no later cycle re-chases a dead 
 
 Work through these in order. Keep every spoken line plain, per the language rule in "How to run this."
 
-1. **Build the files and both scheduled tasks** per `scaffolding.md`, writing the profile from the answers and using the chosen name throughout. The cycle task runs on their cadence; the weekly quality audit runs on its own day and starts in week two.
+1. **Build the files and both scheduled tasks** per `scaffolding.md`, writing the profile from the answers and using the chosen name throughout. The cycle task runs on their cadence; the weekly quality audit runs on its own day, on Saturday by default, recorded in Customization, and starts in week two. If the project folder is not a git repository, initialize one and commit the setup files.
 
 2. **Say, in one or two lines, what you just saved and whether they need to touch it.** These files hold their profile, scoring rules, and results, and they're saved locally on their own device, nowhere else. **They don't need to open or read any of it.** The way they change anything later is to tell you in chat, and you edit the files. Don't list file names or paths; say what the files are for.
 

@@ -24,7 +24,8 @@
   Tracking_{{TRACK_A}}.md       # live results + search notes
   Tracking_{{TRACK_B}}.md       # only if a second track was requested
   Audit_Log.md                  # one row per weekly quality audit
-  Employer_Index.md             # only once a named-employer sweep exists
+  Employer_Index.md             # when E ran, or once a named-employer sweep exists
+  Postings/                     # job-description captures, one folder per applied role
 ```
 
 **Setup writes exactly these.** Three more appear only when a tracking file
@@ -34,9 +35,13 @@ The weekly audit writes `Weekly_Check.md` on its first run, and replaces it
 each week after: the user's plain-language report and any decisions still
 waiting on them (`quality-audit.md` §6).
 
+**Name the first track after the job family of Target Roles' first line**, Title_Case with underscores (`Tracking_Field_Service.md`); the heading uses spaces.
+
+**The profile, procedures, tracking and employer-index skeletons open with a format line.** Line 1 of each file is its format line; readers treat a file without one as version 1.
+
 **Four profile files, not one.** They separate cleanly by what changes them: the profile changes when the person's situation changes, the methodology when a source or technique changes, the procedures when the output format changes, and the log every time any of the three is argued about. One file mixing all four becomes unnavigable within a couple of months, and by then splitting it is a migration.
 
-> **The employer index is a fifth file, and it appears only when it's earned.** Create it the first time a named-employer sweep exists (see `search-techniques.md`), not during setup. **It owns every named-employer list;** the methodology owns the rules for how those sweeps run, and names no employers itself. Without that split, the first list lives inline in the methodology, the second gets its own file, and the two drift into different formats within a week. Record each employer's board platform, its confirmed endpoint, and whether access is confirmed or still unresolved. **It also keeps a short table of employers skipped on their own terms** (employer, host read, reason, date), so a board whose terms or robots.txt bar automated access is not re-derived the next time the list is widened. A skipped or unresolved board is never written as "nothing there": it is a gap, and the digest says so.
+> **The employer index is a fifth file, and it appears only when it's earned.** Create it during setup when "Employers near you" runs, otherwise the first time a named-employer sweep exists (see `search-techniques.md`). **It owns every named-employer list;** the methodology owns the rules for how those sweeps run, and names no employers itself. Without that split, the first list lives inline in the methodology, the second gets its own file, and the two drift into different formats within a week. Record each employer's board platform, its confirmed endpoint, and whether access is confirmed or still unresolved. **It also keeps a short table of employers skipped on their own terms** (employer, host read, reason, date), so a board whose terms or robots.txt bar automated access is not re-derived the next time the list is widened. A skipped or unresolved board is never written as "nothing there": it is a gap, and the digest says so.
 
 ### Three files, three jobs
 
@@ -80,6 +85,7 @@ This is not tidiness. **File boundaries are the executing surface for a read rul
 ### Reference profile skeleton
 
 ```markdown
+<!-- bishop-format: profile 1 -->
 # {{BOT_NAME}} Reference Profile: {{NAME}}
 
 Who {{NAME}} is and what they want. Search mechanics live in Methodology.md,
@@ -87,15 +93,12 @@ output conventions in Operating_Procedures.md, and the reasoning behind any
 rule in Decisions_Log.md. Live results live in the tracking file(s).
 
 ### Bot Name                -> the Name question, asked last in D. Settings (a named field)
-### Customization           -> D. Settings: palette, cadence, digest channel. RIGOR defaults
-###                            to light silently (not asked). Country comes from A. You;
-###                            integrations from Everything G
+### Customization           -> D. Settings, plus the defaults listed below the fence
 ### Built With              -> one line, verbatim (see below)
-### Career Level            -> A. You (rung + band + table cap + research-depth rule)
+### Career Level            -> A. You (rung + band + research-depth rule); the band's table cap is recorded here
 ### Current Role            -> A. You
 ### Full Career History     -> A. You (table: period | role | company | highlights)
-### Key Positioning Point   -> left empty at setup; filled from the first real
-###                            screening call, never guessed in the interview
+### Key Positioning Point   -> left empty at setup; filled from the first real screening call, never guessed
 
 ### Target Roles            -> B. Titles (priority-ordered; a second track is reactive)
 ### Hard Excludes           -> B. Visa, the current employer (default; drop on "include my employer"), plus any "make a rule" excludes
@@ -103,11 +106,23 @@ rule in Decisions_Log.md. Live results live in the tracking file(s).
 ### Compensation            -> B. Compensation (floor + how it's measured + equity)
 ### Company Profile         -> reactive ("make a rule"); stability scored from public signals
 ### Motivator Buckets       -> C. How to rank it (0-to-N, binary test written per bucket)
-### Rank Overrides          -> C (arrangement bands from B, outside the score)
+### Rank Overrides          -> C (arrangement bands from B and the step-down band, outside the score)
 ### Culture Bar             -> C (employer review score, 3.0 default; adjust via "make a rule")
 ### Lessons Learned         -> filled from cycle outcomes (no setup question)
 ### Stage-Tied Rules        -> any "make a rule" rule, with what triggers its review
 ```
+
+**What Customization records, one line each:**
+
+- **Palette, cadence, digest channel** -> D. Settings
+- **Rigor** -> light by default (not asked)
+- **Country** -> A. You
+- **Integrations** -> Everything G
+- **LinkedIn** -> Connect LinkedIn: the browser device id read off a connected browser, or `linkedin: declined`
+- **Commit message** -> default `<BOT_NAME> cycle <N>, <YYYY-MM-DD>` (not asked)
+- **Follow-up dates** -> default on at early career and mid, 10 days; off at senior
+- **Captures** -> default on, `Postings/<Company>_<Title>/`
+- **Audit day** -> Saturday by default (not asked)
 
 > **Customization lives in the profile, and it is the one copy.** The dashboard skill reads the palette from there rather than asking again, and the cycle reads the digest channel from there. **Record the defaults they accepted, not only the ones they changed**, or a later cycle cannot tell an accepted default from an unasked question.
 
@@ -158,16 +173,18 @@ Bishop, a free job-search plugin by Adam Hilliard
 ### Operating procedures skeleton
 
 ```markdown
+<!-- bishop-format: procedures 1 -->
 # {{BOT_NAME}} Operating Procedures: {{NAME}}
 
-### File Map                -> the one copy; every other file points here
+### File Map                -> the one copy; every other file points here; includes the cycle task's prompt file path
 ### Read Contracts          -> below (what each file costs per cycle)
 ### Tracking Files          -> below
 ### Results Table Format    -> below (locked layout)
 ### Ranking & Rank Overrides-> below + C. How to rank it
-### Digest Format & Cap     -> D. Settings (delivery) + the level-based cap;
-###                            every digest ends with the coverage note (see below)
+### Freshness Order         -> interviewing, then applied, then open by score; unverified and "Apply link unconfirmed" rows first within each
+### Digest Format & Cap     -> D. Settings (delivery) + the level-based cap; every digest ends with the coverage note (see below)
 ### Search Notes Shape      -> below (fixed shape, 4KB cap)
+### Dashboard               -> URL and favicon, written by the dashboard skill at first publish
 ### Prose & Writing Rules   -> whatever style the project uses
 ```
 
@@ -230,15 +247,64 @@ On review the row is deleted, not annotated.**
 - **What was rejected:** enumerating every full-title variant.
 ```
 
+### Employer index skeleton
+
+**`scripts/employer_sweep.py` reads the config block and every table with Platform and Slug columns.** The other two tables are for the cycle and the user; the script skips them.
+
+```markdown
+<!-- bishop-format: employer-index 1 -->
+# {{BOT_NAME}} Employer Index: {{NAME}}
+
+<!-- sweep-config
+seniority  = <target-level title words, from Target Roles>
+function   = <function words, from Target Roles>
+stretch    = <step-up title words, only if open to a step up>
+step_down  = <lower-rung title words, only if open to a step down>
+comp_floor = <the floor from Compensation, in thousands>
+no_pay     = <all, except_step_down, or none>
+-->
+
+## Employers near you
+
+| Company | Platform | Slug | Confirmed by |
+|---|---|---|---|
+
+## Unresolved
+
+| Company | Known access |
+|---|---|
+
+## Skipped on their own terms
+
+| Employer | Host read | Reason | Date |
+|---|---|---|---|
+```
+
+- **Values are regular expressions**, matched case-insensitively against titles (`manager|supervisor|lead`). Leave `stretch` and `step_down` empty when they don't apply.
+- **`no_pay` comes from the "No salary posted" answer:** show them all = `all`, not step-downs = `except_step_down`, exclude them = `none`.
+- **`comp_floor` mirrors the profile's floor; change both in the same pass.**
+
+### Audit log skeleton
+
+**A title line, then the table header from `quality-audit.md` §5.** The weekly audit appends one row per run.
+
+```markdown
+# {{BOT_NAME}} Audit Log
+
+| Date | Checks run | Tripped | Probe | Note |
+|---|---|---|---|---|
+```
+
 ### Tracking file skeleton
 
 ```markdown
+<!-- bishop-format: tracking 1 -->
 # {{BOT_NAME}} Tracking: {{TRACK}}
 
 ## ACTIVE/ROLLING
 <the scored table, capped per the level band>
 
-## BELOW THE CAP           # high-volume searches only; compact one-line rows
+## BELOW THE CAP           # omit unless the band is early career or mid; compact one-line rows
 ## REJECTED                # employer's decision, after you applied
 ## EXPIRED / NO LONGER POSTED   # posting simply closed
 ## NOT INTERESTED          # your screening call
@@ -287,7 +353,7 @@ Column layout, in this order:
 1. **Every bucket cell carries the symbol plus a short inline reason** (4-12 words: `✓ Series C, $110M raised Apr 2026`, `✗ onsite, 3 days/week`). A bare ✓ forces you to read a notes paragraph to learn anything.
 2. **Company cell** hyperlinks the name to a verified homepage, with a one-line bio under it. Verify the URL; don't guess a domain.
 3. **Title cell** carries the job title plus the seniority/trajectory bucket's ✓/✗ and reason.
-4. **Key Context** holds only what belongs to no single bucket: scope caveats, freshness flags, level-ambiguity notes, in-office cadence, how the role arrived, and the hiring contact if that's enabled. **Cap it at 350 characters, contact clause included.** The cell answers whether the role is worth applying to, and that fits.
+4. **Key Context** holds only what belongs to no single bucket: stage and posting status, scope caveats, freshness flags, level-ambiguity notes, in-office cadence, how the role arrived, and the hiring contact if that's enabled. **It always opens with** `**Stage: open|applied YYYY-MM-DD|interviewing YYYY-MM-DD** · Posting: live|expired YYYY-MM-DD|unverified`, then `next: <one line>`, and on applied rows `follow up YYYY-MM-DD`. Rows in closed sections keep their last stage. **Cap it at 350 characters, these opening fields and the contact clause included.** The cell answers whether the role is worth applying to, and that fits.
 5. **Apply is the last column, always present, always a working link.**
 6. **Show close calls inline.** When a bucket is borderline, say so in the cell. The symbol summarizes reasoning; it doesn't replace it.
 
@@ -312,7 +378,7 @@ Column layout, in this order:
 
 ```markdown
 ### {{DATE}} · cycle {{N}}
-COVERAGE: linkedin COMPLETE 933 · ats 25/25 COMPLETE · lever 6 · greenhouse 4 · ashby 3 · icims 0 · bamboo 0 · getro 412/10976 INCOMPLETE · consider SAMPLED · assoc OFF-CADENCE
+COVERAGE: linkedin COMPLETE 933 · ats 25/25 COMPLETE · lever 6 · greenhouse 4 · ashby 3 · icims 0 · bamboohr 0 · getro 412/10976 INCOMPLETE · consider SAMPLED · assoc OFF-CADENCE
 CANARY: icims PASS 3 employers · bamboohr FAIL
 EVENTS: 4 new · 2 expired · 1 applied · 1 below-cap
 GATE: 4 assessed · 0 flagged
@@ -341,7 +407,7 @@ Fixed shape, four buckets, compact. Never per-source prose:
 > - **Couldn't reach:** none
 
 - **Translate the status words, don't print them.** `COMPLETE` becomes "searched in full," `SAMPLED` becomes "checked partly," `OFF-CADENCE` becomes "not this run" with the day it next runs, and `FAILED`, `INCOMPLETE`, or an unvouched nil becomes a named line under "Couldn't reach."
-- **Translate the source names too, and never print a platform's own name.** The scripts emit the platform slugs; the user has never heard of any of them. `getro` and the investor boards are **"startup investor job pages."** `icims`, `lever`, `greenhouse`, `ashby`, `bamboo`, and the rest of the ATS set are all **"company hiring systems."** The aggregators are **"the big job-listing sites."** A slug in a digest is the same defect as a status code in a digest.
+- **Translate the source names too, and never print a platform's own name.** The scripts emit the platform slugs; the user has never heard of any of them. `getro` and the investor boards are **"startup investor job pages."** `icims`, `lever`, `greenhouse`, `ashby`, `bamboohr`, and the rest of the ATS set are all **"company hiring systems."** The aggregators are **"the big job-listing sites."** A slug in a digest is the same defect as a status code in a digest.
 - **Drop an empty bucket, except "Couldn't reach," which always shows,** even as "none." Its whole job is to be believed when it says nothing broke.
 - **It is not roles, so it never counts against the digest cap.** One short block regardless of volume, and it earns its place most on the quiet weeks.
 
@@ -454,13 +520,13 @@ You are {{BOT_NAME}}, {{NAME}}'s job search. Run the {{TRACK}} digest.
 13. WRITE results into Tracking_{{TRACK}}.md. Move rows between
     sections, never delete. Append one Search Notes entry in the fixed
     shape Operating_Procedures.md defines: COVERAGE, CANARY, EVENTS, GATE,
-    and at most one NOTE line. Reasoning goes in Decisions_Log.md, not here.
+    RESOLVE, and at most one NOTE line. Reasoning goes in Decisions_Log.md, not here.
 
 14. COMMIT the changes, following the commit-message rule in the
     profile's Customization section.
 
 15. DIGEST, to the channel the profile names, capped at the number in
-    the profile: new roles, freshness changes, intake items needing a
+    Operating_Procedures.md's Digest Format & Cap: new roles, freshness changes, intake items needing a
     decision, follow-ups due, and anything else needing my decision. If
     Update_Notice.md exists in the project, lead with it, a pending
     Bishop update the weekly audit found. Render it in plain words: a
@@ -495,7 +561,8 @@ You are {{BOT_NAME}}. Run the weekly quality audit.
 1. Read references/quality-audit.md from the Bishop plugin's job-search
    skill. It defines every check and the three failure categories.
 
-2. Run scripts/quality_audit.py against {{PROJECT_FOLDER}}. It computes
+2. Run scripts/quality_audit.py --project {{PROJECT_FOLDER}} --prompt
+   <the cycle task's prompt file>. It computes
    the scripted checks from the files and exits nonzero on a trip.
 
 3. Run scripts/check_update.py --project {{PROJECT_FOLDER}}. It checks for

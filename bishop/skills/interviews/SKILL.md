@@ -49,7 +49,7 @@ Everything here decides *which* questions to ask, never what the answers are. **
 | Career level | `Reference_Profile.md` → Career Level: the rung (First-line manager, Senior manager, Director…) and the band (Early career, Mid, Senior / exec) | The behavioral layers (below) |
 | Current role, full history | `Reference_Profile.md` → Current Role, Full Career History (period, role, company, highlights) | Opening and tough questions: tenure, gaps, a layoff, a pivot |
 | Target roles | `Reference_Profile.md` → Target Roles | Technical questions, and the level they're interviewing *for* |
-| Resume bullets | **Not saved by Bishop.** Setup reads the resume but keeps only the history table. Look for a resume file in their Bishop folder | Resume questions, quoted word for word |
+| Resume bullets | **Not saved by Bishop.** Setup reads the resume but keeps only the history table. Look in `Interview_Prep/` first, then the rest of their Bishop folder | Resume questions, quoted word for word |
 
 **No resume file in the folder?** Ask once: *"Can you share your resume again? I'll use it to ask about the specific lines an interviewer will point at."* Save it into `Interview_Prep/` with their OK, so the next deck doesn't ask. If they have none, write the resume questions from the Career History highlights and put `"Bishop profile: <role>, <company>"` in `source`.
 
@@ -89,13 +89,13 @@ This is how interviewers use a resume: they point at a line and ask about it. Ea
 
 Use the bank's wording exactly; it's been reviewed and every question is balanced between successes and failures.
 
-- **Layers by the level they're interviewing for** (above): **Universal** for everyone; **Leading people** for any manager rung (First-line manager, Senior manager, Director, Executive); **Leading the business** for Bishop's Senior / exec band (Functional or technical lead, Director, Executive).
+- **Layers by the level they're interviewing for** (above): **Universal** for everyone; **Leading people** for any manager rung (First-line manager, Senior manager, Director, Executive); **Leading the business** when the level they're interviewing for is Functional or technical lead, Director or Executive, even if Career Level records a lower band.
 - **How many** follows `rigor.json`: light takes the first question of the six light-marked universal competencies, plus one question per leadership layer they qualify for; medium takes the first question of every competency in their layers; heavy takes two per competency.
 - Put the competency's title in `source` (`"Behavioral bank: Conflict"`) and its `tests` line in `why`.
 
 ### Step 2: build it and hand it over
 
-Give every question a `why` (what the interviewer is trying to learn, in one sentence), a `target` in seconds (120 for tell me about yourself, 60 to 90 for the rest, 0 for questions to ask) and no `script`. Set `"deck": {"slug": "core", "title": "Master Deck", "brandTitle": "Master deck", "master": true, "evergreen": true, "rigor": "medium", "theme": {"accent": "#e2541b"}, "jd": {"none": "Every interview"}}`, sections in the order of the table above, open with a `readiness` slide (id `cover`, section `I`, listed first in `sections`), start each section with its `section` slide, build it, and open `core.html` for them.
+Give every question a `why` (what the interviewer is trying to learn, in one sentence), a `target` in seconds (120 for tell me about yourself, 60 to 90 for the rest, 0 for questions to ask) and no `script`. Set `"deck": {"slug": "core", "title": "Master Deck", "brandTitle": "Master deck", "master": true, "evergreen": true, "rigor": "<their answer: light, medium or heavy>", "theme": {"accent": "#e2541b"}, "jd": {"none": "Every interview"}}`, sections in the order of the table above, open with a `readiness` slide (id `cover`, section `I`, listed first in `sections`), start each section with its `section` slide, build it, and open `core.html` for them.
 
 **Tell them how to use it:** in **Study**, click into a question and write the answer the way they'd say it; **+ Add STAR** splits a "tell me about a time" into Situation, Task, Action, Result; **Lock In** marks an answer done; **+ Add Question** adds their own. Readiness shows what's left to write and lock. Then **Export Answers** (bottom of the sidebar) saves `Master_Answers.json`: ask them to save it into `Interview_Prep/`, or find it in their Downloads folder and move it there with their OK.
 
@@ -108,7 +108,13 @@ When the first interview with a company is booked. Follow `references/deck-guide
 3. **Write the questions.** Custom first: every priority, risk and finding becomes a question before any standard question is added. A question that asks what a master question asks links to it with `"core"`. Questions to ask cite their source.
 4. **Build it** with `--master` so their master answers show, fix every error, and open it. If the map added a question to their master deck, rebuild `core.html` too, and tell them before anything else.
 
-**When the next round is booked,** open that company's deck folder, not a new one: set `deck.round` to it, add what's new for that interviewer (questions to ask tagged with `rounds`, a shortlist or a guide if they help), and rebuild. Answers, flags and ticks carry over, because it's the same deck.
+**When the next round is booked,** open that company's deck folder, never a new one, and:
+1. **Set `deck.round`** to it, with its `date`, `time` and `who` (the interviewer's name and title, which leads the sidebar).
+2. **Re-run the map with the earlier round's notes:** re-rank the priorities, put the recruiter's exact words on the hub cards, and add any new risk with the tough question that presses it.
+3. **Add what's new for this interviewer:** questions to ask tagged with `rounds`, and a shortlist or a guide if they help.
+4. **Rebuild,** then `--check --round` every other round.
+
+The builder puts the round, date and time first on the cover and in the sidebar, so `cover.description` and `deck.sidebar` hold only what's true in every round. Answers, flags and ticks carry over, because it's the same deck.
 
 The deck and the field reference are in `references/deck-schema.md`; the answers file is in `references/answers-file.md`.
 

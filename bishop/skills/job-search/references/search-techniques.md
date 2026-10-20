@@ -2,7 +2,7 @@
 
 **The running bot's manual: how to source without silently missing half the market, and how to decide what is actually true about a posting.**
 
-> **Q-numbers** are shorthand for the setup interview's questions in `setup-interview.md`, now organized there as lettered sections A through G. Match each by the topic the surrounding sentence names.
+> **Section names** (A–D in Essentials, E–G in Everything) refer to `setup-interview.md`, where each question is defined.
 
 The scheduled task reads this file every cycle. It holds nothing candidate-specific,
 so improvements here reach every search already running.
@@ -73,7 +73,7 @@ The most expensive failure here is not a bad search. It's a search that ran inco
 **A status is a claim about a group; a count is evidence about a member.** `ATS: COMPLETE 25/25` was true and useless. The group passed, so nothing ever asked which hosts contributed, and four hosts returning nothing stayed invisible.
 
 - **List the exact query terms and sources run, every cycle**, and point at the source section rather than re-typing the list. A copied title list stops covering new targets the moment one is added, and nothing announces that.
-- **Log a result count per member for any grouped or paginating source, zeros included:** `ATS 25/25 COMPLETE · lever 6 · greenhouse 4 · ashby 3 · icims 0 · bamboo 0`. It costs one line per cycle and replaces nothing. **Zero is the value the line exists to carry.** A member at zero for three cycles while its peers return results is a wrong address, and that inference is impossible from a group status and trivial from a count.
+- **Log a result count per member for any grouped or paginating source, zeros included:** `ATS 25/25 COMPLETE · lever 6 · greenhouse 4 · ashby 3 · icims 0 · bamboohr 0`. It costs one line per cycle and replaces nothing. **Zero is the value the line exists to carry.** A member at zero for three cycles while its peers return results is a wrong address, and that inference is impossible from a group status and trivial from a count.
 - **Count parseable results, never roles that made the table.** A healthy source produces zero tracked roles for months; that is the market, not a defect. A source producing zero *parseable results* is broken. **Conflating the two demotes working sources and protects broken ones.**
 - **Log returned against claimed on anything paginated:** `getro 412/10976`. **A count that is exactly 20, 25, 50, 100, 250, 500, 750 or 1000 against a large inventory is a truncation signature**, not a result. One board API served exactly 20 rows per board against boards carrying 25,000.
 
@@ -122,12 +122,12 @@ Nothing here is candidate-specific, which is why it lives in the skill and is re
 
 ### Sources, and how often each one runs
 
-1. **A logged-in job-board session via browser automation.** Personalized feeds and email alerts are invisible to anonymous web search. **Where the user turned browser access on at Q12, this is a required source, not best-effort:** run it every cycle, and when it fails say so in the digest. Where they turned it off, or never installed the browser extension, the search runs without it and nothing here applies.
+1. **A logged-in job-board session via browser automation.** Personalized feeds and email alerts are invisible to anonymous web search. **Where the user turned browser access on at Connect LinkedIn, this is a required source, not best-effort:** run it every cycle, and when it fails say so in the digest. Where they turned it off, or never installed the browser extension, the search runs without it and nothing here applies.
 2. **Aggregators** (Indeed, ZipRecruiter, Glassdoor, regional boards) via web search, **used to harvest company names from snippets and re-search those directly.** Don't build a dedicated channel around their own job search; see the measured verdict below.
 3. **Direct careers pages** for companies of interest.
 4. **ATS site-search.**
-5. **VC portfolio job boards.** Skip where the field doesn't overlap with venture-backed employers; see Q11.
-6. **Curated, association, and certifying-body boards** for the field. From Q11.
+5. **VC portfolio job boards.** Skip where the field doesn't overlap with venture-backed employers; see F. Your field's sources.
+6. **Curated, association, and certifying-body boards** for the field. From F. Your field's sources.
 
 **Tier sources by measured yield and give each tier assigned days.** Running everything every cycle costs wall-clock time that the low-yield half doesn't earn back.
 
@@ -141,11 +141,11 @@ Nothing here is candidate-specific, which is why it lives in the skill and is re
 
 | Tier | Seed membership |
 |---|---|
-| **A** | The logged-in job-board session, and ATS site-search |
-| **B** | Named-employer sweeps, the user's certifying-body or association board, VC portfolio boards where the field overlaps with venture-backed employers |
-| **C** | Aggregators mined for company names, and anything vetted in during Q11 |
+| **A** | The logged-in job-board session, ATS site-search, and any list or board the user named during setup (Employer_Index.md, sources from F) |
+| **B** | VC portfolio boards where the field overlaps with venture-backed employers |
+| **C** | Aggregators mined for company names, and anything vetted in after setup |
 
-> **Re-tier on measurement, not on the seed.** The seed is a guess about which sources pay off, and it is wrong for some fields: in trades, healthcare, education, and most local employment, the VC boards belong nowhere and an association board is Tier A from day one. **Q11's verdicts override the seed immediately.**
+> **Re-tier on measurement, not on the seed.** The seed is a guess about which sources pay off, and it is wrong for some fields: in trades, healthcare, education, and most local employment, the VC boards belong nowhere and an association board is Tier A from day one. **The verdicts from F. Your field's sources override the seed immediately.**
 
 - **The profile's rigor setting decides which tiers run at all.** Light is Tier A only, standard runs each tier on its day, deep runs everything every cycle. **Tiering still measures every source it runs**, so a light search keeps promoting and demoting normally and will say when its Tier A dries up.
 - **A skipped tier is `OFF-CADENCE`, never a nil.** Rigor narrows what gets looked at; it never narrows what gets reported.
@@ -296,14 +296,14 @@ curl -s -X POST "https://api.getro.com/api/v2/collections/<id>/search/jobs" \
 
 **Sweep a named list of employers directly, by board, rather than by keyword.** This is the countermeasure for the things the scoring rubric structurally cannot see, and every rubric has some.
 
-**Two blind spots are built into the design of Q8, and neither is a bug to fix in the rubric:**
+**Two blind spots are built into the design of C. How to rank it, and neither is a bug to fix in the rubric:**
 
 - **A binary bucket cannot see magnitude.** If work shape scores ✓ only on fully remote, then an onsite role a mile from the user's home scores exactly the same ✗ as one an hour away. The bucket is doing what it was told.
-- **A tiebreaker earns no point.** Q6c usually makes industry a tiebreaker rather than a bucket, on purpose. So the user's single favorite industry never adds to a score, and roles there rank as if the preference didn't exist.
+- **A tiebreaker earns no point.** If a "make a rule" made industry a tiebreaker rather than a bucket, the user's single favorite industry never adds to a score, and roles there rank as if the preference didn't exist.
 
-**Q6d asks for this list during setup, so the usual case is that it already exists.** Build the sweep from their `Employer_Index.md` and move on.
+**E. Employers near you builds this list (Everything, or on request), so it exists only if E ran.** Build the sweep from their `Employer_Index.md` and move on.
 
-**The tell that it needs widening: the user keeps surfacing roles the search should have found.** When someone hands you two roles in two days that both scored near the bottom, both had the same invisible feature, and the search had sourced neither, the rubric isn't miscalibrated. It's blind, and no amount of re-weighting fixes a dimension that isn't measured. Go back to Q6d and ask again, using the specific miss as the example.
+**The tell that it needs widening: the user keeps surfacing roles the search should have found.** When someone hands you two roles in two days that both scored near the bottom, both had the same invisible feature, and the search had sourced neither, the rubric isn't miscalibrated. It's blind, and no amount of re-weighting fixes a dimension that isn't measured. Go back to E. Employers near you and ask again, using the specific miss as the example.
 
 **What to do instead of changing the rubric:** add those employers to the index and sweep their boards by name every cycle. The roles still get scored honestly and still rank low. They just stop being invisible.
 
@@ -380,7 +380,7 @@ Expect these mechanics:
 
 ### Technique: contact discovery
 
-**Only if Q12 of the setup interview turned it on.** The bot sources, screens, scores, and ranks, then stops, which at senior levels leaves the highest-value fact off the row: the name of the person who decides.
+**Only if the user asked for it; no setup question turns it on.** The bot sources, screens, scores, and ranks, then stops, which at senior levels leaves the highest-value fact off the row: the name of the person who decides.
 
 **It is a note, never an action.** No outreach, no drafting, no connection requests, ever. **Only from sources that don't announce the visit:** profile views are visible to the person viewed, and an unattended run must not put the user in a stranger's viewer list. The company's own site, the firm's people pages, press coverage, and public bios are the whole surface.
 
@@ -430,7 +430,7 @@ An unattended run can't click a browser picker, and the properties that look lik
 
 **Four rules, in order of how much they save:**
 
-1. **Cap the scored table, not the search.** Score down to the cap from Q0 of the setup interview. Everything else that cleared the hard filters gets a one-line row in BELOW THE CAP: title, company, link, date found. Nothing is dropped, and nothing below the cap costs research time.
+1. **Cap the scored table, not the search.** Score down to the band's table cap recorded in Career Level. Everything else that cleared the hard filters gets a one-line row in BELOW THE CAP: title, company, link, date found. Nothing is dropped, and nothing below the cap costs research time.
 2. **Research per company, not per role.** One employer with nine openings is one culture lookup and one stability lookup, cached with its verification date. This alone can cut research time by half in fields where large employers post constantly.
 3. **Filter before you research, never after.** Hard excludes and the location filter run on the posting text, which is already in hand. Culture and stability research runs only on what survived and made the cap.
 4. **Deduplicate before scoring.** The same requisition reaches the table three times from three sources with three URLs. Match on employer plus title plus location, keep the most durable link (company ATS over aggregator), and note the other sources on the row.
@@ -439,7 +439,7 @@ An unattended run can't click a browser picker, and the properties that look lik
 
 > **Apply-rate honesty belongs in the digest at these levels.** Track applications sent per cycle against roles surfaced. A bot surfacing forty roles a week into a search sending two applications a week has a throughput problem, not a sourcing problem, and no amount of better search fixes it. Say that plainly rather than sourcing harder.
 
-**Watch for the opposite failure too.** If a cycle returns hundreds of roles and the top of the table still looks wrong, the target titles in Q2 are too broad, not the filters too loose. Fix the query, not the rubric.
+**Watch for the opposite failure too.** If a cycle returns hundreds of roles and the top of the table still looks wrong, the target titles from B. Titles are too broad, not the filters too loose. Fix the query, not the rubric.
 
 
 ---
@@ -515,7 +515,7 @@ It prints `DISCLOSED` with where the band was found, or `NOT DISCLOSED (salary f
 
 **Run it before sourcing anything new.** Postings close continuously between runs, and a search that only ever looks for new roles will quietly fill its table with dead links.
 
-Priority order, and don't let it expand past the first two categories when time is short:
+Within the stage order in Operating_Procedures.md's Freshness Order, prioritize these, and don't let it expand past the first two categories when time is short:
 1. Rows whose apply link is a generic listing page rather than a direct requisition.
 2. Onsite/hybrid roles (smaller applicant pools close faster) and rows not re-verified in the past week.
 3. Everything else, time permitting.
@@ -668,7 +668,7 @@ Two cautions:
 - **Within roughly 2 years under the ask:** apply normally, no flag.
 - **3 or more years under:** table it with a stretch flag and the gap noted, rather than filtering it out. Their call.
 - **Substantially over the ask:** flag it as a possible level mismatch. An overqualified application is a real screen-out risk and worth knowing before the time is spent.
-- **A hard credential, license, degree, or clearance requirement is different** and does gate. Those come from Q1 and screen like any hard filter.
+- **A hard credential, license, degree, or clearance requirement is different** and does gate. Those come from the resume (A. You), confirmed in the review step, and screen like any hard filter.
 
 > **Never let the bot silently drop a role on the years line.** It's the single most common false exclusion at early-career and mid levels, and it removes exactly the roles that would have been a step up.
 

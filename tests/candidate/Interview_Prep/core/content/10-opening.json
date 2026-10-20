@@ -1,0 +1,29 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "SA",
+      "section": "A",
+      "title": "Opening",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QA1",
+      "section": "A",
+      "chain": "QA1",
+      "title": "Tell me about yourself.",
+      "why": "The opener. They want the arc in two minutes, and why it leads here.",
+      "target": 120
+    },
+    {
+      "kind": "question",
+      "id": "QA2",
+      "section": "A",
+      "chain": "QA2",
+      "title": "Why are you looking?",
+      "why": "Whether you're running from something or toward something.",
+      "target": 60
+    }
+  ]
+}

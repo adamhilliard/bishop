@@ -1,0 +1,114 @@
+{
+  "meta": {
+    "deck": {
+      "slug": "hooli",
+      "title": "Hooli Deck",
+      "brandTitle": "Hooli",
+      "rounds": [
+        {
+          "id": "screen",
+          "label": "Recruiter screen",
+          "ask": "Priya",
+          "who": "Priya Shah, Recruiter",
+          "date": "2030-03-04",
+          "time": "10:00 a.m."
+        },
+        {
+          "id": "hm",
+          "label": "Hiring manager",
+          "ask": "Jordan",
+          "who": "Jordan Lee, Head of Service",
+          "guide": {
+            "title": "Jordan owns the service plan",
+            "body": "Expect the first-year plan and the numbers behind it."
+          }
+        }
+      ],
+      "round": "screen",
+      "sidebar": [
+        "Applied through the posting"
+      ],
+      "jd": {
+        "href": "https://example.com/hooli/vp-field-service",
+        "label": "Job description"
+      },
+      "theme": {
+        "accent": "#2f6fde"
+      },
+      "cover": {
+        "eyebrow": "Hooli / Service",
+        "title": "VP, Field Service",
+        "description": [
+          "Every round of Hooli's process, one deck."
+        ],
+        "actions": [
+          {
+            "label": "Start practicing",
+            "go": "QA1",
+            "primary": true
+          }
+        ],
+        "risk": {
+          "title": "Highest-risk question: QE20",
+          "body": "The posting asks for a 200-person org; Sam has led 60."
+        }
+      },
+      "hub": {
+        "title": "What this hire needs to solve.",
+        "intro": "Ranked from the posting and the recruiter call."
+      }
+    },
+    "sections": [
+      {
+        "id": "I",
+        "title": "Overview",
+        "color": "#2f6fde"
+      },
+      {
+        "id": "A",
+        "title": "Opening",
+        "color": "#2f6fde"
+      },
+      {
+        "id": "B",
+        "title": "Their Priorities",
+        "color": "#2f6fde"
+      },
+      {
+        "id": "E",
+        "title": "Tough Questions",
+        "color": "#2f6fde",
+        "role": "hard"
+      },
+      {
+        "id": "F",
+        "title": "Questions to Ask",
+        "color": "#2f6fde",
+        "role": "ask"
+      },
+      {
+        "id": "N",
+        "title": "Interview Notes",
+        "color": "#2f6fde"
+      }
+    ],
+    "priorities": [
+      {
+        "id": "P1",
+        "title": "Scale the field org",
+        "detail": "From one region to four in two years.",
+        "partial": true
+      }
+    ],
+    "risks": [
+      {
+        "id": "R1",
+        "title": "Has led 60, posting asks for 200",
+        "source": "The posting",
+        "answers": [
+          "QE20"
+        ]
+      }
+    ]
+  }
+}

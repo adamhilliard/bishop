@@ -52,6 +52,22 @@ build_package.py                     builds the handoff zip
 >
 > **`claude` may not be on `PATH`.** On the maintainer’s Windows machine it lives at `%USERPROFILE%\.local\bin\claude.exe`. Worth remembering before concluding the CLI isn’t installed.
 
+## Testing
+
+**One command runs every check, on this machine:** `python tests/run_all.py`. Run it before any commit that touches a module, and before every release. Nothing runs on GitHub; GitHub only stores the code.
+
+| Part | What it proves |
+|---|---|
+| Job search | The scripts' own tests pass |
+| Interviews | `assets/template.html` matches `engine/`; the test candidate's decks build clean in every round; the deck flows pass in a headless Chrome or Edge (`tests/pages/interviews_flows.js`) |
+| Contracts | Every part of a file one module reads from another is still there (`CONTRACTS.md`, checked by `tests/test_contracts.py`) |
+| Leak test | The maintainer's own data never ships (needs `../apps` and `../ai`) |
+| Plugin | `claude plugin validate`, and each skill's frontmatter names its folder |
+
+- **The test candidate** is Sam Rivera, a made-up field service director whose search is named Wall-E: `tests/candidate/`. No real people or companies. `tests/make_candidate_decks.py` rewrites the interview decks.
+- **A check whose tool isn't on the machine is SKIPPED with the reason,** never counted as a pass.
+- **Changing a file another module reads** means a contract change: see `CONTRACTS.md`.
+
 ## Version numbering
 
 `MAJOR.MINOR.PATCH`, and **the patch digit is the default.** Most releases are a patch.
@@ -70,11 +86,12 @@ build_package.py                     builds the handoff zip
 
 ## Releasing
 
-1. Port whatever the live search has learned that generalizes. The test: would this help a stranger with a different career, in a different field, at a different level?
-2. Bump `version` in `bishop/.claude-plugin/plugin.json`, **and the matching `version` in `.claude-plugin/marketplace.json`.** Two files carry it: the plugin manifest gates updates, the marketplace entry is what the Desktop plugin card shows.
-3. **Update the Release history below. Every release, including patches.**
-4. `python build_package.py`.
-5. Tag the commit and cut a GitHub Release with `bishop.zip` attached, so the "no marketplace" path in `bishop/README.md` resolves.
+1. Run `python tests/run_all.py`; nothing ships with a FAIL.
+2. Port whatever the live search has learned that generalizes. The test: would this help a stranger with a different career, in a different field, at a different level?
+3. Bump `version` in `bishop/.claude-plugin/plugin.json`, **and the matching `version` in `.claude-plugin/marketplace.json`.** Two files carry it: the plugin manifest gates updates, the marketplace entry is what the Desktop plugin card shows.
+4. **Update the Release history below. Every release, including patches.**
+5. `python build_package.py`.
+6. Tag the commit (`git tag v<version>`) and push the tag. No GitHub Release: GitHub only stores the code, and the no-marketplace fallback is the repo's own Download ZIP (the READMEs still point at a release zip; change them before 2.0 ships).
 
 > **The history is organized by minor, and a patch updates the minor's entry rather than opening its own.** A new minor opens a new `###` heading; every patch after it appends its line to that heading. **The rule is that no release lands without the history reflecting it**, which is what 1.4.0 through 1.4.2 broke: three releases shipped against a history that stopped at 1.3.0.
 

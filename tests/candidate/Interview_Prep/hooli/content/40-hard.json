@@ -1,0 +1,33 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "SE",
+      "section": "E",
+      "title": "Tough Questions",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QE20",
+      "section": "E",
+      "chain": "QE20",
+      "title": "You've led 60 people. This is 200. Why you?",
+      "why": "The screen-out version of the scale gap.",
+      "target": 60,
+      "origin": "jd",
+      "source": "The posting: leads a 200-person field org"
+    },
+    {
+      "kind": "question",
+      "id": "QE1",
+      "section": "E",
+      "chain": "QE1",
+      "title": "What's your biggest weakness?",
+      "why": "Self-awareness.",
+      "target": 60,
+      "origin": "standard",
+      "core": "QE1"
+    }
+  ]
+}

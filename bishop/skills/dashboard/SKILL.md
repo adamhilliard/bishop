@@ -12,9 +12,9 @@ Turns a job search's tracking files into a private, interactive web dashboard th
 > **Say it in plain language, on the page and out loud.** This is the surface the user looks at most, and it is the one place internal vocabulary reaches them every single day. **Nothing rendered on the page or spoken about it carries a file path, a script name, a platform slug, or a system word** like "artifact," "localStorage," "fetch," "cycle," "rubric," "bucket," or "hard excludes." Name each thing by what it does for them. **The build notes in this file are for you and stay technical**; what the page says does not.
 >
 > - **The user learned a vocabulary during setup, and the page must not invent a second one.** They were told about their *search* and its *runs*. They chose *what matters to them* and *the lowest salary they'd accept*. Those are the words on the page.
-> - **Never print a platform's own name.** The scripts emit `getro`, `icims`, `lever`, `greenhouse`, `ashby`, `bamboo`. On the page, `getro` is "startup investor job pages" and every ATS platform is "company hiring systems," the same translation the digest's coverage note uses.
+> - **Never print a platform's own name.** The scripts emit `getro`, `icims`, `lever`, `greenhouse`, `ashby`, `bamboohr`. On the page, `getro` is "startup investor job pages" and every ATS platform is "company hiring systems," the same translation the digest's coverage note uses.
 
-> **Use the name the user gave their search, not "Bishop."** The interview's opening question set it and the profile records it as a named field. That name is the page's masthead and how the user refers to the thing in conversation.
+> **Use the name the user gave their search, not "Bishop."** Setup's last question set it, and the profile records it as a named field. That name is the page's masthead and how the user refers to the thing in conversation.
 
 **What the user gets:** a branded header (their search's name between two Bishop robots, with a one-line run log and a square per source), a short "since your last search" list, then a ranked card per role with a score bar, a check for each scoring bucket with the reason on hover, comp and flags at a glance, and expandable details with a working apply link. Filters cover track, minimum score, disclosed pay, and remote. Every card carries save-for-later and archive buttons. Published as a private Claude artifact at a stable URL that the scheduled search task republishes after every run, so the bookmark never goes stale.
 
@@ -27,13 +27,13 @@ Turns a job search's tracking files into a private, interactive web dashboard th
 Read, in full: `Reference_Profile.md`, `Operating_Procedures.md`, and every `Tracking_*.md` in the project folder. (Older setups keep all of this in one profile file; read whatever exists.) From them, derive rather than asking the user for anything readable:
 
 - **The search's name**, from the profile's Bot Name field. It goes in the header and the page title, and it picks the header art: Bishop and the ten Surprise Me robots each have a pre-made file in `assets/headers/` (`bishop`, `data`, `wall-e`, `baymax`, `tars`, `johnny-5`, `r2-d2`, `rosie`, `kitt`, `optimus`, `astro`). Any other name gets the stock header.
-- **The palette and any accessibility adjustments**, from the profile's Customization section: accent color, plus whichever of larger text, higher contrast, reduced motion, and colorblind-safe colors they asked for. **Setup already asked. Don't ask again.**
+- **The palette and any accessibility adjustments**, from the profile's Customization section: accent color, plus any of larger text, higher contrast, reduced motion, and colorblind-safe colors. **Setup asks for the accent, so don't ask again.** Setup does not ask about the adjustments; default to none, and honor any the user names later, writing them into Customization.
 - **Where the digest link should go**, from Customization. It changes where this skill delivers the page at publish time.
 - **Track names** (one per tracking file) and a short label for each.
 - **The bucket list.** However many scoring buckets their rubric has, in their rank order. The dashboard renders *their* buckets, not a hard-coded set.
 - **Career level / volume.** A senior search renders every active row as a full card. A high-volume search (a BELOW THE CAP section exists) renders full cards only for ACTIVE/ROLLING and a compact one-line list for below-the-cap rows, never a full card per row for two hundred roles.
 - **Per-role data** from the ACTIVE/ROLLING tables: score, company (plus homepage link and one-line bio), title, comp text (whether it's disclosed, plus a numeric midpoint for sorting), location/work arrangement, each bucket's ✓ / ✗ / pending with its short reason, flags, and the apply link plus label.
-- **Pipeline stage per role,** if the tracking files carry one: `open` / `applied` / `interviewing`, plus the date it changed and a one-line "what happens next." See the stage section below. If the files have no stage concept, skip it rather than inventing one.
+- **Pipeline stage per role,** if the tracking files carry one: `open` / `applied` / `interviewing`, plus the date it changed and a one-line "what happens next." See the stage section below. Older setups may lack it; then skip it rather than inventing one.
 
 ### Step 2: Ask nothing that setup already answered
 
@@ -56,7 +56,7 @@ Read, in full: `Reference_Profile.md`, `Operating_Procedures.md`, and every `Tra
 
 One self-contained file: inline CSS, inline vanilla JS, **zero external requests**. Artifact pages block all external fetches, so no CDNs, no webfonts, no remote images. Embed the role data as a JS array in the file. The file is regenerated from the tracking files each cycle, so it never goes stale and never needs to fetch anything.
 
-**Give the page a favicon so the browser tab is never blank.** Put an inline SVG data-URI link in the head, right after the `<title>`, so the tab shows an icon even when the file is opened directly rather than through the artifact. **Default to the Bishop robot from `assets/robot.svg`**, URL-encoded into the `href` (`#` becomes `%23`). If the user set a brand emoji at setup, use the emoji form below instead, and keep it identical to the emoji passed at publish (Step 5):
+**Give the page a favicon so the browser tab is never blank.** Put an inline SVG data-URI link in the head, right after the `<title>`, so the tab shows an icon even when the file is opened directly rather than through the artifact. **Default to the Bishop robot from `assets/robot.svg`**, URL-encoded into the `href` (`#` becomes `%23`). Setup doesn't ask for a brand emoji. If the user names one later, use the emoji form below instead and record it with the URL (Step 5):
 
 ```html
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🤖</text></svg>'>
@@ -143,9 +143,9 @@ If Node is available, smoke-test: extract the `<script>` block, stub `document` 
 
 ### Step 5: Publish as a private artifact
 
-Publish `dashboard.html` with the Artifact tool. Pass a favicon emoji and keep it forever, since it's how the user finds the tab. **Default to the robot (🤖), and use the same emoji here as the inline favicon in Step 3** so the tab looks the same whether the page is viewed as the artifact or opened directly. If the user set a brand emoji at setup, use that in both places instead. **Record the returned URL**, which goes into the scheduled task next. Tell the user the page is private until they share it from the page's share menu.
+Publish `dashboard.html` with the Artifact tool. **Never pass `icon`.** It replaces the page's own favicon for good, and the dashboard's favicon is the Bishop robot already inline in the page (Step 3). **Record the returned URL**, which goes into the scheduled task next. Tell the user the page is private until they share it from the page's share menu.
 
-> **Write the favicon into the procedures file alongside the URL.** Every republish has to pass it, and it is not recoverable from the live page, the artifact listing, or the repo. Nothing else in the system carries it, so an unrecorded favicon means the next cycle guesses and the user's tab silently changes identity.
+> **Record the URL in the procedures file's Dashboard entry.** Every republish goes to that URL; it is not recoverable from the live page or the repo, so an unrecorded URL means the next publish makes a second page.
 
 ### Step 6: Wire regeneration into the scheduled task
 

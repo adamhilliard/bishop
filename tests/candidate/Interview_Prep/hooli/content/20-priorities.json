@@ -1,0 +1,22 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "SB",
+      "section": "B",
+      "title": "Their Priorities",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QB1",
+      "section": "B",
+      "chain": "QB1",
+      "title": "How would you take us from one region to four?",
+      "why": "P1, pressed where Sam only partly meets it.",
+      "target": 90,
+      "source": "Recruiter call: built regions before",
+      "verify": "Confirm how many techs the second Acme region had at launch."
+    }
+  ]
+}

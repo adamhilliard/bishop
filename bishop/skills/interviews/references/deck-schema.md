@@ -11,7 +11,7 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 | Field | Required | Notes |
 |---|---|---|
 | `title` | yes | The question, worded the way this interviewer would ask it |
-| `chain` | yes | The question's own id |
+| `chain` | | Optional. The question's own id; nothing requires it |
 | `why` | yes | What the interviewer is trying to learn, and for a custom question what makes it likely. Context, never a hint at the answer |
 | `target` | yes | Seconds to answer, for the practice timer. `0` turns it off |
 | `core` | | Interview decks: the master question this one asks the same thing as, by its slide id in the master deck (`QR2`). Shows the candidate's master answer until they write a version for this interview |
@@ -69,27 +69,27 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
       "title": "Acme Robotics Deck",
       "brandTitle": "Acme Robotics",
       "rounds": [
-        {"id": "screen", "label": "Recruiter screen", "ask": "Priya", "date": "2030-03-04", "time": "10:00 a.m."},
+        {"id": "screen", "label": "Recruiter screen", "ask": "Priya", "who": "Priya Shah, Recruiter", "date": "2030-03-04", "time": "10:00 a.m."},
         {"id": "hm", "label": "Hiring manager", "ask": "Jordan",
-         "guide": {"title": "Jordan owns the service plan", "body": "Lead with the mechanism and a number."}}
+         "guide": {"title": "Jordan owns the service plan", "body": "Jordan owns the service plan and the budget for this hire; expect questions on standing up the first region."}}
       ],
       "round": "screen",
-      "sidebar": ["Jordan Lee, Head of Service"],
+      "sidebar": ["Applied through the posting"],
       "jd": {"href": "https://posting-url", "label": "Job description"},
       "theme": {"accent": "#2f6fde"},
       "cover": {
         "eyebrow": "Acme Robotics / Service",
         "title": "Head of Field Service",
-        "description": ["Recruiter screen with Jordan Lee, Head of Service."],
+        "description": ["Head of Field Service, Acme Robotics."],
         "actions": [{"label": "Start practicing", "go": "QA1", "primary": true}],
         "risk": {"title": "Highest-risk question: QE1", "body": "The posting asks for robotics experience."}
       },
       "hub": {"title": "What this hire needs to solve.", "intro": "Ranked from the posting and the recruiter call."}
     },
     "sections": [
-      {"id": "A", "title": "Opening", "color": "#2f6fde"},
-      {"id": "E", "title": "Tough Questions", "color": "#2f6fde", "role": "hard"},
-      {"id": "F", "title": "Questions to Ask", "color": "#2f6fde", "role": "ask", "questionLabel": "Ask Jordan"}
+      {"id": "A", "title": "Opening"},
+      {"id": "E", "title": "Tough Questions", "role": "hard"},
+      {"id": "F", "title": "Questions to Ask", "role": "ask"}
     ],
     "priorities": [{"id": "P1", "title": "Stand up the first service region", "detail": "...", "partial": false}],
     "risks": [{"id": "R1", "title": "No robotics background", "source": "The posting", "answers": ["QE1"]}]
@@ -99,10 +99,10 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 
 - **`deck.slug`** is required and matches the deck's folder name: one company, one slug. The master deck is `core`, with `"master": true` and `"evergreen": true`.
 - **`deck.brandTitle`** is the line under the search's name in the top bar: the company's name, or "Master deck".
-- **`deck.rounds`** lists every round of the company's process (one deck per company); **`deck.round`** picks the one coming up. Each round: `id`, `label`, `ask` (the interviewer's name, so the section reads "Questions for Priya"), `date` (`YYYY-MM-DD`) and `time` once booked, and an optional `guide` (`{title, body}`) shown first on the cover. The builder puts the round, date and time first in the sidebar.
-- **`rounds` on a slide** (`["hm"]`) keeps it to those rounds; a slide without it is in every round. A **`shortlist`** slide (`round`, `title`, `intro`, `questions: [{topic, title}]`) is optional, one per round at most.
+- **`deck.rounds`** lists every round of the company's process (one deck per company); **`deck.round`** picks the one coming up. Each round: `id`, `label`, `ask` (the interviewer's name, so the section reads "Questions for Priya"), `who` (their name and title, which leads the sidebar), `date` (`YYYY-MM-DD`) and `time` once booked, and an optional `guide` (`{title, body}`) shown first on the cover. The builder puts the round, date and time first in the sidebar and on the cover, then the round's `who`; `deck.sidebar` and `cover.description` hold only what's true in every round.
+- **`rounds` on a slide** (`["hm"]`) keeps it to those rounds; a slide without it is in every round. A **`shortlist`** slide (section `I`, in `00-intro.json` after the hub; `round`, `title`, `intro`, `questions: [{topic, title}]`) is optional, one per round at most.
 - **A deck with no rounds** can set `deck.interview` (`{date, time, round}`) itself; the master deck sets neither and is `"evergreen": true`.
-- **`deck.cover`**: `eyebrow` (company / function), `title` (the role), `titleAccent` (optional, a second line in the accent color), `description` (lines under the title: the round, who, when), `actions` (buttons: `{label, go: slide id, primary}`), and `risk` (`{title, body}`: the top risk, which the builder expects whenever there's a risk list). The cover's `guides` come from the round (`deck.rounds[].guide`); don't write them by hand.
+- **`deck.cover`**: `eyebrow` (company / function), `title` (the role), `titleAccent` (optional, a second line in the accent color), `description` (lines under the title that hold in every round; the builder adds the round, date and time above them), `actions` (buttons: `{label, go: slide id, primary}`), and `risk` (`{title, body}`: the top risk, which the builder expects whenever there's a risk list). The cover's `guides` come from the round (`deck.rounds[].guide`); don't write them by hand.
 - **`deck.theme.accent`** is the company's own brand color, read from their site, never guessed. The master deck keeps a neutral one.
 - **`deck.jd`** links the posting in the header (a URL, or the saved posting's path relative to `Interview_Prep/`, such as `../Postings/Acme_Director.md`); with none, `{"none": "No posting · referral"}`.
 - **`sections[].role`**: `"hard"` (Tough Questions) or `"ask"` (Questions to Ask) turns on the origin, source and theme checks.

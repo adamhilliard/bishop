@@ -1,0 +1,50 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "SF",
+      "section": "F",
+      "title": "Questions to Ask",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QF20",
+      "section": "F",
+      "chain": "QF20",
+      "title": "How many of the four regions have a lead today?",
+      "why": "Tells you how much you'd build from zero.",
+      "target": 0,
+      "origin": "research",
+      "source": "Hooli careers page, 2030-02-20",
+      "theme": "scope"
+    },
+    {
+      "kind": "question",
+      "id": "QF21",
+      "section": "F",
+      "chain": "QF21",
+      "title": "What would make the first ninety days a win for you?",
+      "why": "Jordan's own bar.",
+      "target": 0,
+      "origin": "recruiter",
+      "source": "Recruiter: Jordan sets the 90-day plan",
+      "theme": "first-year",
+      "rounds": [
+        "hm"
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "QF1",
+      "section": "F",
+      "chain": "QF1",
+      "title": "Why is this seat open?",
+      "why": "What happened to the last person.",
+      "target": 0,
+      "origin": "standard",
+      "theme": "history",
+      "core": "QF1"
+    }
+  ]
+}

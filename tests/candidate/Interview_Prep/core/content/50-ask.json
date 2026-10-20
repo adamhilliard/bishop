@@ -1,0 +1,33 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "SF",
+      "section": "F",
+      "title": "Questions to Ask",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QF1",
+      "section": "F",
+      "chain": "QF1",
+      "title": "Why is this seat open?",
+      "why": "What happened to the last person tells you what you're walking into.",
+      "target": 0,
+      "origin": "standard",
+      "theme": "history"
+    },
+    {
+      "kind": "question",
+      "id": "QF2",
+      "section": "F",
+      "chain": "QF2",
+      "title": "What does the first year need to deliver?",
+      "why": "Whether the plan is real.",
+      "target": 0,
+      "origin": "standard",
+      "theme": "first-year"
+    }
+  ]
+}

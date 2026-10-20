@@ -1,0 +1,20 @@
+{
+  "content": [
+    {
+      "kind": "notes",
+      "id": "notes",
+      "section": "N",
+      "title": "Interview Notes",
+      "intro": "Facts to have straight before the call.",
+      "cards": [
+        {
+          "title": "Research",
+          "paragraphs": [
+            "Hooli runs robots in about 400 hospitals (careers page, 2030-02-20).",
+            "VERIFY: whether the four regions are already staffed."
+          ]
+        }
+      ]
+    }
+  ]
+}

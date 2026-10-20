@@ -540,7 +540,9 @@ function removeSlide(id) {
   const gone = new Set([id]);
   for (let i = CONTENT.length - 1; i >= 0; i--) if (gone.has(CONTENT[i].id)) CONTENT.splice(i, 1);
   DELETED.add(id);
+  // Gone from the lookup too, so the question's old link can't open it again.
   for (const g of gone) {
+    byId.delete(g);
     state.flags.delete(g);
     state.asked.delete(g);
   }

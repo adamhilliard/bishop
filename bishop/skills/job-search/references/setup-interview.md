@@ -462,7 +462,7 @@ Vet each source once and record the verdict, so no later cycle re-chases a dead 
 
 Work through these in order. Keep every spoken line plain, per the language rule in "How to run this."
 
-1. **Build the files and both scheduled tasks** per `scaffolding.md`, writing the profile from the answers and using the chosen name throughout. The cycle task runs on their cadence; the weekly quality audit runs on its own day, on Saturday by default, recorded in Customization, and starts in week two. If the project folder is not a git repository, initialize one and commit the setup files.
+1. **Build the files and both scheduled tasks** per `scaffolding.md`, writing the profile from the answers and using the chosen name throughout. The cycle task runs on their cadence; the weekly quality audit runs on its own day, on Friday by default, recorded in Customization, and starts in week two. If the project folder is not a git repository, initialize one and commit the setup files.
 
 2. **Say, in one or two lines, what you just saved and whether they need to touch it.** These files hold their profile, scoring rules, and results, and they're saved locally on their own device, nowhere else. **They don't need to open or read any of it.** The way they change anything later is to tell you in chat, and you edit the files. Don't list file names or paths; say what the files are for.
 

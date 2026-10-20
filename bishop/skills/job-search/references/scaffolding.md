@@ -122,7 +122,7 @@ rule in Decisions_Log.md. Live results live in the tracking file(s).
 - **Commit message** -> default `<BOT_NAME> cycle <N>, <YYYY-MM-DD>` (not asked)
 - **Follow-up dates** -> default on at early career and mid, 10 days; off at senior
 - **Captures** -> default on, `Postings/<Company>_<Title>/`
-- **Audit day** -> Saturday by default (not asked)
+- **Audit day** -> Friday by default (not asked)
 
 > **Customization lives in the profile, and it is the one copy.** The dashboard skill reads the palette from there rather than asking again, and the cycle reads the digest channel from there. **Record the defaults they accepted, not only the ones they changed**, or a later cycle cannot tell an accepted default from an unasked question.
 

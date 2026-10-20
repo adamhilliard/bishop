@@ -22,7 +22,7 @@ Wall-E
 - **Contact discovery:** off
 - **Follow-up dates:** tracked on applied rows, 10 days after the applied date
 - **Job description captures:** on, one folder per role under `Postings/`
-- **Weekly audit day:** Saturday
+- **Weekly audit day:** Friday
 - **Commit messages:** `Wall-E cycle <N>, <YYYY-MM-DD>`; employer names kept
 
 ### Built With

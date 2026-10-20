@@ -86,7 +86,8 @@ def test_gaps_are_not_zeros():
              ("Huge", "smartrecruiters", "huge")]
     failed, results, out = run_sweep(board)
     lines = out.splitlines()
-    check("failed board line", "  gone FAILED" in lines, True)
+    check("failed board line names the error", "  gone FAILED (OSError)" in lines, True)
+    check("STATUS names the error too", any("OSError" in f for f in failed), True)
     check("partial board line", "  huge 1000 INCOMPLETE" in lines, True)
     check("both on the STATUS list", len(failed), 2)
     frag = E.coverage_line(results)

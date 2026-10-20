@@ -553,6 +553,7 @@ def sweep(name, board, seniority, function, stretch, step_down, floor_k, no_pay,
     fragment main() prints."""
     hits, held, failed, scanned = [], [], [], 0
     counts = []
+    why = {}  # member -> the error's class, so a broken reader reads differently from a down board
     print("=== %s (%d boards) ===" % (name, len(board)))
     for company, platform, slug in board:
         try:
@@ -563,7 +564,8 @@ def sweep(name, board, seniority, function, stretch, step_down, floor_k, no_pay,
             state = "partial"
             failed.append("%s (partial: %s)" % (company, e))
         except Exception as e:
-            failed.append("%s (%s)" % (company, str(e)[:40]))
+            why[member(slug)] = type(e).__name__
+            failed.append("%s (%s: %s)" % (company, type(e).__name__, str(e)[:40]))
             counts.append((member(slug), None, "failed"))
             continue
         counts.append((member(slug), len(rows), state))
@@ -600,7 +602,7 @@ def sweep(name, board, seniority, function, stretch, step_down, floor_k, no_pay,
     # carry: a board at zero while its peers return rows is a wrong slug,
     # and that is invisible in a total.
     for m, n, state in counts:
-        print("  %s %s" % (m, "FAILED" if n is None
+        print("  %s %s" % (m, "FAILED (%s)" % why.get(m, "error") if n is None
                            else "%d INCOMPLETE" % n if state == "partial" else n))
     if results is not None:
         results += counts

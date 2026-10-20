@@ -252,6 +252,15 @@ def main():
          .replace(u"lever 6", u"greenhouse 0").replace(u"lever 7", u"greenhouse 0")
          .replace(u"lever 5", u"greenhouse 0"))
 
+    case("role on a named-employer board that swept empty", "S8",
+         apply_link=u"https://boards.greenhouse.io/hooli/jobs/7",
+         cycles=entries(dates("2026-08-03", WEEKLY, 2),
+                        u"employers 2/2 COMPLETE · hooli 0 · soylent 4"))
+    case("named-employer board at zero, no row there", None, absent=("S8",),
+         apply_link=u"https://boards.greenhouse.io/soylent/jobs/7",
+         cycles=entries(dates("2026-08-03", WEEKLY, 2),
+                        u"employers 2/2 COMPLETE · hooli 0 · soylent 4"))
+
     case("stem documented, not in query", "E1", methodology=METHODOLOGY.replace(
         u'```\n"Operations Manager"\n```', u'```\n"Director of Operations"\n```'))
 

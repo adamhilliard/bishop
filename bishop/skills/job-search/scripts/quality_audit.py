@@ -61,6 +61,10 @@ ATS_HOSTS = {
     "teamtailor": "teamtailor.com",
 }
 
+# COVERAGE members that are source names, never an employer's board slug.
+NOT_EMPLOYERS = {"ats", "employers", "linkedin", "getro", "aggregators", "vc", "indeed",
+                 "glassdoor", "ziprecruiter", "google", "feed"}
+
 trips = []
 track_tag = [""]             # "Tracking_X.md: " while a per-track check runs
 
@@ -347,6 +351,15 @@ def cross_surface(cycles, tracking_text):
     for member, host in ATS_HOSTS.items():
         if host in tracking_text and last.get(member) == 0:
             found.add("%s (a live row sits on %s)" % (member, host))
+    # Named-employer boards: their member is the board's slug, which sits in the
+    # apply link's host or path (boards.greenhouse.io/<slug>, <slug>.wd5...).
+    links = [u.lower() for u in re.findall(r"https?://[^\s|)\]]+", tracking_text)]
+    for member, got in last.items():
+        if got != 0 or member in ATS_HOSTS or member in NOT_EMPLOYERS:
+            continue
+        hit = re.compile(r"(?<![a-z0-9])%s(?![a-z0-9])" % re.escape(member.lower()))
+        if any(hit.search(u.split("://", 1)[1]) for u in links):
+            found.add("%s (a live row's apply link is on that board)" % member)
     if found:
         trip("S8", "swept and returned nothing, yet a tracked role lives there: %s"
              % "; ".join(sorted(found)))

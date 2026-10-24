@@ -3874,8 +3874,11 @@ function pauseTimer() {
     saveProgress();
   }
 }
-// The slide id lives in the URL hash. A jump (a link, a card, the nav) adds a history
-// entry so Back returns to it; a step (arrows, swipe, drill) only rewrites the current one.
+// The slide id lives in the URL hash, and every slide is a place: a jump (a link, a card, the nav)
+// and a step (arrows, swipe, Space, a move within a drill) each add a history entry, so Back walks
+// back through the slides. The entry also records whether a drill was on, so Back and Forward restore
+// it. First load, and a slide deleted in place, only rewrite the current entry. Settings
+// (Study/Test, Script/Beats, flags) are not steps.
 // Section pages get readable links (#opening-resume-and-technical); questions keep their ids. Old links still resolve.
 const slugify = (x) =>
   String(x || '')
@@ -3906,9 +3909,9 @@ function slideFromHash() {
 function syncHash(how) {
   if (how === 'none') return;
   const url = '#' + encodeURIComponent(hashOf(state.id));
-  if (location.hash === url) return;
+  if (location.hash === url && !!history.state?.drill === state.drill) return;
   try {
-    history[how === 'push' ? 'pushState' : 'replaceState'](null, '', url);
+    history[how === 'push' ? 'pushState' : 'replaceState']({ drill: state.drill }, '', url);
   } catch (e) {}
 }
 // Where you were on each page, so Back returns there.
@@ -3926,7 +3929,7 @@ function go(id, { fromLink = true, history: how } = {}) {
   if (moved) scrollSpots.set(state.id, { y: window.scrollY, m: main?.scrollTop || 0 });
   state.id = id;
   state.layers.delete(id);
-  syncHash(how || (fromLink && moved ? 'push' : 'replace'));
+  syncHash(how || (moved ? 'push' : 'replace'));
   render();
   // Back (and Forward) returns to where you were on that page; anything else starts at the top.
   const spot = how === 'none' && scrollSpots.get(id);
@@ -3944,7 +3947,7 @@ function move(delta) {
   let next = i + delta;
   if (state.drill) next = (next + ids.length) % ids.length;
   if (next < 0 || next >= ids.length) return;
-  go(ids[next], { fromLink: false });
+  go(ids[next], { fromLink: false, history: 'push' });
 }
 function reveal() {
   const max = maxLayer(current());
@@ -3977,7 +3980,7 @@ function flag() {
   if (state.drill && !state.flags.has(id)) {
     if (!state.flags.size) {
       state.drill = false;
-      go(state.preDrill);
+      go(state.preDrill, { history: 'replace' });
       toast('No flagged slides remain. Drill ended.');
       return;
     }
@@ -3985,7 +3988,7 @@ function flag() {
       .slice(idx + 1)
       .concat(old.slice(0, idx))
       .find((x) => state.flags.has(x));
-    go(next || activeOrder()[0], { fromLink: false });
+    go(next || activeOrder()[0], { fromLink: false, history: 'replace' });
     return;
   }
   render();
@@ -3993,7 +3996,7 @@ function flag() {
 function drill() {
   if (state.drill) {
     state.drill = false;
-    go(state.preDrill);
+    go(state.preDrill, { history: 'push' });
     toast('Returned to the full deck.');
     return;
   }
@@ -4003,7 +4006,7 @@ function drill() {
   }
   state.preDrill = state.id;
   state.drill = true;
-  go(state.flags.has(state.id) ? state.id : activeOrder()[0], { fromLink: false });
+  go(state.flags.has(state.id) ? state.id : activeOrder()[0], { fromLink: false, history: 'push' });
   toast('Drilling ' + state.flags.size + ' flagged slides.');
 }
 
@@ -4191,12 +4194,19 @@ document.addEventListener('keydown', (e) => {
     action(keys[key]);
   }
 });
-window.addEventListener('popstate', () => {
-  const id = slideFromHash();
-  if (id && byId.has(id) && id !== state.id) {
-    document.querySelectorAll('dialog[open]').forEach((d) => d.close());
-    go(id, { fromLink: false, history: 'none' });
-  }
+// Back and Forward restore the slide and drill the entry names, without adding an entry. A slide
+// that no longer resolves (deleted, or from an earlier visit) falls back to the cover, or the first
+// slide; a slide the drill no longer holds (unflagged since) shows in the full deck.
+window.addEventListener('popstate', (e) => {
+  document.querySelectorAll('dialog[open]').forEach((d) => d.close());
+  let id = slideFromHash();
+  const lost = !byId.has(id);
+  if (lost) id = byId.has('cover') ? 'cover' : CONTENT[0].id;
+  const drillOn = !!e.state?.drill && state.flags.has(id);
+  if (id === state.id && drillOn === state.drill && !lost) return;
+  state.drill = drillOn;
+  // A lost slide rewrites the entry to the cover's address; nothing here adds an entry.
+  go(id, { fromLink: false, history: lost ? 'replace' : 'none' });
 });
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {

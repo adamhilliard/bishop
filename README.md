@@ -83,7 +83,7 @@ In a new conversation, say:
 |---|---|
 | `/bishop:job-search` | The main skill. Setup interview, search techniques, verification rules, the recurring cycle, and a weekly quality audit that checks whether the search is mechanically doing what it claims. |
 | `/bishop:dashboard` | Optional. Turns your tracking files into a private web dashboard at a bookmarkable link that refreshes every cycle. Run it after your first cycle. |
-| `/bishop:interviews` | Interview practice. Builds your master deck (the questions every interview asks, answered in your own words) and a tailored study deck for each interview. Each deck is one file that opens in any browser. Say *"Help me prep for my interview with…"* |
+| `/bishop:interviews` | Interview practice. Builds your core deck (the questions every interview asks, answered in your own words) and a tailored study deck for each interview. Each deck is one file that opens in any browser. Say *"Help me prep for my interview with…"* |
 
 You don't need to type any of these names. Describe what you want, or use the name you gave your search, and Claude picks the right one.
 

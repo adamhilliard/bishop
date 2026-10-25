@@ -2445,17 +2445,6 @@ body.edit-mode [data-bank-id]:focus {
   transition: width 0.25s ease;
 }
 
-/* No server: Export and Import sit at the top of the sidebar's foot */
-.local-store {
-  display: grid;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-.local-store button {
-  justify-content: flex-start;
-  font-size: 12px;
-}
-
 /* ---- Bishop's look: the same frame as the Bishop dashboard. The top bar is Bishop navy under an orange
    rule in both themes, with the Bishop robot beside the search's name. Type is the system font, so the
    page makes no outside requests. A company deck's brand color stays its accent (--brand). */
@@ -2507,4 +2496,174 @@ body.edit-mode [data-bank-id]:focus {
 }
 .topbar .brand small {
   color: var(--bishop-dim);
+}
+
+/* Speak (Study): a small button beside an answer box that dictates into it */
+.ans-sec.can-dictate {
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+}
+.ans-sec-speak {
+  margin-top: 4px;
+  height: 28px;
+  padding: 0 11px;
+  font-size: 12px;
+  border-radius: 999px;
+}
+.ans-sec-speak.on,
+.ans-sec-speak.on[aria-pressed='true'] {
+  color: #fff;
+  background: #e5484d;
+  border-color: #e5484d;
+}
+@media (max-width: 640px) {
+  .ans-sec.can-dictate {
+    grid-template-columns: 1fr;
+  }
+  .ans-sec-speak {
+    justify-self: start;
+  }
+}
+
+/* Type it from memory (Test): the box under the hidden answer, and what was typed above the reveal */
+.recall {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+.recall-label,
+.attempt small {
+  display: block;
+  color: var(--signal);
+  font: 600 10.5px var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.recall textarea {
+  width: 100%;
+  font: inherit;
+  font-size: calc(var(--script-size) * 0.88);
+  line-height: 1.55;
+  color: var(--ink);
+  border-color: var(--line);
+}
+.attempt {
+  padding: 0 0 14px;
+  margin: 0 0 16px;
+  border-bottom: 1px dashed var(--line);
+}
+.attempt small {
+  margin-bottom: 4px;
+}
+.attempt .script {
+  color: var(--muted);
+  font-size: calc(var(--script-size) * 0.88);
+}
+
+/* Every answer, for print (#print-all): a plain page, shown on screen as it prints */
+body.printing-all {
+  background: #fff;
+}
+body.printing-all > :not(#print-all):not(#toast) {
+  display: none !important;
+}
+.print-all {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+  background: #fff;
+  color: #111;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.print-all[hidden] {
+  display: none;
+}
+.pa-tools {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.pa-head {
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+  border-bottom: 2px solid #111;
+}
+.pa-brand {
+  color: #555;
+  font: 600 11px var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.pa-head h1 {
+  margin: 6px 0 4px;
+  color: #111;
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.pa-head p {
+  margin: 0;
+  color: #555;
+  font-size: 13px;
+}
+.pa-section {
+  margin: 30px 0 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #bbb;
+  color: #555;
+  font: 600 12px var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  break-after: avoid;
+}
+.pa-q {
+  padding: 14px 0 16px;
+  border-bottom: 1px solid #e2e2e2;
+}
+.pa-q h3 {
+  margin: 0 0 8px;
+  color: #111;
+  font-size: 17px;
+  line-height: 1.4;
+  break-after: avoid;
+}
+.pa-q .script,
+.pa-q .script p {
+  max-width: none;
+  color: #222;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.pa-q .script p {
+  margin-bottom: 10px;
+}
+.pa-q .own-part small,
+.pa-from {
+  color: #666;
+}
+.pa-from {
+  display: block;
+  margin-bottom: 6px;
+  font: 600 10.5px var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pa-empty {
+  margin: 0;
+  color: #777;
+  font-style: italic;
+}
+@media print {
+  @page {
+    margin: 18mm 16mm;
+  }
+  .pa-tools {
+    display: none;
+  }
+  .print-all {
+    max-width: none;
+    padding: 0;
+  }
 }

@@ -1,0 +1,9 @@
+{
+  "_about": "What the test candidate's core deck has saved in the browser, in the deck's own storage format (bishop-interviews:answers). tests/run_all.py puts it in a company deck's browser before the page loads, since a company deck reads core answers from there.",
+  "answers": [
+    {"deck": "core", "slide_id": "QA1--sections", "text": "[{\"name\":\"Answer\",\"text\":\"I run field service teams. Most recently I built a service region from zero to forty technicians.\"}]"},
+    {"deck": "core", "slide_id": "QA1--locked", "text": "1"},
+    {"deck": "core", "slide_id": "QE1--sections", "text": "[{\"name\":\"Answer\",\"text\":\"I hold on to work too long. Now I hand off anything a lead can own by Friday.\"}]"}
+  ],
+  "edits": []
+}

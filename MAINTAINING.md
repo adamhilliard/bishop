@@ -19,8 +19,8 @@ bishop/                              the plugin
     │   └── SKILL.md
     └── interviews/                  /bishop:interviews
         ├── SKILL.md
-        ├── references/              deck guide, deck schema, the answers file
-        ├── engine/                  the deck page's source: shell.html, engine.css, engine.js, answers.js
+        ├── references/              deck guide, deck schema
+        ├── engine/                  the deck page's source: shell.html, engine.css, engine.js
         ├── scripts/                 build_template.py (engine/ to assets/template.html), build_deck.py (fills it)
         └── assets/                  template.html (built from engine/), defaults, question banks
 build_package.py                     builds the handoff zip
@@ -119,7 +119,7 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 ### 2.0.0 (unreleased)
 
-**Interview practice joins Bishop (`/bishop:interviews`), and the plugin's name on the Plugins screen becomes plain "Bishop."** It builds a master deck of the questions every interview asks, which the candidate answers once in their own words, and one deck per company, covering every round of that company's process, whose standard questions show those master answers. Each deck is one self-contained HTML file in Bishop's look (the robot and the search's name in the top bar, as on the dashboard); answers save in the browser and travel as an exported `Master_Answers.json`.
+**Interview practice joins Bishop (`/bishop:interviews`), and the plugin's name on the Plugins screen becomes plain "Bishop."** It builds a core deck of the questions every interview asks, which the candidate answers once in their own words, and one deck per company, covering every round of that company's process, whose standard questions show those core answers. Each deck is one self-contained HTML file in Bishop's look (the robot and the search's name in the top bar, as on the dashboard); answers save in the browser, where each company deck reads the core answers, and a copy of every answer prints from the deck (`#print-all`, Save as PDF).
 
 > **Unreleased.** Ships in 2.0 together with the outreach module, still to be built.
 

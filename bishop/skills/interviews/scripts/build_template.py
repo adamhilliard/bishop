@@ -6,7 +6,7 @@
 For the maintainer: run it after any change under engine/, then commit both. Candidates never run
 it; build_deck.py fills the template's data slots.
 
-The page is engine/shell.html with the styles, the answers-file code and the engine inlined, and the
+The page is engine/shell.html with the styles and the engine inlined, and the
 Bishop robot (the dashboard's assets/robot.svg, so the two pages share one mark) as the top-left
 mark and the favicon. --check rebuilds in memory and exits 1 if the committed template differs.
 """
@@ -20,7 +20,7 @@ SKILL = os.path.normpath(os.path.join(HERE, ".."))
 ENGINE = os.path.join(SKILL, "engine")
 OUT = os.path.join(SKILL, "assets", "template.html")
 ROBOT = os.path.normpath(os.path.join(SKILL, "..", "dashboard", "assets", "robot.svg"))
-DATA_SLOTS = ("__CONTENT__", "__META__", "__MASTER_DATA__")
+DATA_SLOTS = ("__CONTENT__", "__META__")
 
 
 def read(path):
@@ -37,7 +37,7 @@ def read(path):
 def build():
     shell = read(os.path.join(ENGINE, "shell.html"))
     css = read(os.path.join(ENGINE, "engine.css"))
-    js = read(os.path.join(ENGINE, "answers.js")) + "\n" + read(os.path.join(ENGINE, "engine.js"))
+    js = read(os.path.join(ENGINE, "engine.js"))
     robot = read(ROBOT).strip()
     favicon = "data:image/svg+xml," + urllib.parse.quote(robot, safe=" =:/'\"")
     fills = [

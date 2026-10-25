@@ -26,6 +26,85 @@
   window.confirm = () => true;
   await wait(300);
   const expect = window.__expect || {};
+  const questions = () => ordered().filter((id) => byId.get(id)?.kind === 'question');
+  // Nothing the candidate reads says "master": the page, its title, the top bar, labels and tips.
+  const noMaster = (where) => {
+    const texts = [document.title, $1('#brand-sub').textContent, $1('#slide').innerText, $1('#help').textContent];
+    for (const el of $all('[aria-label], [title]')) texts.push(el.getAttribute('aria-label') || '', el.getAttribute('title') || '');
+    const hit = texts.find((t) => /master/i.test(t));
+    assert(!hit, where + ' says "master": ' + String(hit).slice(0, 120));
+  };
+  // A stand-in recorder, so a take records without a microphone; counts whether speech recognition starts.
+  async function fakeTake() {
+    const real = { md: Object.getOwnPropertyDescriptor(Navigator.prototype, 'mediaDevices'), MR: window.MediaRecorder, speech: startSpeech };
+    let speechStarts = 0;
+    Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: { getUserMedia: async () => ({ getTracks: () => [] }) } });
+    window.MediaRecorder = class {
+      static isTypeSupported() {
+        return true;
+      }
+      constructor() {
+        this.mimeType = 'audio/webm';
+      }
+      start() {
+        this.ondataavailable && this.ondataavailable({ data: new Blob(['take'], { type: 'audio/webm' }) });
+      }
+      stop() {
+        this.onstop && this.onstop();
+      }
+    };
+    startSpeech = () => speechStarts++;
+    await toggleRecord();
+    const live = !!rec,
+      liveTranscript = !!$1('#live-transcript');
+    stopRecord();
+    await wait(200);
+    delete navigator.mediaDevices;
+    if (real.md) Object.defineProperty(Navigator.prototype, 'mediaDevices', real.md);
+    window.MediaRecorder = real.MR;
+    startSpeech = real.speech;
+    return { live, liveTranscript, speechStarts };
+  }
+  // A stand-in for the browser's speech recognition: it hears one phrase.
+  class FakeSpeech {
+    start() {
+      setTimeout(() => this.onresult && this.onresult({ resultIndex: 0, results: [Object.assign([{ transcript: 'spoken from the mic' }], { isFinal: true })] }), 10);
+    }
+    stop() {
+      this.onend && this.onend();
+    }
+  }
+  const withSpeech = async (fn) => {
+    const real = window.SpeechRecognition;
+    window.SpeechRecognition = FakeSpeech;
+    try {
+      return await fn();
+    } finally {
+      window.SpeechRecognition = real;
+    }
+  };
+  async function printAllCheck(answerText, extra) {
+    let printed = 0;
+    const realPrint = window.print;
+    window.print = () => printed++;
+    location.hash = '#print-all';
+    await wait(400);
+    try {
+      assert(printing(), 'the print view did not open');
+      const shown = $all('#print-all .pa-q').map((x) => x.dataset.printQ);
+      assert(JSON.stringify(shown) === JSON.stringify(questions()), 'questions: ' + shown.join(',') + ' / deck: ' + questions().join(','));
+      assert($1('#print-all').innerText.includes(answerText), 'no saved answer on the page');
+      assert(printed === 1, 'print was called ' + printed + ' times');
+      assert(getComputedStyle($1('.layout')).display === 'none', 'the deck still shows under the print view');
+      if (extra) extra();
+    } finally {
+      $1('[data-print-close]').click();
+      await wait(50);
+      window.print = realPrint;
+    }
+    assert(!printing() && location.hash !== '#print-all', 'Close did not return to the deck');
+    assert(!$all('a[href*="print-all"], [data-go="print-all"]').length, 'something on the page links to the print view');
+  }
 
   // ---- Both decks ----
   await check('loads without script errors', () => {
@@ -45,6 +124,12 @@
   await check('progress is kept per deck', () => {
     assert(PROGRESS_KEY === 'bishop-interviews:progress:' + DECK_SLUG, 'progress key ' + PROGRESS_KEY);
   });
+  await check('No Export or Import: answers live only in this browser', () => {
+    assert(!$1('#local-export') && !$1('#local-import') && !$1('#master-data'), 'export, import or an embedded answers file is still on the page');
+    assert(!/Export Answers|Import Answers/.test(document.body.innerText), 'the buttons still show');
+    assert(typeof STORE.exportFile === 'undefined' && typeof STORE.importFile === 'undefined', 'STORE still exports or imports');
+    assert(typeof ANSWERS_FILE === 'undefined', 'the answers-file code still ships');
+  });
   await check('text size buttons work and are remembered', async () => {
     const before = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--script-size')) || 18;
     go(CONTENT.find((x) => x.kind === 'question').id);
@@ -56,7 +141,7 @@
   });
 
   if (MASTER) {
-    // ---- The master deck ----
+    // ---- The core deck ----
     await check('Study: an answer saves as you type', async () => {
       setPurpose('study');
       go('QA2');
@@ -145,13 +230,80 @@
       assert(!byId.has(window.__addedId), 'still there');
       assert(saved().edits.some((e) => e.field === '__deleted' && e.slide_id === window.__addedId), 'delete not saved');
     });
-    await check('Export writes a sound answers file that reads back', () => {
-      const raw = saved();
-      const file = ANSWERS_FILE.toFile(raw);
-      assert(file.format === 'bishop.interviews.answers' && file.version === 1, 'format ' + file.format);
-      assert(!ANSWERS_FILE.checkFile(file).length, ANSWERS_FILE.checkFile(file).join('; '));
-      const back = ANSWERS_FILE.fromFile(file);
-      assert(back.answers.length === raw.answers.length, `answers ${raw.answers.length} -> ${back.answers.length}`);
+    await check('Core labels: the deck says core, never master', async () => {
+      assert($1('#brand-sub').textContent === 'Core deck', 'top bar: ' + $1('#brand-sub').textContent);
+      assert(document.title.endsWith('Core Deck'), 'title: ' + document.title);
+      setPurpose('study');
+      for (const id of ordered()) {
+        go(id);
+        noMaster(id);
+      }
+      go('cover');
+      assert($1('#slide h1').textContent === 'Your core deck', 'readiness: ' + $1('#slide h1').textContent);
+    });
+    await check('Recording: no setting means a take with a transcript', async () => {
+      assert(DECK.record === undefined && recordMode() === 'transcript', 'record ' + DECK.record + ' -> ' + recordMode());
+      setPurpose('test');
+      assert($1('#toast').textContent === 'Test: say it or type it first, then reveal. ● records with a transcript.', 'toast: ' + $1('#toast').textContent);
+      go('QR1');
+      await wait(50);
+      assert($1('#timer-btn').getAttribute('aria-label') === 'Record Your Answer' && $1('#timer-btn .rec-icon').textContent === '●', 'no record button');
+      const t = await fakeTake();
+      assert(t.live && t.speechStarts === 1 && t.liveTranscript, `recording ${t.live}, speech started ${t.speechStarts}, live transcript ${t.liveTranscript}`);
+      // A saved take (IndexedDB, which a headless browser on a file page doesn't open) shows its transcript.
+      const take = takeHTML({ transcript: 'I cut fix time by restaging parts.', seconds: 40, at: new Date().toISOString() }, 'blob:take');
+      assert(take.includes('<audio') && take.includes('<details>') && take.includes('Transcript (7 words)'), 'the take has no transcript');
+    });
+    await check('Test: type it from memory, then compare on reveal', async () => {
+      setPurpose('test');
+      setGlobal(1);
+      go('QA2');
+      await wait(50);
+      const box = $1('#recall-box');
+      assert(box && $1('label[for="recall-box"]').textContent === 'Type it from memory', 'no Type it from memory box');
+      assert(box.closest('.response') && getComputedStyle(box).resize === 'none', 'the box is not styled like the answer boxes');
+      type(box, 'I want to run a whole service line from memory.');
+      go('QA1');
+      go('QA2');
+      await wait(50);
+      assert($1('#recall-box').value.includes('from memory'), 'the attempt did not stay with the slide');
+      reveal();
+      await wait(50);
+      const attempt = $1('#slide .attempt'),
+        answer = $1('#slide .own-part');
+      assert(attempt && attempt.innerText.includes('from memory'), 'what was typed is not shown after the reveal');
+      assert(answer && attempt.compareDocumentPosition(answer) & Node.DOCUMENT_POSITION_FOLLOWING, 'the attempt is not above the saved answer');
+      assert(!$1('#recall-box'), 'the box still shows after the reveal');
+      assert(!JSON.stringify(localStorage).includes('from memory'), 'the attempt was saved');
+    });
+    await check('Study: Speak shows only with a transcript and speech recognition', async () => {
+      setPurpose('study');
+      go('QR1');
+      await wait(50);
+      assert(!!$1('[data-dictate]') === !!SPEECH(), `Speak button ${!!$1('[data-dictate]')}, speech recognition ${!!SPEECH()}`);
+      await withSpeech(async () => {
+        render();
+        const boxes = $all('#slide [data-sec-text]').length;
+        assert(boxes && $all('#slide [data-dictate]').length === boxes, 'one Speak button per answer box');
+      });
+    });
+    await check('Study: Speak adds what you say and saves it', async () => {
+      await withSpeech(async () => {
+        render();
+        type($1('[data-sec-text="0"]'), 'I rebuilt parts staging.');
+        $1('[data-dictate="0"]').click();
+        await wait(60);
+        const box = $1('[data-sec-text="0"]');
+        assert(box.value === 'I rebuilt parts staging. spoken from the mic', 'box: ' + box.value);
+        assert($1('[data-dictate="0"]').getAttribute('aria-pressed') === 'true', 'button does not show it is listening');
+        await wait(1200);
+        assert(saved().answers.some((a) => a.slide_id === 'QR1--sections' && a.text.includes('spoken from the mic')), 'not saved');
+        $1('[data-dictate="0"]').click();
+        assert(!dict, 'Stop did not stop');
+      });
+    });
+    await check('#print-all lists every question with its answer, then prints', async () => {
+      await printAllCheck('bigger operating role');
     });
   } else {
     // ---- A company deck ----
@@ -172,15 +324,37 @@
       assert($1('#slide .hero-description').innerText.includes('Recruiter screen'), "the cover doesn't name the round");
       assert(!byId.has('QF21'), 'a hiring-manager-only question is in the screen round');
     });
-    await check('A linked question shows the master answer', async () => {
+    await check('A linked question shows the core answer, read from this browser', async () => {
       setPurpose('study');
       go('QA1');
       await wait(50);
-      assert($1('#slide').innerText.includes('forty technicians'), 'master answer not shown');
+      assert($1('#slide').innerText.includes('forty technicians'), 'core answer not shown');
       assert(($1('#slide a.jd-link') || {}).getAttribute?.('href')?.endsWith('core.html#QA1'), 'edit link wrong');
-      assert(isLocked(byId.get('QA1')), "master lock not carried");
+      assert(isLocked(byId.get('QA1')), 'core lock not carried');
+      assert($1('#slide').innerText.includes('Your core answer.'), 'not labeled as the core answer');
+      assert($1('#slide a.jd-link').textContent === 'Edit in the core deck ↗', 'link: ' + $1('#slide a.jd-link').textContent);
     });
-    await check('Write One for This Interview starts from the master answer', async () => {
+    await check('Core labels: the deck says core, never master', async () => {
+      setPurpose('study');
+      for (const id of ordered()) {
+        go(id);
+        noMaster(id);
+      }
+      setPurpose('test');
+      go('QA1');
+      reveal();
+      noMaster('QA1 revealed');
+      setPurpose('study');
+    });
+    await check('"From the job description" tags a question from the posting', () => {
+      go('SE');
+      const tag = $1('#slide .pill.origin-jd');
+      assert(tag && tag.textContent === 'From the job description', 'tag: ' + (tag && tag.textContent));
+    });
+    await check('Write One for This Interview starts from the core answer', async () => {
+      setPurpose('study');
+      go('QA1');
+      await wait(50);
       $1('[data-fork-core]').click();
       await wait(100);
       assert(hasOwnAnswer(byId.get('QA1')), 'no company answer saved');
@@ -213,10 +387,64 @@
       go('hub');
       assert($all('#slide .priority-card [data-go="QB1"]').length === 1, 'no link to QB1');
     });
-    await check('Import replaces what this browser holds', async () => {
-      const file = ANSWERS_FILE.toFile({ answers: [{ deck: 'hooli', slide_id: 'QA20', text: 'Imported answer.' }], edits: [] });
-      await STORE.importFile(new File([JSON.stringify(file)], 'Master_Answers.json', { type: 'application/json' }));
-      assert(saved().answers.some((a) => a.slide_id === 'QA20' && a.text === 'Imported answer.'), 'import not saved');
+    await check('Recording audio: a take plays back, with no transcript anywhere', async () => {
+      assert(recordMode() === 'audio', 'record ' + DECK.record);
+      setPurpose('test');
+      assert($1('#toast').textContent === 'Test: say it or type it first, then reveal. ● records you.', 'toast: ' + $1('#toast').textContent);
+      assert(!/transcript/i.test($1('#help').textContent), 'the controls panel mentions a transcript');
+      go('QA20');
+      await wait(50);
+      assert($1('#timer-btn').getAttribute('aria-label') === 'Record Your Answer', 'no record button');
+      const t = await fakeTake();
+      assert(t.live && t.speechStarts === 0 && !t.liveTranscript, `recording ${t.live}, speech started ${t.speechStarts}, live transcript ${t.liveTranscript}`);
+      assert(!/transcript/i.test($1('#slide').innerText), 'a transcript area shows on the slide');
+      // A saved take (IndexedDB, which a headless browser on a file page doesn't open) plays back, and
+      // shows no transcript even when one was saved before the setting changed.
+      const take = takeHTML({ transcript: 'Words from an older take.', seconds: 40, at: new Date().toISOString() }, 'blob:take');
+      assert(take.includes('<audio'), 'the take does not play back');
+      assert(!/transcript|<details/i.test(take), 'the take shows a transcript area');
+    });
+    await check('Recording audio: no Speak button in Study', async () => {
+      await withSpeech(async () => {
+        setPurpose('study');
+        go('QA20');
+        await wait(50);
+        assert($1('#slide [data-sec-text]') && !$1('[data-dictate]'), 'a Speak button shows');
+      });
+    });
+    await check('Recording off: no record button, and nothing about recording', async () => {
+      DECK.record = 'off';
+      applyDeckChrome();
+      try {
+        setPurpose('test');
+        assert($1('#toast').textContent === 'Test: say it or type it first, then reveal.', 'toast: ' + $1('#toast').textContent);
+        go('QA20');
+        await wait(100);
+        assert($1('#timer-btn .rec-icon').textContent !== '●' && $1('#timer-btn').getAttribute('aria-label') === 'Start Timer', 'the record button still shows');
+        assert(!$1('#take-slot') && !$1('#slide .practice'), 'the take area still shows');
+        assert(!/record/i.test($1('#help').textContent), 'the controls panel mentions recording');
+        assert(!$all('[aria-label], [title]').some((el) => /record/i.test((el.getAttribute('aria-label') || '') + (el.getAttribute('title') || ''))), 'a label mentions recording');
+        await toggleRecord();
+        assert(!rec && runningId === 'QA20', 'T did not just run the timer');
+        pauseTimer();
+        await withSpeech(async () => {
+          setPurpose('study');
+          await wait(50);
+          assert(!$1('[data-dictate]'), 'a Speak button shows');
+        });
+      } finally {
+        DECK.record = 'audio';
+        applyDeckChrome();
+      }
+    });
+    await check('#print-all shows the core answer where the deck has none of its own', async () => {
+      await printAllCheck('I hold on to work too long', () => {
+        const qe1 = $1('#print-all [data-print-q="QE1"]');
+        assert(qe1.textContent.includes('Your core answer'), 'QE1 is not labeled as the core answer');
+        const qa1 = $1('#print-all [data-print-q="QA1"]');
+        assert(!qa1.textContent.includes('Your core answer'), 'QA1 has its own answer, but shows the core one');
+        assert($1('#print-all [data-print-q="QE20"] .pa-empty'), 'an unanswered question does not say so');
+      });
     });
   }
 

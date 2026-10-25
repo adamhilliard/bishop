@@ -4,14 +4,14 @@ const META = JSON.parse(document.getElementById('deck-meta').textContent);
 
 const ORIGINAL_CONTENT = JSON.parse(JSON.stringify(CONTENT));
 const DECK = META.deck || {};
-// The master deck (deck.master) holds the questions every interview asks: the candidate's answers live on
+// The core deck (deck.master) holds the questions every interview asks: the candidate's answers live on
 // its questions, and each company deck shows them on the questions it links with "core".
 const MASTER = !!DECK.master;
 // The name in the top bar: the name the candidate gave their search at setup (build_deck.py fills it in).
 const BRAND = DECK.site?.brand || 'Bishop';
 const CORE_ANS = new Map();
 const coreAnswers = () => (MASTER ? ANSWERS : CORE_ANS);
-// The master deck sits next to this one, as core.html.
+// The core deck sits next to this one, as core.html.
 const coreLink = (qid) => location.pathname.replace(/[^/]*$/, MASTER_SLUG + '.html') + '#' + encodeURIComponent(qid);
 // The deck's slug: META.deck.slug, else one made from its title.
 const DECK_SLUG =
@@ -20,10 +20,16 @@ const DECK_SLUG =
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
-// The master deck's slug: the one company decks read answers from.
+// The core deck's slug: the one company decks read answers from.
 const MASTER_SLUG = DECK.site?.masterSlug || 'core';
-// ---- Storage. Everything the candidate writes lives in this browser, in one answers file
-// (answers.js, references/answers-file.md), with Export and Import to keep a copy or move it.
+// What the record button does (deck.record): "transcript" records a take with the browser's speech
+// recognition beside it, "audio" records and plays back with no transcript, and "off" leaves recording
+// out (the button is a plain timer). A deck without the setting records with a transcript.
+const RECORD_MODES = ['transcript', 'audio', 'off'];
+const recordMode = () => (RECORD_MODES.includes(DECK.record) ? DECK.record : 'transcript');
+const SPEECH = () => window.SpeechRecognition || window.webkitSpeechRecognition;
+// ---- Storage. Everything the candidate writes lives in this browser and nowhere else; a company deck
+// reads the core deck's answers from the same place.
 const STORE = (() => {
   const KEY = 'bishop-interviews:answers';
   let raw = null;
@@ -34,15 +40,6 @@ const STORE = (() => {
       const saved = localStorage.getItem(KEY);
       if (saved) raw = JSON.parse(saved);
     } catch (e) {}
-    // A deck can ship with the candidate's answers file: a script tag "master-data" holding it. It
-    // wins when it's newer than this browser's copy (it came from a later export), never otherwise.
-    const el = document.getElementById('master-data');
-    if (el)
-      try {
-        const m = JSON.parse(el.textContent);
-        if (!raw || !raw.savedAt || String(m.exported) > raw.savedAt)
-          raw = { ...ANSWERS_FILE.fromFile(m), savedAt: String(m.exported) };
-      } catch (e) {}
     return (raw ||= empty());
   }
   function save() {
@@ -72,20 +69,6 @@ const STORE = (() => {
     async dropEdit(deck, { id, field }) {
       const r = load();
       r.edits = r.edits.filter((e) => !(e.deck === deck && e.slide_id === id && e.field === field));
-      save();
-    },
-    // The whole set as one file, to keep or to move to another browser.
-    exportFile() {
-      const m = ANSWERS_FILE.toFile(load());
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([JSON.stringify(m, null, 2)], { type: 'application/json' }));
-      a.download = 'Master_Answers.json';
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-    },
-    async importFile(file) {
-      raw = ANSWERS_FILE.fromFile(JSON.parse(await file.text()));
-      // An import is the newest copy there is; save() stamps it.
       save();
     },
   };
@@ -282,7 +265,8 @@ function normalizeEdit(el) {
 // ---- Practice: record yourself, play it back, read the transcript, and keep a typed answer.
 // Takes (audio + transcript) stay in this browser, in IndexedDB, keyed by deck and slide. Transcripts
 // come from the browser's speech recognition (Chrome sends that audio to Google to transcribe).
-// Typed answers save in this browser with everything else (STORE), and travel in the answers file.
+// Typed answers save in this browser with everything else (STORE). deck.record can drop the transcript, or
+// recording altogether (recordMode).
 const TAKES = { db: null, ids: new Set(), urls: new Map() };
 const ANSWERS = new Map();
 const takeKey = (id) => (DECK_SLUG || 'local') + '|' + id;
@@ -330,18 +314,22 @@ async function loadTakeIds() {
   } catch (e) {}
 }
 function loadAnswers() {
-  STORE.answers(DECK_SLUG).then((rows) => {
+  const own = STORE.answers(DECK_SLUG).then((rows) => {
     if (!rows) return;
     for (const a of rows) ANSWERS.set(a.slide_id, a.text);
     render();
   });
-  // A company deck shows your master answers on the questions it links to the master deck.
-  if (!MASTER && DECK_SLUG !== MASTER_SLUG)
-    STORE.answers(MASTER_SLUG).then((rows) => {
-      if (!rows) return;
-      for (const a of rows) CORE_ANS.set(a.slide_id, a.text);
-      render();
-    });
+  // A company deck shows your core answers on the questions it links to the core deck. They're read
+  // from this browser, where the core deck saved them.
+  const core =
+    !MASTER && DECK_SLUG !== MASTER_SLUG
+      ? STORE.answers(MASTER_SLUG).then((rows) => {
+          if (!rows) return;
+          for (const a of rows) CORE_ANS.set(a.slide_id, a.text);
+          render();
+        })
+      : null;
+  return Promise.all([own, core]);
 }
 async function saveAnswer(id, text) {
   text = String(text || '')
@@ -364,13 +352,19 @@ const practiceSlide = (s) =>
 // Study: the answer is open to work on (STAR, open field, story picker). Test: it hides, you say it, the take records.
 const studying = () => state.purpose === 'study';
 const studyOpen = (s) => studying() && s.kind === 'question' && practiceSlide(s);
+const TEST_TOAST = {
+  transcript: 'Test: say it or type it first, then reveal. ● records with a transcript.',
+  audio: 'Test: say it or type it first, then reveal. ● records you.',
+  off: 'Test: say it or type it first, then reveal.',
+};
 function setPurpose(p) {
   if (rec) stopRecord();
+  stopDictation();
   pauseTimer();
   state.purpose = p;
   state.layers.clear();
   render();
-  toast(p === 'study' ? 'Study: build your answers and tie your stories.' : 'Test: say it first, then reveal. ● records with a transcript.');
+  toast(p === 'study' ? 'Study: build your answers and tie your stories.' : TEST_TOAST[recordMode()]);
 }
 async function toggleRecord() {
   if (rec) {
@@ -379,6 +373,11 @@ async function toggleRecord() {
   }
   const s = current();
   if (!practiceSlide(s) || studying()) return;
+  // Recording off: the button only runs the timer.
+  if (recordMode() === 'off') {
+    toggleTimer();
+    return;
+  }
   if (!(navigator.mediaDevices && window.MediaRecorder)) {
     toggleTimer();
     toast('This browser can’t record. Timing only.');
@@ -410,7 +409,8 @@ async function toggleRecord() {
   };
   rec = r;
   recorder.start(1000);
-  startSpeech(r);
+  // Audio only: the browser's speech recognition never starts.
+  if (recordMode() === 'transcript') startSpeech(r);
   if (runningId !== s.id) toggleTimer();
   render();
 }
@@ -442,7 +442,7 @@ function stopRecord() {
   paintTimer();
 }
 function startSpeech(r) {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SR = SPEECH();
   if (!SR) return;
   const sr = new SR();
   sr.continuous = true;
@@ -482,13 +482,15 @@ function stopSpeech(r) {
 }
 
 function practiceHTML(s) {
-  if (!practiceSlide(s) || studying()) return '';
+  if (!practiceSlide(s) || studying() || recordMode() === 'off') return '';
   const live = rec && rec.id === s.id;
-  return `<section class="practice">${live ? `<div class="take live"><div class="take-head"><span class="rec-dot"></span><b>Recording</b><span class="muted">Press ■ or T to stop.</span></div><p id="live-transcript" class="take-text">${esc((rec.finalText + ' ' + rec.interim).trim() || 'Listening…')}</p></div>` : ''}<div id="take-slot"></div></section>`;
+  // Audio only: the take plays back, with no transcript area.
+  const words = live && recordMode() === 'transcript' ? `<p id="live-transcript" class="take-text">${esc((rec.finalText + ' ' + rec.interim).trim() || 'Listening…')}</p>` : '';
+  return `<section class="practice">${live ? `<div class="take live"><div class="take-head"><span class="rec-dot"></span><b>Recording</b><span class="muted">Press ■ or T to stop.</span></div>${words}</div>` : ''}<div id="take-slot"></div></section>`;
 }
 async function hydrateTake(s) {
   const slot = $('#take-slot');
-  if (!slot || !TAKES.ids.has(s.id)) return;
+  if (!slot || !TAKES.ids.has(s.id) || recordMode() === 'off') return;
   let t;
   try {
     t = await getTake(s.id);
@@ -501,12 +503,16 @@ async function hydrateTake(s) {
     url = URL.createObjectURL(t.blob);
     TAKES.urls.set(s.id, url);
   }
+  slot.innerHTML = takeHTML(t, url);
+}
+// The last take: its length and time, the player, and (recording with a transcript) what was said.
+function takeHTML(t, url) {
   const when = new Date(t.at);
-  slot.innerHTML = `<div class="take"><div class="take-head"><b>Your Last Take</b><span class="muted">${clock((t.seconds || 0) * 1000)} · ${esc(when.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }))} ${esc(when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }))}</span><button data-action="take-delete" class="quiet">Delete Take</button></div><audio controls preload="metadata" src="${url}"></audio>${t.transcript ? `<details><summary>Transcript (${t.transcript.split(/\s+/).filter(Boolean).length} words)</summary><p class="take-text">${esc(t.transcript)}</p><div class="take-actions"><button data-action="take-use">Add as a Section</button></div></details>` : '<p class="muted tiny">No transcript for this take. Transcripts need Chrome or Edge.</p>'}</div>`;
+  return `<div class="take"><div class="take-head"><b>Your Last Take</b><span class="muted">${clock((t.seconds || 0) * 1000)} · ${esc(when.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }))} ${esc(when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }))}</span><button data-action="take-delete" class="quiet">Delete Take</button></div><audio controls preload="metadata" src="${url}"></audio>${recordMode() !== 'transcript' ? '' : t.transcript ? `<details><summary>Transcript (${t.transcript.split(/\s+/).filter(Boolean).length} words)</summary><p class="take-text">${esc(t.transcript)}</p><div class="take-actions"><button data-action="take-use">Add as a Section</button></div></details>` : '<p class="muted tiny">No transcript for this take. Transcripts need Chrome or Edge.</p>'}</div>`;
 }
 function markTakes() {
   for (const el of document.querySelectorAll('#slide [data-go]'))
-    el.classList.toggle('has-take', TAKES.ids.has(el.dataset.go));
+    el.classList.toggle('has-take', recordMode() !== 'off' && TAKES.ids.has(el.dataset.go));
 }
 async function practiceAction(a) {
   const s = current();
@@ -582,7 +588,7 @@ function themeOf(card) {
   const code = card && card.querySelector('.comp-code')?.textContent.trim();
   return code ? (DECK.askThemes || []).find((x) => x.code === code) || null : null;
 }
-// Adding a question (the master deck, in Study): under a section's cards, or in a Questions to Ask
+// Adding a question (the core deck, in Study): under a section's cards, or in a Questions to Ask
 // theme. It saves as a deck edit ("__added") in this browser.
 function markAdds() {
   if (!MASTER || !studying()) return;
@@ -727,13 +733,14 @@ function sectionsHTML(s) {
   const secs = draftOf(s);
   const has = (n) => secs.some((x) => x.name.trim().toLowerCase() === n.toLowerCase());
   const locked = isLocked(s), ro = locked ? ' readonly' : '';
+  const speak = canDictate() && !locked;
   const row = (x, i) =>
-    `<div class="ans-sec"><input class="ans-sec-name" data-sec-name="${i}"${ro} value="${esc(x.name)}" placeholder="Name it" aria-label="Section name" spellcheck="false"><textarea data-sec-text="${i}"${ro} rows="1" spellcheck="true" aria-label="${esc(x.name || 'Section')}" placeholder="Say it the way you would out loud.">${esc(x.text)}</textarea>${secs.length > 1 && !locked ? `<button class="ans-sec-del" data-sec-del="${i}" aria-label="Remove ${esc(x.name || 'this section')}" title="Remove section">×</button>` : ''}</div>`;
+    `<div class="ans-sec${speak ? ' can-dictate' : ''}"><input class="ans-sec-name" data-sec-name="${i}"${ro} value="${esc(x.name)}" placeholder="Name it" aria-label="Section name" spellcheck="false"><textarea data-sec-text="${i}"${ro} rows="1" spellcheck="true" aria-label="${esc(x.name || 'Section')}" placeholder="Say it the way you would out loud.">${esc(x.text)}</textarea>${speak ? `<button class="ans-sec-speak quiet" data-dictate="${i}" data-name="${esc(x.name || 'this section')}" aria-pressed="false" aria-label="Speak into ${esc(x.name || 'this section')}" title="Speak, and it's added to this section">Speak</button>` : ''}${secs.length > 1 && !locked ? `<button class="ans-sec-del" data-sec-del="${i}" aria-label="Remove ${esc(x.name || 'this section')}" title="Remove section">×</button>` : ''}</div>`;
   return `<div class="ans-sections${locked ? ' locked' : ''}">${verifyHTML(s)}${secs.map(row).join('')}<div class="ans-sec-add"${locked ? ' hidden' : ''}><button data-action="sec-add" class="quiet">+ Add Section</button>${STAR_NAMES.every(has) ? '' : '<button data-action="sec-star" class="quiet">+ Add STAR</button>'}</div></div>`;
 }
 // Lock In: an answer you're happy with. It saves in this browser (deck answer "<id>--locked"), turns
 // read-only until you unlock it, and puts a check on the question's card so what's left stands out.
-// A company deck question showing its master answer carries the master deck's lock too.
+// A company deck question showing its core answer carries the core deck's lock too.
 const isLocked = (q) =>
   ANSWERS.get(q.id + '--locked') === '1' ||
   (!MASTER && !!q.core && !hasOwnAnswer(q) && CORE_ANS.get(q.core + '--locked') === '1');
@@ -849,8 +856,78 @@ document.addEventListener('click', (e) => {
   if (x.text.trim() && !confirm(`Remove “${x.name || 'this section'}” and its text?`)) return;
   editSections((secs) => secs.splice(Number(d.dataset.secDel), 1));
 });
+// ---- Speak (Study, with deck.record "transcript" in a browser that has speech recognition): dictate into
+// an answer box. What you say is added to the end of the box and saves the way typing does.
+let dict = null;
+const canDictate = () => recordMode() === 'transcript' && !!SPEECH();
+function paintDictation() {
+  for (const b of document.querySelectorAll('[data-dictate]')) {
+    const on = !!dict && dict.id === state.id && dict.i === Number(b.dataset.dictate);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+    b.setAttribute('aria-label', (on ? 'Stop speaking into ' : 'Speak into ') + b.dataset.name);
+    b.textContent = on ? 'Stop' : 'Speak';
+  }
+}
+function stopDictation() {
+  const d = dict;
+  if (!d) return;
+  dict = null;
+  d.sr.onend = null;
+  try {
+    d.sr.stop();
+  } catch (e) {}
+  paintDictation();
+}
+function startDictation(i) {
+  const SR = SPEECH();
+  if (!SR) return;
+  const sr = new SR();
+  sr.continuous = true;
+  sr.interimResults = false;
+  sr.lang = 'en-US';
+  const d = { sr, id: state.id, i };
+  sr.onresult = (e) => {
+    let said = '';
+    for (let k = e.resultIndex; k < e.results.length; k++) if (e.results[k].isFinal) said += ' ' + e.results[k][0].transcript;
+    said = said.replace(/\s+/g, ' ').trim();
+    if (!said || dict !== d || state.id !== d.id) return;
+    const box = document.querySelector(`#slide [data-sec-text="${d.i}"]`);
+    if (!box || box.readOnly) return;
+    const before = box.value.replace(/\s+$/, '');
+    box.value = before + (before ? ' ' : '') + said;
+    // The same event typing sends, so it saves (and the box grows) exactly as typed text does.
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  sr.onerror = (e) => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed')
+      toast('The microphone is blocked. Allow it in the address bar to speak an answer.');
+  };
+  sr.onend = () => {
+    if (dict === d) {
+      dict = null;
+      paintDictation();
+    }
+  };
+  dict = d;
+  try {
+    sr.start();
+  } catch (e) {
+    dict = null;
+    toast('Couldn’t start listening. Try again.');
+  }
+  paintDictation();
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('[data-dictate]');
+  if (!b) return;
+  const i = Number(b.dataset.dictate),
+    same = !!dict && dict.id === state.id && dict.i === i;
+  stopDictation();
+  if (!same) startDictation(i);
+});
 function loadEdits() {
-  STORE.edits(DECK_SLUG).then((rows) => {
+  return STORE.edits(DECK_SLUG).then((rows) => {
     if (rows && applySavedEdits(rows)) render();
     updateEditUI();
   });
@@ -870,19 +947,19 @@ const lines = (t) =>
     .filter(Boolean);
 const ORIGIN_LABEL = {
   standard: 'Standard',
-  jd: 'From the JD',
+  jd: 'From the job description',
   recruiter: 'From the recruiter',
   research: 'From research',
   risk: 'From the risk list',
 };
-// The master deck holds standard questions only, so the tag would say the same thing on every card.
+// The core deck holds standard questions only, so the tag would say the same thing on every card.
 const originTag = (s) =>
   s.origin && !DECK.evergreen
     ?`<span class="pill origin origin-${esc(s.origin)}">${esc(ORIGIN_LABEL[s.origin] || s.origin)}</span>`
     : '';
 // Your own answer, read-only: each named section and its text.
-// A company deck question that asks what a master question asks names it ("core": "<id>"). Until you
-// write a company-specific answer, it shows your master answer, edited in the master deck.
+// A company deck question that asks what a core question asks names it ("core": "<id>"). Until you
+// write a company-specific answer, it shows your core answer, edited in the core deck.
 function coreSections(id) {
   if (!id) return [];
   try {
@@ -893,7 +970,7 @@ function coreSections(id) {
   return typed ? [{ name: 'Answer', text: typed }] : [];
 }
 const fromCore = (s) => (!MASTER && s.core && !hasOwnAnswer(s) ? coreSections(s.core) : []);
-// A linked question's own version for this interview, started from the master answer. From then on
+// A linked question's own version for this interview, started from the core answer. From then on
 // it's this deck's answer, edited here.
 document.addEventListener('click', async (e) => {
   if (!e.target.closest || !e.target.closest('[data-fork-core]')) return;
@@ -921,9 +998,25 @@ function cueHTML(beats) {
     '</ol>'
   );
 }
-function concealed() {
-  return `<div class="concealed slim"><p class="conceal-lead">Hidden. Say yours first, then reveal (<kbd>Space</kbd>).</p></div>`;
+function concealed(typing) {
+  return `<div class="concealed slim"><p class="conceal-lead">Hidden. ${typing ? 'Say it or type it' : 'Say yours'} first, then reveal (<kbd>Space</kbd>).</p></div>`;
 }
+// ---- Type it from memory (Test): a box under the hidden answer, to write the answer out without looking.
+// After the reveal, what was typed shows above the saved answer to compare. It's kept for that slide only
+// while the page is open, and never saves with the answers.
+const ATTEMPTS = new Map();
+const recallOn = (s) => !studying() && s.kind === 'question' && practiceSlide(s);
+function recallBoxHTML(s) {
+  return `<div class="recall"><label class="recall-label" for="recall-box">Type it from memory</label><textarea id="recall-box" data-recall="${esc(s.id)}" rows="2" spellcheck="true">${esc(ATTEMPTS.get(s.id) || '')}</textarea></div>`;
+}
+function attemptHTML(s) {
+  const t = String(ATTEMPTS.get(s.id) || '').trim();
+  return t ? `<div class="attempt"><small>What you typed</small><div class="script">${textHTML(t)}</div></div>` : '';
+}
+document.addEventListener('input', (e) => {
+  const el = e.target.closest && e.target.closest('[data-recall]');
+  if (el) ATTEMPTS.set(el.dataset.recall, el.value.replace(/\r\n/g, '\n'));
+});
 function timing() {
   return `<div class="text-size" aria-label="Script text size"><button data-size="-1" aria-label="Smaller script text">A−</button><button data-size="1" aria-label="Larger script text">A+</button></div>`;
 }
@@ -959,12 +1052,12 @@ function cuesFor(s) {
 function contextHTML(s) {
   return `<details class="context"><summary>Why they’re asking${s.verify ? ' · verification note' : ''}</summary><div class="context-grid"><div><b>Why they’re asking</b><p>${esc(s.why)}</p></div>${s.source ? `<div><b>Source</b><p>${esc(s.source)}</p></div>` : ''}${s.when ? `<div><b>Use when</b><p>${esc(s.when)}</p></div>` : ''}${s.note ? `<div><b>Confirmed detail</b><p>${esc(s.note)}</p></div>` : ''}${s.verify ? `<div><b>Verify</b><p>${esc(s.verify)}</p></div>` : ''}</div></details>`;
 }
-// The master answer's footer on a linked question: say whose words these are, and where to change them.
+// The core answer's footer on a linked question: say whose words these are, and where to change them.
 const coreFoot = (s) =>
-  `<span class="sec-status">Your master answer.</span>${studyOpen(s) ? '<button class="quiet" data-fork-core>Write One for This Interview</button>' : ''}<a class="jd-link" href="${esc(coreLink(s.core))}" target="_blank" rel="noopener">Edit in the master deck ↗</a>`;
+  `<span class="sec-status">Your core answer.</span>${studyOpen(s) ? '<button class="quiet" data-fork-core>Write One for This Interview</button>' : ''}<a class="jd-link" href="${esc(coreLink(s.core))}" target="_blank" rel="noopener">Edit in the core deck ↗</a>`;
 function renderQuestion(s) {
   const sec = sectionMap.get(s.section) || {};
-  // The master deck's questions to ask have nothing to rehearse: the wording is the answer, with Lock In
+  // The core deck's questions to ask have nothing to rehearse: the wording is the answer, with Lock In
   // once it's final.
   const askMaster = MASTER && sec.role === 'ask';
   const core = fromCore(s);
@@ -972,10 +1065,12 @@ function renderQuestion(s) {
   if (core.length && (studyOpen(s) || (layer() && mode() !== 2))) body = ownAnswerHTML(s, core);
   else if (askMaster) body = '';
   else if (studyOpen(s)) body = sectionsHTML(s);
-  else if (!layer()) body = concealed();
+  else if (!layer()) body = recallOn(s) ? concealed(true) + recallBoxHTML(s) : concealed(false);
   else if (!hasOwnAnswer(s) && !core.length) body = '<div class="empty-message">No answer yet. Write one in Study.</div>';
   else if (mode() === 2) body = cueHTML(cuesFor(s));
   else body = ownAnswerHTML(s);
+  // Revealed in Test: what they typed from memory sits above the saved answer.
+  if (layer() && recallOn(s)) body = attemptHTML(s) + body;
   const eyebrow = sec.questionLabel || 'Interview question';
   const label = !askMaster && layer() && !studyOpen(s) && mode() === 2 && (hasOwnAnswer(s) || core.length) ? 'Recall Cues' : '';
   const foot = askMaster ? `<span class="sec-status"></span>${lockHTML(s)}` : core.length ? coreFoot(s) : studyOpen(s) ? secStatusHTML(s) : '';
@@ -984,10 +1079,10 @@ function renderQuestion(s) {
 function renderShortlist(s) {
   return `<section class="top10-intro">${s.eyebrow ? `<div class="eyebrow">${esc(s.eyebrow)}</div>` : ''}<h1 style="margin-top:16px">${esc(s.title)}</h1>${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ''}${s.pacing ? `<div class="pill">${esc(s.pacing)}</div>` : ''}</section><ol class="top10-list">${s.questions.map((q, i) => `<li class="top10-card"><div class="eyebrow">${esc(q.topic)}</div><h2${editAttrs(s, 'questions.' + i + '.title')}>${esc(q.title)}</h2></li>`).join('')}</ol>`;
 }
-// The first page of the master deck: what still needs work, from this browser's answers and practice.
+// The first page of the core deck: what still needs work, from this browser's answers and practice.
 function renderReadiness(s) {
   const head = `<section class="section-page cards-page"><div class="eyebrow">Before your next interview</div><h1>${esc(s.title)}</h1>${s.subtitle ? `<p>${esc(s.subtitle)}</p>` : ''}</section>`;
-  // What's left in the master set: questions with no answer yet, and answers not locked in.
+  // What's left in the core set: questions with no answer yet, and answers not locked in.
   const practice = CONTENT.filter((x) => x.kind === 'question');
   const written = (q) => {
     if (String(ANSWERS.get(q.id) || '').trim()) return true;
@@ -1241,6 +1336,7 @@ function render() {
   markTakes();
   markDeletes();
   markAdds();
+  paintDictation();
   sizeAnswerBoxes();
 }
 function maxLayer(s) {
@@ -1302,6 +1398,7 @@ function go(id, { fromLink = true, history: how } = {}) {
     toast('Left flagged drill to open this slide.');
   }
   if (rec) stopRecord();
+  stopDictation();
   pauseTimer();
   const moved = id !== state.id;
   const main = document.querySelector('main');
@@ -1399,12 +1496,14 @@ function paintTimer() {
   $('#time').textContent = clock(ms);
   $('#target-time').textContent = t ? '/ ' + clock(t * 1000) : '/ recall';
   {
-    const recording = !!(rec && rec.id === state.id);
-    $('#timer-btn .rec-icon').textContent = recording ? '■' : runningId === state.id ? 'Ⅱ' : '●';
+    const recording = !!(rec && rec.id === state.id),
+      off = recordMode() === 'off';
+    // Recording off: the button is a plain timer, with nothing on it about recording.
+    $('#timer-btn .rec-icon').textContent = recording ? '■' : runningId === state.id ? 'Ⅱ' : off ? '▶' : '●';
     $('#timer-btn').classList.toggle('recording', recording);
     $('#timer-btn').setAttribute(
       'aria-label',
-      recording ? 'Stop Recording' : runningId === state.id ? 'Pause Timer' : 'Record Your Answer',
+      recording ? 'Stop Recording' : runningId === state.id ? 'Pause Timer' : off ? 'Start Timer' : 'Record Your Answer',
     );
   }
   $('#timer').classList.toggle('near', t > 0 && ms >= t * 800 && ms < t * 1000);
@@ -1552,6 +1651,13 @@ document.addEventListener('keydown', (e) => {
     }
     return;
   }
+  if (printing()) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      leavePrintAll();
+    }
+    return;
+  }
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) || e.target.isContentEditable) return;
   const key = e.key.toLowerCase();
   const keys = {
@@ -1578,6 +1684,11 @@ document.addEventListener('keydown', (e) => {
 // slide; a slide the drill no longer holds (unflagged since) shows in the full deck.
 window.addEventListener('popstate', (e) => {
   document.querySelectorAll('dialog[open]').forEach((d) => d.close());
+  if (printWanted()) {
+    openPrintAll();
+    return;
+  }
+  if (printing()) closePrintAll();
   let id = slideFromHash();
   const lost = !byId.has(id);
   if (lost) id = byId.has('cover') ? 'cover' : CONTENT[0].id;
@@ -1594,10 +1705,22 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 setInterval(paintTimer, 200);
+const deckTitle = () => BRAND + ' · ' + (DECK.title || 'Interview study deck');
+// The controls panel says what ● does under this deck's recording setting.
+const HELP_RECORD = {
+  transcript: ['Press ● (or T) to record a take with a transcript, kept only in this browser. ', 'Record / stop your answer (and its timer)'],
+  audio: ['Press ● (or T) to record a take and play it back, kept only in this browser. ', 'Record / stop your answer (and its timer)'],
+  off: ['', 'Start / pause the timer'],
+};
 function applyDeckChrome() {
-  document.title = BRAND + ' · ' + (DECK.title || 'Interview study deck');
+  document.title = deckTitle();
+  {
+    const [line, key] = HELP_RECORD[recordMode()];
+    if ($('#help-record')) $('#help-record').textContent = line;
+    if ($('#help-record-key')) $('#help-record-key').firstChild.textContent = key + ' ';
+  }
   // A company deck wears the company's brand color as its accent (META.deck.theme.accent), inside Bishop's
-  // navy and orange frame. The master deck keeps Bishop orange. Text on a filled button turns dark when
+  // navy and orange frame. The core deck keeps Bishop orange. Text on a filled button turns dark when
   // the brand color is light.
   if (!DECK.evergreen && /^#[0-9a-f]{6}$/i.test(DECK.theme?.accent || '')) {
     const hex = DECK.theme.accent;
@@ -1676,8 +1799,80 @@ document.addEventListener('input', (e) => {
   if (e.target.matches && e.target.matches('.response textarea')) autosize(e.target);
 });
 window.addEventListener('resize', () => sizeAnswerBoxes());
-loadEdits();
-loadAnswers();
+// ---- Print every answer (#print-all): every question in deck order with the candidate's saved answer
+// under it (on a company deck, the core answer where it has none of its own), on a plain page laid out
+// for paper, then the browser's print dialog, where Save as PDF keeps a copy. Nothing on the page links
+// here; Bishop opens this address for a candidate who asks for a copy of their answers.
+const PRINT_HASH = 'print-all';
+const printWanted = () => location.hash.slice(1) === PRINT_HASH;
+const printing = () => document.body.classList.contains('printing-all');
+function printAllHTML() {
+  const qs = ordered()
+    .map((id) => byId.get(id))
+    .filter((x) => x && x.kind === 'question');
+  const rows = [];
+  let at = null;
+  for (const q of qs) {
+    const sec = sectionMap.get(q.section) || {};
+    if (q.section !== at) {
+      at = q.section;
+      rows.push(`<h2 class="pa-section">${esc(sec.title || q.section)}</h2>`);
+    }
+    // A one-part answer under its default name needs no name on paper.
+    const plain = (secs) => {
+      const full = secs.filter((x) => String(x.text || '').trim());
+      return full.length === 1 && /^answer$/i.test(full[0].name.trim()) ? [{ ...full[0], name: '' }] : full;
+    };
+    const core = fromCore(q),
+      own = hasOwnAnswer(q) ? ownAnswerHTML(q, plain(sectionsOf(q))) : '';
+    const body = own || (core.length ? ownAnswerHTML(q, plain(core)) : sec.role === 'ask' ? '' : '<p class="pa-empty">No answer yet.</p>');
+    rows.push(
+      `<article class="pa-q" data-print-q="${esc(q.id)}"><h3>${esc(q.title)}</h3>${!own && core.length ? '<small class="pa-from">Your core answer</small>' : ''}${body}</article>`,
+    );
+  }
+  const day = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  return `<div class="pa-tools"><button class="quiet" data-print-close>Close</button><button class="primary" data-print-again>Print</button></div><header class="pa-head"><div class="pa-brand">${esc(BRAND)}</div><h1>${esc(DECK.title || 'Interview deck')}</h1><p>${qs.length} question${qs.length === 1 ? '' : 's'} · your answers as of ${esc(day)}</p></header>${rows.join('')}`;
+}
+async function openPrintAll() {
+  if (rec) stopRecord();
+  stopDictation();
+  pauseTimer();
+  document.querySelectorAll('dialog[open]').forEach((d) => d.close());
+  // Every saved answer and question edit is in before the page is laid out.
+  await loaded;
+  let el = $('#print-all');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'print-all';
+    el.className = 'print-all';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = printAllHTML();
+  el.hidden = false;
+  document.body.classList.add('printing-all');
+  // The title is the file name Save as PDF suggests.
+  document.title = deckTitle() + ' · Every answer';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  setTimeout(() => window.print(), 60);
+}
+function closePrintAll() {
+  const el = $('#print-all');
+  if (el) el.hidden = true;
+  document.body.classList.remove('printing-all');
+  document.title = deckTitle();
+}
+// Close returns to the slide the deck was on, at its own address.
+function leavePrintAll() {
+  closePrintAll();
+  syncHash('replace');
+  render();
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest) return;
+  if (e.target.closest('[data-print-close]')) leavePrintAll();
+  else if (e.target.closest('[data-print-again]')) window.print();
+});
+const loaded = Promise.all([loadEdits(), loadAnswers()]);
 loadTakeIds();
 loadProgress();
 {
@@ -1688,25 +1883,8 @@ loadProgress();
 }
 // A fresh open with no slide in the address returns to where the candidate left off.
 if (state.id === 'cover' && !slideFromHash() && state.lastId && byId.has(state.lastId)) state.id = state.lastId;
-syncHash('replace');
+// The print view keeps its own address; anything else names the slide.
+if (!printWanted()) syncHash('replace');
 render();
 updateEditUI();
-// Everything lives in this browser: Export saves it all as one file, Import loads one (from another
-// browser, or a backup) in its place.
-$('.side-bottom').insertAdjacentHTML(
-  'afterbegin',
-  '<div class="local-store"><button id="local-export" class="quiet">Export Answers</button><button id="local-import" class="quiet">Import Answers</button><input type="file" id="local-import-file" accept="application/json,.json" hidden></div>',
-);
-$('#local-export').addEventListener('click', () => STORE.exportFile());
-$('#local-import').addEventListener('click', () => $('#local-import-file').click());
-$('#local-import-file').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (!confirm('Replace everything saved in this browser with ' + file.name + '?')) return;
-  try {
-    await STORE.importFile(file);
-    location.reload();
-  } catch (err) {
-    toast('That file isn’t a saved answers file from these decks.');
-  }
-});
+if (printWanted()) openPrintAll();

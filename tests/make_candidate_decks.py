@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Write the test candidate's interview decks (tests/candidate/Interview_Prep/): a master deck and one
-company deck (Hooli, two rounds), plus an answers file. Everything is made up: no real people or companies.
+"""Write the test candidate's interview decks (tests/candidate/Interview_Prep/): a core deck and one
+company deck (Hooli, two rounds, recording audio only). Everything is made up: no real people or companies.
+The core answers a company deck shows come from the browser; tests/run_all.py seeds them for the flows.
 
     python tests/make_candidate_decks.py
 """
@@ -28,9 +29,9 @@ def section(sec, title):
 
 ORANGE, BLUE = "#e2541b", "#2f6fde"
 
-# ---- The master deck ----
+# ---- The core deck ----
 w("core/meta.json", {"meta": {
-    "deck": {"slug": "core", "title": "Master Deck", "brandTitle": "Master deck", "master": True, "evergreen": True,
+    "deck": {"slug": "core", "title": "Core Deck", "brandTitle": "Core deck", "master": True, "evergreen": True,
              "rigor": "light", "theme": {"accent": ORANGE}, "jd": {"none": "Every interview"}},
     "sections": [
         {"id": "I", "title": "Readiness", "color": ORANGE},
@@ -40,7 +41,7 @@ w("core/meta.json", {"meta": {
         {"id": "E", "title": "Tough Questions", "color": ORANGE, "role": "hard"},
         {"id": "F", "title": "Questions to Ask", "color": ORANGE, "role": "ask"},
     ]}})
-w("core/content/00-readiness.json", {"content": [{"kind": "readiness", "id": "cover", "section": "I", "title": "Your master deck"}]})
+w("core/content/00-readiness.json", {"content": [{"kind": "readiness", "id": "cover", "section": "I", "title": "Your core deck"}]})
 w("core/content/10-opening.json", {"content": [
     section("A", "Opening"),
     q("QA1", "A", "Tell me about yourself.", "The opener. They want the arc in two minutes, and why it leads here.", 120),
@@ -70,7 +71,7 @@ w("core/content/50-ask.json", {"content": [
 # ---- One company deck, every round in it ----
 w("hooli/meta.json", {"meta": {
     "deck": {
-        "slug": "hooli", "title": "Hooli Deck", "brandTitle": "Hooli",
+        "slug": "hooli", "title": "Hooli Deck", "brandTitle": "Hooli", "record": "audio",
         "rounds": [
             {"id": "screen", "label": "Recruiter screen", "ask": "Priya", "who": "Priya Shah, Recruiter", "date": "2030-03-04", "time": "10:00 a.m."},
             {"id": "hm", "label": "Hiring manager", "ask": "Jordan", "who": "Jordan Lee, Head of Service",
@@ -132,13 +133,4 @@ w("hooli/content/90-notes.json", {"content": [
      "cards": [{"title": "Research", "paragraphs": ["Hooli runs robots in about 400 hospitals (careers page, 2030-02-20).",
                                                     "VERIFY: whether the four regions are already staffed."]}]},
 ]})
-
-# ---- The answers file the candidate exported from the master deck ----
-w("Master_Answers.json", {
-    "format": "bishop.interviews.answers", "version": 1, "exported": "2030-03-01T18:20:00.000Z",
-    "decks": {"core": {"answers": {
-        "QA1": {"sections": [{"name": "Answer", "text": "I run field service teams. Most recently I built a service region from zero to forty technicians."}], "locked": True},
-        "QE1": {"sections": [{"name": "Answer", "text": "I hold on to work too long. Now I hand off anything a lead can own by Friday."}]},
-    }, "edits": []}},
-})
 print("wrote", ROOT)

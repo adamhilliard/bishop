@@ -14,12 +14,12 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 | `chain` | | Optional. The question's own id; nothing requires it |
 | `why` | yes | What the interviewer is trying to learn, and for a custom question what makes it likely. Context, never a hint at the answer |
 | `target` | yes | Seconds to answer, for the practice timer. `0` turns it off |
-| `core` | | Interview decks: the master question this one asks the same thing as, by its slide id in the master deck (`QR2`). Shows the candidate's master answer until they write a version for this interview |
+| `core` | | Interview decks: the core question this one asks the same thing as, by its slide id in the core deck (`QR2`). Shows the candidate's core answer until they write a version for this interview |
 | `origin` | in `hard` and `ask` sections | `standard`, `jd`, `recruiter`, `research` or `risk`. Shown as a tag on the card |
 | `source` | unless `standard` | The posting line, recruiter's words, finding (with its date) or resume fact behind it |
 | `theme` | in `ask` sections | A theme id (`assets/defaults.json`, or `META.deck.askThemes`) |
 | `verify` | | A fact the candidate should confirm before the interview. Shows a VERIFY badge |
-| `when` | | Master deck only: when a conditional question applies |
+| `when` | | Core deck only: when a conditional question applies |
 
 > **No follow-ups.** A second angle on a question is a question of its own; the builder rejects `"kind": "followup"`.
 
@@ -45,10 +45,10 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 {"kind": "section", "id": "SA", "section": "A", "title": "Opening", "cards": true}
 ```
 
-**readiness**: the master deck's first slide: what's left to write, to lock in, and flagged. It needs only a title; the deck fills in the rest. Its section `I` goes first in `meta.sections`: `{"id": "I", "title": "Readiness"}`.
+**readiness**: the core deck's first slide: what's left to write, to lock in, and flagged. It needs only a title; the deck fills in the rest. Its section `I` goes first in `meta.sections`: `{"id": "I", "title": "Readiness"}`.
 
 ```json
-{"kind": "readiness", "id": "cover", "section": "I", "title": "Your master deck"}
+{"kind": "readiness", "id": "cover", "section": "I", "title": "Your core deck"}
 ```
 
 **cover**: an interview deck's first slide (id `cover`, section `I`); its text comes from `META.deck.cover` (below), so the slide itself needs only a title.
@@ -68,6 +68,7 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
       "slug": "acme-robotics",
       "title": "Acme Robotics Deck",
       "brandTitle": "Acme Robotics",
+      "record": "transcript",
       "rounds": [
         {"id": "screen", "label": "Recruiter screen", "ask": "Priya", "who": "Priya Shah, Recruiter", "date": "2030-03-04", "time": "10:00 a.m."},
         {"id": "hm", "label": "Hiring manager", "ask": "Jordan",
@@ -97,13 +98,14 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 }
 ```
 
-- **`deck.slug`** is required and matches the deck's folder name: one company, one slug. The master deck is `core`, with `"master": true` and `"evergreen": true`.
-- **`deck.brandTitle`** is the line under the search's name in the top bar: the company's name, or "Master deck".
+- **`deck.slug`** is required and matches the deck's folder name: one company, one slug. The core deck is `core`, with `"master": true` and `"evergreen": true`.
+- **`deck.brandTitle`** is the line under the search's name in the top bar: the company's name, or "Core deck".
+- **`deck.record`** sets what the record button (● in Test) does, in that deck: `"transcript"` records a take, plays it back, and writes a transcript with the browser's speech recognition (Chrome and Edge send that audio to their speech service), and in Study adds a **Speak** button beside each answer box that dictates into it; `"audio"` records and plays back but never starts speech recognition, with no transcript and no Speak button; `"off"` leaves recording out altogether (the button is a plain timer). Left out, it's `"transcript"`. The core deck and every company deck each read their own; the builder rejects any other value.
 - **`deck.rounds`** lists every round of the company's process (one deck per company); **`deck.round`** picks the one coming up. Each round: `id`, `label`, `ask` (the interviewer's name, so the section reads "Questions for Priya"), `who` (their name and title, which leads the sidebar), `date` (`YYYY-MM-DD`) and `time` once booked, and an optional `guide` (`{title, body}`) shown first on the cover. The builder puts the round, date and time first in the sidebar and on the cover, then the round's `who`; `deck.sidebar` and `cover.description` hold only what's true in every round.
 - **`rounds` on a slide** (`["hm"]`) keeps it to those rounds; a slide without it is in every round. A **`shortlist`** slide (section `I`, in `00-intro.json` after the hub; `round`, `title`, `intro`, `questions: [{topic, title}]`) is optional, one per round at most.
-- **A deck with no rounds** can set `deck.interview` (`{date, time, round}`) itself; the master deck sets neither and is `"evergreen": true`.
+- **A deck with no rounds** can set `deck.interview` (`{date, time, round}`) itself; the core deck sets neither and is `"evergreen": true`.
 - **`deck.cover`**: `eyebrow` (company / function), `title` (the role), `titleAccent` (optional, a second line in the accent color), `description` (lines under the title that hold in every round; the builder adds the round, date and time above them), `actions` (buttons: `{label, go: slide id, primary}`), and `risk` (`{title, body}`: the top risk, which the builder expects whenever there's a risk list). The cover's `guides` come from the round (`deck.rounds[].guide`); don't write them by hand.
-- **`deck.theme.accent`** is the company's own brand color, read from their site, never guessed. The master deck keeps a neutral one.
+- **`deck.theme.accent`** is the company's own brand color, read from their site, never guessed. The core deck keeps a neutral one.
 - **`deck.jd`** links the posting in the header (a URL, or the saved posting's path relative to `Interview_Prep/`, such as `../Postings/Acme_Director.md`); with none, `{"none": "No posting · referral"}`.
 - **`sections[].role`**: `"hard"` (Tough Questions) or `"ask"` (Questions to Ask) turns on the origin, source and theme checks.
 - **`priorities[].partial`** marks a priority the candidate can only partly speak to. **`risks[].answers`** lists the slides that cover it, at least one in a `hard` section.

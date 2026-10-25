@@ -2,8 +2,8 @@
   "meta": {
     "deck": {
       "slug": "core",
-      "title": "Master Deck",
-      "brandTitle": "Master deck",
+      "title": "Core Deck",
+      "brandTitle": "Core deck",
       "master": true,
       "evergreen": true,
       "rigor": "light",

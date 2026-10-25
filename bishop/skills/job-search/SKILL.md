@@ -58,9 +58,11 @@ Four moving pieces. Nothing else.
 
 ## Setting up a new bot
 
-**Ask nothing before the interview starts, with two exceptions, both silent.** First, run the capability preflight at the top of `setup-interview.md`: Bishop needs Claude Code, and the Chat and Cowork surfaces appear to work for one run before degrading, so a user in the wrong place has to be stopped before the splash rather than after the letter. Second, check the project folder for an existing Bishop file set, and if one is there, run the existing-search fork. **Both are probes, not cold questions, so a first-time user in the right place sees neither.** Otherwise it opens with the splash, the author's letter and the Essentials/Everything fork, and every question has a home in sections A to G, including the resume, which section A asks for because that is where it gets used. A question asked ahead of the interview arrives with no context and cannot be acted on yet.
+**Every setup request starts in the front door.** Read `skills/start/SKILL.md` and follow it: it runs the capability check, handles any setup already in this folder, shows the splash and the author's letter, lets them pick modules, and hands job search its turn. **Never start the interview here without it.** People still say "help me set up a job search," and that phrase keeps reaching this skill; the front door is what it does first.
 
-1. **Run the setup interview.** Read `references/setup-interview.md` and work through it in order, one block at a time. **It opens with a splash and the author's letter**, then a fork: Essentials (~15 min) or Everything (~30 min). **Ask with the interactive picker wherever the answer is a small discrete set**, batching up to four questions per call; the interview's "How to run this" block states the conventions. **Derive from the resume and confirm rather than asking cold** wherever you can. A blank page produces vague answers, and vague answers produce a generic bot.
+**When the front door hands job search its turn,** or someone with a Bishop already here asks to add job search:
+
+1. **Run the setup interview.** Read `references/setup-interview.md` and work through it in order from "Choose your setup," one block at a time: a fork, Essentials (~15 min) or Everything (~30 min), then the questions. **Ask with the interactive picker wherever the answer is a small discrete set**, batching up to four questions per call; the interview's "How to run this" block states the conventions. **Derive from the resume and confirm rather than asking cold** wherever you can. A blank page produces vague answers, and vague answers produce a generic bot.
 2. **Build the files and both scheduled tasks.** Read `references/scaffolding.md` for the folder layout, the four profile skeletons, the read contracts, the locked results-table format, and both task prompts.
 3. **Say which answers were thin.** Those are the rules that will need correcting after the first two or three cycles, and naming them upfront sets the expectation that the bot is calibrated rather than born finished.
 4. **State the known limitations out loud** from `references/feedback-loop.md`, so nobody mistakes them for bugs. Sourcing is not the bottleneck at every level, and saying so during setup beats letting the bot look ineffective for four cycles.
@@ -91,7 +93,7 @@ Load these as needed; there is no reason to read all of them for a single task.
 
 | File | Read it when | Size |
 |---|---|---|
-| `references/setup-interview.md` | Setting up a new bot. The capability preflight, the operating conventions, the splash and letter, the Essentials/Everything fork, then sections A–D and E–G. | ~480 lines |
+| `references/setup-interview.md` | Setting up a new bot, after the front door. The capability preflight, the operating conventions, the Essentials/Everything fork, then sections A–D and E–G. | ~410 lines |
 | `references/scaffolding.md` | Writing the files and the two task prompts, read contracts, or changing the table format. | ~625 lines |
 | `references/search-techniques.md` | Running a cycle, or fixing a search that is missing roles. Integrity rules, sourcing, verification. | ~675 lines |
 | `references/quality-audit.md` | The weekly audit only. **No daily cycle reads this.** | ~235 lines |

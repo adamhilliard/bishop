@@ -119,7 +119,9 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 ### 2.0.0 (unreleased)
 
-**Interview practice joins Bishop (`/bishop:interviews`), and the plugin's name on the Plugins screen becomes plain "Bishop."** It builds a master deck of the questions every interview asks, which the candidate answers once in their own words, and one deck per company, covering every round of that company's process, whose standard questions show those master answers. Each deck is one self-contained HTML file in Bishop's look (the robot and the search's name in the top bar, as on the dashboard); answers save in the browser and travel as an exported `Master_Answers.json`.
+**Interview practice joins Bishop (`/bishop:interviews`), and the plugin's name on the Plugins screen becomes plain "Bishop."** It builds a core deck of the questions every interview asks, which the candidate answers once in their own words, and one deck per company, covering every round of that company's process, whose standard questions show those core answers. Each deck is one self-contained HTML file in Bishop's look (the robot and the search's name in the top bar, as on the dashboard); answers save in the browser, and every deck reads them from there.
+
+**A front door (`skills/start`) runs every first setup.** It checks this is the right place to run, handles any older Bishop in the folder (add a module, delete everything, archive, or change what's there), shows the splash and the author's letter, and lets people pick modules. Modules always set up in order: job search, interviews, outreach. People still start with "Help me set up a job search."
 
 > **Unreleased.** Ships in 2.0 together with the outreach module, still to be built.
 

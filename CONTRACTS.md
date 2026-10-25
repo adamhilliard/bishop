@@ -10,9 +10,10 @@ What each module reads from another module's files, exactly. For the maintainer;
 
 | Module | Writes (owns) | Reads from others |
 |---|---|---|
+| **Front door** (`skills/start`) | `Bishop_Setup.md` (which modules were picked, and where setup stands), the saved resume `Resume.<ext>` | Nothing; it only checks which Bishop files exist |
 | **Job search** (`skills/job-search`) | `Reference_Profile.md`, `Methodology.md`, `Operating_Procedures.md`, `Decisions_Log.md`, `Tracking_*.md`, `Audit_Log.md`, `Employer_Index.md`, `Weekly_Check.md`, the scheduled tasks | Nothing |
 | **Dashboard** (`skills/dashboard`) | `dashboard.html` and its published page | Profile, procedures, tracking (contracts 1 to 3) |
-| **Interviews** (`skills/interviews`) | `Interview_Prep/`: deck folders, built decks, `Master_Answers.json`, the candidate's saved resume | Profile, tracking (contracts 1 and 3) |
+| **Interviews** (`skills/interviews`) | `Interview_Prep/`: deck folders and built decks. The candidate's answers live only in their browser | Profile, tracking (contracts 1 and 3), and the saved resume, read as a whole document |
 | **Outreach** (planned, not built) | `Outreach/` | Profile, tracking, employer index (contracts 1, 3 and 4, once built) |
 
 ## Format versions
@@ -55,7 +56,3 @@ What each module reads from another module's files, exactly. For the maintainer;
 | Part read | Read by | Used for |
 |---|---|---|
 | The employer list (name and board) | Outreach, once built | Which companies count as a fit when grading contacts |
-
-## The answers file is not a contract
-
-`Interview_Prep/Master_Answers.json` belongs to interviews and nothing else reads it. Its own format version (`bishop.interviews.answers`, version 1) is documented in `skills/interviews/references/answers-file.md`.

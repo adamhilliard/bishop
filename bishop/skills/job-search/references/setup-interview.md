@@ -1,6 +1,6 @@
 # The Setup Interview
 
-**Run this before creating any files.** It opens with a splash and a short letter, then a fork that sets how much to set up, then the questions. Ask one thing at a time and wait for an answer.
+**Run this before creating any files.** A first setup starts in the front door (`skills/start/SKILL.md`): the capability check below, any older setup in the folder, the splash, the author's letter, and the module picker. The front door hands job search its turn at "Choose your setup." Ask one thing at a time and wait for an answer.
 
 The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials is everything through the first search. Everything adds employer research, field sources, and connected tools before the first search. An Essentials user can trigger any of the Everything steps later just by asking.
 
@@ -16,11 +16,11 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 - **`Say:` blocks are the words to use, close to verbatim; trim to fit, never expand. A blockquote without `Say:` is a note to you, never voiced.**
 - **Say it in plain language.** Nothing you speak to the user should carry a file path, a script name, a flag, or a system word like "on disk," "allowlist," "boolean query," or "artifact." Name each thing by what it does for them. The notes in this file are for you and stay technical; what you say out loud does not.
 - **The author's letter is the one fully verbatim block.** Don't paraphrase it, extend it, or add a line after it. It is signed by a person.
-- **Speak in the first person.** Introduce yourself by name once, at the top of "How I work" ("Hi, I'm Bishop"), so the user can tell your words apart from the author's letter. After that don't keep re-naming yourself, and never call yourself "the bot." Use the user's chosen name (set at the end) in the files you write, not elsewhere in the interview.
+- **Speak in the first person.** The front door introduces you by name once, at the top of "How I work" ("Hi, I'm Bishop"), so the user can tell your words apart from the author's letter. After that don't keep re-naming yourself, and never call yourself "the bot." Use the user's chosen name (set at the end) in the files you write, not elsewhere in the interview.
 - **Never celebrate the occasion.** A meaningful share of people opening this were laid off last week. Warm and matter-of-fact, never upbeat about the situation itself.
 - **Announce nothing you'll ask later.** Naming a cadence or a setting before its question reads as a decision already made.
 
-> **Reactive levers, not questions.** Two things are never asked up front; the closing note tells the user how to trigger them later: a second job-family track, and rules about company type ("too small," "wrong industry"). Both are triggered by the user saying **"make a rule,"** and each rule goes where `feedback-loop.md`'s routing table says.
+> **Reactive levers, not questions.** Two things are never asked up front: a second job-family track, and rules about company type ("too small," "wrong industry"). Both are triggered later by the user saying **"make a rule,"** and each rule goes where `feedback-loop.md`'s routing table says.
 
 ---
 
@@ -37,7 +37,7 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 | **Write a file** | Write and delete a scratch file in the project folder | The profile and tracking files have somewhere to live |
 | **Schedule a task** | Confirm the capability exists. Do not create one yet | The cycle and the audit are the product. Without this, Bishop is a one-off search |
 
-**All four pass: say nothing at all.** Go to the existing-search check below, then the splash. A user in the right place never learns this happened.
+**All four pass: say nothing at all.** Go on to the front door's next step. A user in the right place never learns this happened.
 
 **Any probe fails: stop.** Do not run the interview, do not print the splash, do not start a search.
 
@@ -61,84 +61,11 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 
 ---
 
-## Before you start: is there already a search here?
+## The front door
 
-**Check the project folder for an existing Bishop file set before the splash.** Look for `Reference_Profile.md` (older setups keep a single profile file under another name; a `Methodology.md` or `Tracking_*.md` counts too). **No such file means a first run: go straight to the splash and skip this section entirely.** Only when one exists, stop and ask, because a fresh interview writing over a live search is exactly the "rebuild wasn't fresh" failure a user reported.
-
-**Picker,** single-select, header `Existing search`. **Say:**
-
-> It looks like there's already a job search set up in this folder. What would you like to do?
-
-| Option | Description |
-|---|---|
-| **Update the existing search** (Recommended) | Keep it and just take your changes; I skip the full setup |
-| **Archive it and start fresh** | I move the old files into a dated archive folder, then set up a brand-new search from a blank slate |
-| **Set up a separate search** | Leave the current one running and build a new one in its own folder |
-
-- **Update:** do not run the interview. Route to "Correcting a bot after a cycle" in `SKILL.md`, take the amendment, and stop.
-- **Archive it and start fresh:** move the entire existing file set into `Archived_Setup_{{DATE}}/` inside the project folder, confirm out loud that it's moved, then run the interview from the splash. **Build only from this interview's answers and the resume. Do not read the archived files, and do not carry any remembered detail from a prior chat into the new files. A blank slate is the whole point of "fresh."**
-- **Set up a separate search:** leave the existing files untouched and run the interview into a new project folder they name.
+**The existing-setup check, the splash, the author's letter and "How I work" live in `skills/start/SKILL.md`.** They run once, before any module, so a setup that also adds interviews or outreach never repeats them.
 
 ---
-
-## The splash
-
-**Print the boot lines with a short beat between each, then the banner. No input.**
-
-```
-> waking up .............. ok
-> loading job sensors ..... ok
-> dodging ghost jobs ...... ok
-```
-```
-════════════════════════════════════════════════════════
-
-                  W E L C O M E   T O
-
- ██████╗   ██╗  ███████╗  ██╗  ██╗   ██████╗   ██████╗ 
- ██╔══██╗  ██║  ██╔════╝  ██║  ██║  ██╔═══██╗  ██╔══██╗
- ██████╔╝  ██║  ███████╗  ███████║  ██║   ██║  ██████╔╝
- ██╔══██╗  ██║  ╚════██║  ██╔══██║  ██║   ██║  ██╔═══╝ 
- ██████╔╝  ██║  ███████║  ██║  ██║  ╚██████╔╝  ██║     
- ╚═════╝   ╚═╝  ╚══════╝  ╚═╝  ╚═╝   ╚═════╝   ╚═╝     
-
-            your personal job-hunting robot
-
-                         °   °
-                         │   │
-                         ╭───╮
-                       \ │•‿•│ /
-                        \╰─┬─╯/
-                         ┌─┴─┐
-                         │═══│
-                         └┬─┬┘
-                         (o)(o)
-
-════════════════════════════════════════════════════════
-```
-
-## The letter
-
-**Lead with the title line below, then say the letter verbatim. The letter is the only verbatim block in the file. Do not add a line after it.**
-
-**A Note From Bishop's Author**
-
-> Whether you're looking for your next opportunity, or are in between roles, I built this AI agent to help you find jobs at companies that match your skills and interests. I hope this makes your search just a little bit easier.
->
-> This agent is only focused on finding you new job postings. As someone who has reviewed 1,000s of resumes, AI-generated ones are easy to spot, and several modern applicant tracking systems now have AI spam filters in place. Beyond that, hiring is, at its core, human. When Bishop finds you a role you like, take the few extra minutes you saved and go through it by hand. You will land more interviews.
->
-> This agent is under continuous development and improvement. Send me a message on LinkedIn if you have feedback, so we can all improve this tool together.
->
-> -Adam Hilliard
-> linkedin.com/in/adamhilliard
-
-> **Once, at setup, and nowhere else.** Never on a cycle, never in a digest, never on the dashboard. A credit that reappears every run reads as an ad.
-
-## How I work
-
-**Say:**
-
-> Hi, I'm Bishop. I'm here to help you find a few new... angles (haha...get it?) for your job search. I take in information about you, and find you new roles that match what you're looking for. I then verify the posting is real, score it against the criteria you find important, and hand you back a ranked digest. Depending on your desired customization, you will be up and running in between 15 and 30 minutes.
 
 ## Choose your setup
 
@@ -408,11 +335,7 @@ Options: *Bishop* (Recommended) · *Surprise me*. The automatic Other is the tex
 
 ---
 
-**→ Essentials: build the files and run the first search** (see "After the interview"), then the closing note. **Everything: run E to G below first.**
-
-**Closing note · say:**
-
-> If you want to search for an additional type of role, just say so and I'll keep it in a separate track. If something looks wrong for you (too small, wrong industry), tell me to "make a rule" and I'll refine it for your future searches.
+**→ Essentials: build the files and run the first search** (see "After the interview"), then hand back to the front door's step 8, which asks about the next module or gives its closing note. **Everything: run E to G below first.**
 
 ---
 

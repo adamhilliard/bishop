@@ -75,7 +75,7 @@ In a new conversation, say:
 
 **LinkedIn is optional, and you should know the risk before you say yes.** Bishop can read your LinkedIn feed and job alerts through your browser. LinkedIn's User Agreement prohibits automated access without its permission, and LinkedIn does restrict accounts it flags for automation. Bishop keeps it light and read-only, but the risk to your account is real. Setup asks you first; say no and Bishop never touches LinkedIn and still searches everywhere else.
 
-**It takes the name you give it.** The first thing setup asks is what you want to call your search, and every file it writes uses your name instead of Bishop.
+**You can rename it.** Setup's last question is whether you'd like to call Bishop something else, and every file it writes uses the name you pick.
 
 ## What you get
 
@@ -83,7 +83,7 @@ In a new conversation, say:
 |---|---|
 | `/bishop:job-search` | The main skill. Setup interview, search techniques, verification rules, the recurring cycle, and a weekly quality audit that checks whether the search is mechanically doing what it claims. |
 | `/bishop:dashboard` | Optional. Turns your tracking files into a private web dashboard at a bookmarkable link that refreshes every cycle. Run it after your first cycle. |
-| `/bishop:interviews` | Interview practice. Builds your master deck (the questions every interview asks, answered in your own words) and a tailored study deck for each interview. Each deck is one file that opens in any browser. Say *"Help me prep for my interview with…"* |
+| `/bishop:interviews` | Interview practice. Builds your core deck (the questions every interview asks, answered in your own words) and a tailored study deck for each interview. Each deck is one file that opens in any browser. Say *"Help me prep for my interview with…"* |
 
 You don't need to type any of these names. Describe what you want, or use the name you gave your search, and Claude picks the right one.
 

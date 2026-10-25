@@ -19,7 +19,7 @@ description: >-
 **Run the capability probe** in "Before anything: can this actually run here?" in `skills/job-search/references/setup-interview.md`, exactly as written, including its words when a probe fails.
 
 - **All pass: say nothing.** Go to step 2.
-- **Scheduling is checked only when job search or reminders need it.** Interviews alone never schedules anything, so a setup with only interviews that can't schedule still goes ahead.
+- **Scheduling is checked only when job search needs it.** Interviews alone never schedules anything, so a setup with only interviews that can't schedule still goes ahead.
 
 ## 2. Is there already a Bishop here?
 
@@ -35,7 +35,7 @@ description: >-
 | `Interview_Prep/` | Interviews |
 | `Outreach/` | Outreach |
 | `Bishop_Setup.md` | This front door |
-| Scheduled tasks whose prompt names this folder | Job search's cycle and weekly check, outreach's reminder |
+| Scheduled tasks whose prompt names this folder | Job search's cycle and weekly check |
 
 **When anything is found, picker,** single-select, header `Existing setup`. **Say:**
 

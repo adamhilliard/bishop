@@ -1,0 +1,19 @@
+#!/bin/sh
+# Runs the local test suite before anything is pushed to main, which is what Bishop's users get.
+# Pushes to any other branch go straight through. Turn it on once per clone:
+#   git config core.hooksPath .githooks
+
+to_main=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$remote_ref" = "refs/heads/main" ] && to_main=1
+done
+[ "$to_main" = 1 ] || exit 0
+
+root=$(git rev-parse --show-toplevel)
+py=python
+command -v python >/dev/null 2>&1 || py=python3
+echo "pre-push: main gets the full local test run first (about 20 seconds)."
+if ! "$py" "$root/tests/run_all.py"; then
+  echo "pre-push: tests failed, so nothing was pushed. Fix them, then push again."
+  exit 1
+fi

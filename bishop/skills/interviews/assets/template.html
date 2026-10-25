@@ -2719,7 +2719,7 @@ const DECK_SLUG =
 const MASTER_SLUG = DECK.site?.masterSlug || 'core';
 // What the record button does (deck.record): "transcript" records a take with the browser's speech
 // recognition beside it, "audio" records and plays back with no transcript, and "off" leaves recording
-// out (the button is a plain timer). A deck without the setting records with a transcript.
+// out, timer and all (Adam, 2026-10-24). A deck without the setting records with a transcript.
 const RECORD_MODES = ['transcript', 'audio', 'off'];
 const recordMode = () => (RECORD_MODES.includes(DECK.record) ? DECK.record : 'transcript');
 const SPEECH = () => window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -3068,11 +3068,8 @@ async function toggleRecord() {
   }
   const s = current();
   if (!practiceSlide(s) || studying()) return;
-  // Recording off: the button only runs the timer.
-  if (recordMode() === 'off') {
-    toggleTimer();
-    return;
-  }
+  // Recording off: no recording and no timer.
+  if (recordMode() === 'off') return;
   if (!(navigator.mediaDevices && window.MediaRecorder)) {
     toggleTimer();
     toast('This browser can’t record. Timing only.');
@@ -4017,7 +4014,7 @@ function render() {
   {
     const practice = s.kind === 'question';
     document.querySelector('.footer .tools').hidden = !practice;
-    $('#timer').hidden = !practice || studying();
+    $('#timer').hidden = !practice || studying() || recordMode() === 'off';
   }
   // Only a state worth knowing; the controls themselves live in ? (help).
   $('#footer-hint').textContent = state.drill ? 'Drill: arrows cycle flagged slides. D exits.' : '';
@@ -4405,14 +4402,17 @@ const deckTitle = () => BRAND + ' · ' + (DECK.title || 'Interview study deck');
 const HELP_RECORD = {
   transcript: ['Press ● (or T) to record a take with a transcript, kept only in this browser. ', 'Record / stop your answer (and its timer)'],
   audio: ['Press ● (or T) to record a take and play it back, kept only in this browser. ', 'Record / stop your answer (and its timer)'],
-  off: ['', 'Start / pause the timer'],
+  off: ['', ''],
 };
 function applyDeckChrome() {
   document.title = deckTitle();
   {
     const [line, key] = HELP_RECORD[recordMode()];
     if ($('#help-record')) $('#help-record').textContent = line;
-    if ($('#help-record-key')) $('#help-record-key').firstChild.textContent = key + ' ';
+    if ($('#help-record-key')) {
+      $('#help-record-key').hidden = !key;
+      $('#help-record-key').firstChild.textContent = key + ' ';
+    }
   }
   // A company deck wears the company's brand color as its accent (META.deck.theme.accent), inside Bishop's
   // navy and orange frame. The core deck keeps Bishop orange. Text on a filled button turns dark when

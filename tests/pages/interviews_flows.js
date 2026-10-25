@@ -412,7 +412,7 @@
         assert($1('#slide [data-sec-text]') && !$1('[data-dictate]'), 'a Speak button shows');
       });
     });
-    await check('Recording off: no record button, and nothing about recording', async () => {
+    await check('Recording off: no record button, no timer, and nothing about recording', async () => {
       DECK.record = 'off';
       applyDeckChrome();
       try {
@@ -420,13 +420,13 @@
         assert($1('#toast').textContent === 'Test: say it or type it first, then reveal.', 'toast: ' + $1('#toast').textContent);
         go('QA20');
         await wait(100);
-        assert($1('#timer-btn .rec-icon').textContent !== '●' && $1('#timer-btn').getAttribute('aria-label') === 'Start Timer', 'the record button still shows');
+        assert($1('#timer').hidden, 'the timer still shows');
         assert(!$1('#take-slot') && !$1('#slide .practice'), 'the take area still shows');
         assert(!/record/i.test($1('#help').textContent), 'the controls panel mentions recording');
         assert(!$all('[aria-label], [title]').some((el) => /record/i.test((el.getAttribute('aria-label') || '') + (el.getAttribute('title') || ''))), 'a label mentions recording');
+        assert($1('#help-record-key').hidden, 'the controls panel still lists T');
         await toggleRecord();
-        assert(!rec && runningId === 'QA20', 'T did not just run the timer');
-        pauseTimer();
+        assert(!rec && runningId !== 'QA20', 'T started something');
         await withSpeech(async () => {
           setPurpose('study');
           await wait(50);

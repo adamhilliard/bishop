@@ -56,6 +56,8 @@ build_package.py                     builds the handoff zip
 
 **One command runs every check, on this machine:** `python tests/run_all.py`. Run it before any commit that touches a module, and before every release. Nothing runs on GitHub; GitHub only stores the code.
 
+**A push to main runs it first, and stops on a failure.** `.githooks/pre-push` does this, since main is what users get; pushes to other branches go straight through. Git doesn't carry hook settings between computers, so turn it on once in each clone: `git config core.hooksPath .githooks`.
+
 | Part | What it proves |
 |---|---|
 | Job search | The scripts' own tests pass |

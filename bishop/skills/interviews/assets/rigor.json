@@ -1,5 +1,5 @@
 {
-  "_about": "How many questions a master deck asks at each rigor. The candidate picks one before the first build. Raising it adds questions; lowering it hides only unanswered ones. An answered question is never removed. Totals run about 15 / 16 / 17 (light), 31 / 36 / 40 (medium) and 51 / 61 / 69 (heavy) for an individual contributor / manager / executive.",
+  "_about": "How many questions a core deck asks at each rigor. Setup sets it from how many interviews they expect with each company. Raising it adds questions; lowering it hides only unanswered ones. An answered question is never removed. Totals run about 15 / 16 / 17 (light), 31 / 36 / 40 (medium) and 51 / 61 / 69 (heavy) for an individual contributor / manager / executive.",
   "default": "medium",
   "levels": [
     {

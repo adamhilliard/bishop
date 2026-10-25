@@ -91,7 +91,7 @@ Bishop reads a lot and writes only to your machine. **Anything that reaches one 
 |---|---|
 | **Web search** | Job boards, the hiring systems companies post to directly, and the job pages startup investors keep for their companies. All public pages |
 | **Your browser session** *(optional)* | Reads your logged-in job-board feed and alerts, which anonymous search can't see. **Needs Claude's browser extension.** **Browsing only.** It never applies, never messages, never views anyone's profile |
-| **Your files** | Writes a folder for your search in the place you started it, and an `Interview_Prep` folder inside it for your study decks. Everything stays on your computer. Your deck answers save in your browser as you type |
+| **Your files** | Writes a folder for your search in the place you started it, and an `Interview_Prep` folder inside it for your study decks. Everything stays on your computer. Your deck answers save in your browser as you type, and stay there; ask for a copy and Bishop opens a page of every answer to print or save as a PDF |
 | **Slack** *(optional)* | Posts your digest to your own DM or a private channel you own. Never a shared channel |
 | **Calendar** *(optional)* | Creates events for your interviews and follow-up dates. **Never invites anyone** |
 | **Email** *(optional)* | Reads mail from employers already in your list to log applications and rejections (scoped to those). Can also email you your digest. It only ever emails you, never replies, archives, or deletes |

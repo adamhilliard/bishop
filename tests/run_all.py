@@ -31,6 +31,8 @@ PLUGIN = os.path.join(ROOT, "bishop")
 INTERVIEWS = os.path.join(PLUGIN, "skills", "interviews")
 CANDIDATE = os.path.join(ROOT, "tests", "candidate")
 FLOWS = os.path.join(ROOT, "tests", "pages", "interviews_flows.js")
+# The core deck's answers as the browser holds them; a company deck's page starts with them saved.
+CORE_ANSWERS = os.path.join(ROOT, "tests", "pages", "core_answers.json")
 PY = sys.executable
 results = []
 
@@ -96,8 +98,7 @@ def build_decks(work):
             clean = code == 0 and " 0 errors" in out and " 0 warnings" in out
             record(name, "PASS" if clean else "FAIL", last_line(out))
             ok = ok and clean
-        extra = ["--master", "Master_Answers.json"] if deck != "core" and os.path.isfile(os.path.join(prep, "Master_Answers.json")) else []
-        code, out = run([PY, builder, deck] + extra, cwd=prep)
+        code, out = run([PY, builder, deck], cwd=prep)
         if code != 0:
             record("deck %s writes" % deck, "FAIL", last_line(out))
             ok = False
@@ -121,9 +122,15 @@ def flows(prep, work):
         return
     script = open(FLOWS, encoding="utf-8").read()
     expect = json.dumps({"name": search_name()})
+    seed = json.load(open(CORE_ANSWERS, encoding="utf-8"))
+    seed.pop("_about", None)
     for page in sorted(glob.glob(os.path.join(prep, "*.html"))):
         html_text = open(page, encoding="utf-8").read()
         guard = "<script>window.__errors=[];addEventListener('error',function(e){window.__errors.push(String(e.message))});</script>"
+        # Answers live only in the browser, so a company deck's browser gets what the core deck saved
+        # (each page runs in a fresh browser profile).
+        if os.path.basename(page) != "core.html":
+            guard += "<script>localStorage.setItem('bishop-interviews:answers', %s);</script>" % json.dumps(json.dumps(seed)).replace("</", "<\\/")
         html_text = html_text.replace("<head>", "<head>\n" + guard, 1)
         html_text = html_text.replace("</body>", "<script>window.__expect=%s;\n%s</script>\n</body>" % (expect, script), 1)
         test_page = page[:-5] + ".test.html"
@@ -151,9 +158,8 @@ def interviews():
     code, out = run([PY, os.path.join(INTERVIEWS, "scripts", "build_template.py"), "--check"])
     record("template matches engine/", "PASS" if code == 0 else "FAIL", last_line(out))
     if shutil.which("node"):
-        for f in ("engine.js", "answers.js"):
-            code, out = run(["node", "--check", os.path.join(INTERVIEWS, "engine", f)])
-            record("engine/%s parses" % f, "PASS" if code == 0 else "FAIL", last_line(out))
+        code, out = run(["node", "--check", os.path.join(INTERVIEWS, "engine", "engine.js")])
+        record("engine/engine.js parses", "PASS" if code == 0 else "FAIL", last_line(out))
     else:
         record("engine parses", "SKIPPED", "no node; the browser flows still load it")
     work = tempfile.mkdtemp(prefix="bishop-tests-")

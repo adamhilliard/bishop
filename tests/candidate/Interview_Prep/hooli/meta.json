@@ -4,6 +4,7 @@
       "slug": "hooli",
       "title": "Hooli Deck",
       "brandTitle": "Hooli",
+      "record": "audio",
       "rounds": [
         {
           "id": "screen",

@@ -1,9 +1,5 @@
 {
-  "_about": "Defaults every deck builds with: the answers file's format, the master deck's slug, and the standard Questions to Ask themes. build_deck.py reads it; a deck adds its own themes in meta.deck.askThemes.",
-  "answersFile": {
-    "format": "bishop.interviews.answers",
-    "version": 1
-  },
+  "_about": "Defaults every deck builds with: the core deck's slug, and the standard Questions to Ask themes. build_deck.py reads it; a deck adds its own themes in meta.deck.askThemes.",
   "site": {
     "brand": "Bishop",
     "masterSlug": "core"

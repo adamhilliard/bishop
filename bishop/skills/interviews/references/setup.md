@@ -126,6 +126,8 @@ Options: *Chrome* · *Edge* · *Safari* · *Firefox*. Anything typed in Other is
 
 ## I8. Done
 
+**If they skipped job search,** ask job search's Name question first (section D of `setup-interview.md`, same words and options). It's always the last question of the first module.
+
 **If they picked outreach, picker,** single-select, header `Next`. **Say:**
 
 > Interview practice has been set up. Do you want to set up the outreach module now? It takes about 10 minutes.

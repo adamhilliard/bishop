@@ -172,7 +172,7 @@ description: >-
 - **Yes:** run that module start to finish, as in step 7, then ask again for the next one.
 - **Later:** mark the rest `later` in `Bishop_Setup.md` and go to the closing note.
 - **No module left that they picked:** skip the question and go to the closing note.
-- **The name:** if job search wasn't one of their modules, ask job search's Name question (section D, same words and options) at the end of the first module that runs, and use the name in every file written from then on.
+- **The name is the last question of the first module that runs,** so someone who stops after one module still has it. Job search asks it at the end of its questions (after G on Everything). If they skipped job search, the first module asks job search's Name question (section D, same words and options) at its end. Use the name in every file written from then on.
 
 ## 9. Save where setup stands (silent)
 

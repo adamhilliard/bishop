@@ -75,7 +75,7 @@ In a new conversation, say:
 
 **LinkedIn is optional, and you should know the risk before you say yes.** Bishop can read your LinkedIn feed and job alerts through your browser. LinkedIn's User Agreement prohibits automated access without its permission, and LinkedIn does restrict accounts it flags for automation. Bishop keeps it light and read-only, but the risk to your account is real. Setup asks you first; say no and Bishop never touches LinkedIn and still searches everywhere else.
 
-**You can rename it.** Setup's last question is whether you'd like to call Bishop something else, and every file it writes uses the name you pick.
+**You can rename it.** The last question of your first setup is whether you'd like to call Bishop something else, and every file it writes uses the name you pick.
 
 ## What you get
 

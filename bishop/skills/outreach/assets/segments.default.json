@@ -1,0 +1,37 @@
+{
+  "format": "bishop.outreach.segments",
+  "version": 1,
+  "_about": "The recommended groups, in their tab order. Setup copies this to Outreach/segments.json and the user drops or adds groups there; build_page.py uses this file when segments.json is missing. Everyone Else is always last and never listed. Shapes: references/data-format.md.",
+  "groups": [
+    {
+      "key": "warm",
+      "label": "Warm",
+      "rule": "Anyone you've exchanged messages with.",
+      "default": "warm"
+    },
+    {
+      "key": "recruiters",
+      "label": "Recruiters",
+      "rule": "Recruiters, sourcers, headhunters and talent acquisition, plus anyone at a search firm.",
+      "default": "recruiters"
+    },
+    {
+      "key": "hr",
+      "label": "HR / People",
+      "rule": "HR and People titles. Recruiters have their own group.",
+      "default": "hr"
+    },
+    {
+      "key": "exec",
+      "label": "Executives",
+      "rule": "C-suite and VPs, plus general managers and managing directors.",
+      "default": "exec"
+    },
+    {
+      "key": "founders",
+      "label": "Entrepreneurs",
+      "rule": "Founders, owners and the self-employed.",
+      "default": "founders"
+    }
+  ]
+}

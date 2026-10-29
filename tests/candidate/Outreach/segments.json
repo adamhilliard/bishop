@@ -1,0 +1,61 @@
+{
+  "format": "bishop.outreach.segments",
+  "version": 1,
+  "_about": "Made-up test candidate's groups: the defaults minus HR / People, plus one custom group of each match type.",
+  "groups": [
+    {
+      "key": "warm",
+      "label": "Warm",
+      "rule": "Anyone you've exchanged messages with.",
+      "default": "warm"
+    },
+    {
+      "key": "mentors",
+      "label": "Mentors",
+      "rule": "The people on your mentors list.",
+      "match": { "namesFile": "mentors.csv" }
+    },
+    {
+      "key": "search",
+      "label": "In My Search",
+      "rule": "Anyone at a company in your job search.",
+      "match": { "jobSearch": true }
+    },
+    {
+      "key": "recruiters",
+      "label": "Recruiters",
+      "rule": "Recruiters, sourcers, headhunters and talent acquisition, plus anyone at a search firm.",
+      "default": "recruiters"
+    },
+    {
+      "key": "exec",
+      "label": "Executives",
+      "rule": "C-suite and VPs, plus general managers and managing directors.",
+      "default": "exec"
+    },
+    {
+      "key": "robotics",
+      "label": "Robotics",
+      "rule": "Anyone at a robotics or automation company on your list.",
+      "match": { "companies": ["Brasswing Robotics", "Kestrelmoor Automation", "Ironfen Robotics Inc."] }
+    },
+    {
+      "key": "finance",
+      "label": "Finance",
+      "rule": "Finance titles: analysts, controllers and accountants.",
+      "match": { "titleWords": ["finance", "financial", "controller", "accountant"] }
+    },
+    {
+      "key": "founders",
+      "label": "Entrepreneurs",
+      "rule": "Founders, owners and the self-employed.",
+      "default": "founders"
+    },
+    {
+      "key": "globex-years",
+      "label": "Globex Years",
+      "rule": "People you connected with while you worked at Globex Field Services.",
+      "match": { "connected": { "from": "2016-01-01", "to": "2021-06-30" } }
+    }
+  ]
+}

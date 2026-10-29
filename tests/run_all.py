@@ -8,6 +8,9 @@ What it runs:
   job search    the scripts' own tests (scripts/test_*.py)
   interviews    the template matches engine/, the test candidate's decks build clean (every round),
                 and the deck flows pass in a headless browser (Chrome or Edge)
+  outreach      tests/test_outreach_build.py: the board builds from the test candidate and --check
+                catches broken groups; then the board flows pass in a headless browser, uploading the
+                made-up export in tests/outreach/export
   contracts     tests/test_contracts.py: every file one module reads from another still has the parts
                 CONTRACTS.md lists
   leak test     the maintainer's own data never ships (needs the apps repo and the vault beside this one)
@@ -33,6 +36,9 @@ CANDIDATE = os.path.join(ROOT, "tests", "candidate")
 FLOWS = os.path.join(ROOT, "tests", "pages", "interviews_flows.js")
 # The core deck's answers as the browser holds them; a company deck's page starts with them saved.
 CORE_ANSWERS = os.path.join(ROOT, "tests", "pages", "core_answers.json")
+OUTREACH_TEST = os.path.join(ROOT, "tests", "test_outreach_build.py")
+OUTREACH_FLOWS = os.path.join(ROOT, "tests", "pages", "outreach_flows.js")
+OUTREACH_EXPORT = os.path.join(ROOT, "tests", "outreach", "export")
 PY = sys.executable
 results = []
 
@@ -173,6 +179,73 @@ def interviews():
         shutil.rmtree(work, ignore_errors=True)
 
 
+def ok_lines(out):
+    """Record each "ok <check>" / "FAIL <check>  (why)" line a test script prints. Returns how many."""
+    n = 0
+    for line in out.splitlines():
+        m = re.match(r"\s*(ok|FAIL)\s+(.*)$", line)
+        if m:
+            name, _, detail = m.group(2).partition("  (")
+            record(name.strip(), "PASS" if m.group(1) == "ok" else "FAIL", detail.rstrip(")"))
+            n += 1
+    return n
+
+
+def outreach_flows(page, work):
+    browser = find_browser()
+    if not browser:
+        record("outreach flows in a browser", "SKIPPED", "no Chrome or Edge found")
+        return
+    import base64
+
+    zips = glob.glob(os.path.join(OUTREACH_EXPORT, "*.zip"))
+    data = {
+        "connections": open(os.path.join(OUTREACH_EXPORT, "Connections.csv"), encoding="utf-8").read(),
+        "messages": open(os.path.join(OUTREACH_EXPORT, "messages.csv"), encoding="utf-8").read(),
+        "zip": base64.b64encode(open(zips[0], "rb").read()).decode("ascii") if zips else "",
+        "zipName": os.path.basename(zips[0]) if zips else "",
+    }
+    expect = json.dumps({"name": search_name()})
+    script = open(OUTREACH_FLOWS, encoding="utf-8").read()
+    html_text = open(page, encoding="utf-8").read()
+    guard = "<script>window.__errors=[];addEventListener('error',function(e){window.__errors.push(String(e.message))});</script>"
+    html_text = html_text.replace("<head>", "<head>\n" + guard, 1)
+    inject = "<script>window.__expect=%s;window.__export=%s;\n%s</script>\n</body>" % (expect, json.dumps(data).replace("</", "<\\/"), script)
+    html_text = html_text.replace("</body>", inject, 1)
+    test_page = page[:-5] + ".test.html"
+    open(test_page, "w", encoding="utf-8", newline="\n").write(html_text)
+    cmd = [browser, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check",
+           "--user-data-dir=" + os.path.join(work, "browser-outreach"), "--allow-file-access-from-files",
+           "--virtual-time-budget=60000", "--dump-dom", "file:///" + test_page.replace("\\", "/")]
+    try:
+        code, out = run(cmd, timeout=180)
+    except subprocess.TimeoutExpired:
+        record("outreach flows", "FAIL", "the browser timed out")
+        return
+    found = re.findall(r'<pre id="test-results">(\[.*?\])</pre>', out, re.S)
+    if not found:
+        record("outreach flows", "FAIL", "no results came back from the page")
+        return
+    for r in json.loads(html.unescape(found[-1])):
+        record("outreach: " + r["name"], "PASS" if r["ok"] else "FAIL", "" if r["ok"] else r["detail"])
+
+
+def outreach():
+    print("outreach")
+    work = tempfile.mkdtemp(prefix="bishop-outreach-tests-")
+    try:
+        code, out = run([PY, OUTREACH_TEST, "--keep", work])
+        if not ok_lines(out) or (code != 0 and "FAIL" not in out):
+            record("outreach builder tests", "FAIL", last_line(out))
+        page = os.path.join(work, "Bishop", "Outreach", "outreach.html")
+        if os.path.isfile(page):
+            outreach_flows(page, work)
+        else:
+            record("outreach flows in a browser", "SKIPPED", "the board didn't build")
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
 def contracts():
     print("contracts")
     t = os.path.join(ROOT, "tests", "test_contracts.py")
@@ -225,6 +298,7 @@ def main():
             pass
     job_search()
     interviews()
+    outreach()
     contracts()
     leak_test()
     plugin()

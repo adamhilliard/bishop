@@ -1,0 +1,1047 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Outreach · Bishop</title>
+<meta name="description" content="Bishop's outreach board: your LinkedIn connections, sorted by who to reach out to first. It runs in this browser only.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='3' y='27' width='9' height='17' rx='4.5' fill='%239aa1aa'/%3E%3Crect x='52' y='27' width='9' height='17' rx='4.5' fill='%239aa1aa'/%3E%3Crect x='8' y='11' width='48' height='46' rx='16' fill='%23d5d9de'/%3E%3Crect x='14' y='19' width='36' height='29' rx='10' fill='%232a2522'/%3E%3Crect x='16.5' y='21.5' width='31' height='24' rx='8.5' fill='%23ff6a1f'/%3E%3Ccircle cx='25.5' cy='31' r='2.7' fill='%233a1606'/%3E%3Ccircle cx='38.5' cy='31' r='2.7' fill='%233a1606'/%3E%3Cpath d='M25 37.5q7 5 14 0' fill='none' stroke='%233a1606' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<script>try{var t=localStorage.getItem('bishop_outreach_theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<!-- Settings from build_page.py: the user's name for their Bishop, accent, warm window, groups, and
+     company lists. Never contacts: those come from the export the user uploads in this page. -->
+<script id="outreach-config" type="application/json">__CONFIG__</script>
+<style>
+/* Tokens. Five sizes, two weights (the wordmark's 800 is the brand mark). Orange is spent on
+   the mark, In Motion, and the action under the pointer. */
+:root{
+  --navy:#1a2944;--navy2:#213357;--navy-rule:#31466e;--hd-ink:#eef1f6;--hd-dim:#aab8d0;
+  --orange:#ff6a1f;--orange-l:#ffa36b;
+  --bg:#f1f3f8;--surface:#ffffff;--raise:rgba(16,24,40,.045);--ink:#111827;--ink2:#465163;--mut:#5f6978;
+  --line:#dfe3e9;--line2:#eceff3;--accent:#c2410c;--accent-ink:#ffffff;--accent-weak:#fff1e8;
+  --help:#7a3fb0;--help-bg:#f1e8fa;--tint:#e8edf6;--tint-ink:#1a2944;
+  --g-warm:#2f9e64;--g-recruiters:#7c5cd6;--g-hr:#1f8f8c;--g-exec:#3b6fd8;--g-founders:#c9831b;--g-others:#7a8599;
+  --r:4px;--ui:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --t-xl:34px;--t-l:20px;--t-m:14px;--t-s:13px;--t-xs:12px;--w-r:400;--w-b:650;
+  --sh:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);--sh2:0 18px 50px rgba(16,24,40,.22);
+}
+:root[data-theme=dark]{
+  --bg:#0e1422;--surface:#151d2e;--raise:rgba(255,255,255,.05);--ink:#e8ecf3;--ink2:#b9c3d4;--mut:#8f9bb1;
+  --line:#28344d;--line2:#1c263a;--accent:#ff8a4c;--accent-ink:#1b0c04;--accent-weak:#2b1d15;
+  --help:#c9a2f2;--help-bg:#2a1f3d;--tint:#1d2b47;--tint-ink:#dfe7f5;--sh:0 1px 2px rgba(0,0,0,.35);--sh2:0 24px 60px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--w-r) var(--t-m)/1.5 var(--ui);-webkit-font-smoothing:antialiased;min-height:100dvh;display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+b,strong{font-weight:var(--w-b)}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+a:hover{color:var(--accent);text-decoration-color:currentColor}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.num{font-family:var(--mono);font-size:var(--t-xs)}
+
+/* Top: Bishop's frame, then the group tabs. Sticky together; on a phone the header tucks away on scroll. */
+.top{position:sticky;top:0;z-index:20;transition:transform .2s ease}
+.top.tuck{transform:translateY(calc(-1 * var(--hd-h,60px)))}
+.hd{background:var(--navy);color:var(--hd-ink);border-top:4px solid var(--orange)}
+.hd-in{display:flex;align-items:center;gap:16px;padding:10px 24px;min-height:56px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--hd-ink);text-decoration:none;flex:none}
+.brand svg{width:30px;height:30px;display:block}
+.wm{font:800 19px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--orange)}
+.wm-sub{font-size:var(--t-s);color:var(--hd-dim);align-self:flex-end;margin-bottom:1px}
+.why .tag.grp{flex:none}
+.hd-tools{margin-left:auto;display:flex;align-items:center;gap:8px;flex:none}
+.search{position:relative}
+.search input{width:340px;background:var(--navy2);border:1px solid var(--navy-rule);border-radius:var(--r);color:var(--hd-ink);padding:7px 34px 7px 11px;height:36px}
+.search input::placeholder{color:var(--hd-dim)}
+.search kbd{position:absolute;right:8px;top:50%;transform:translateY(-50%);font:var(--t-xs) var(--mono);color:var(--hd-dim);border:1px solid var(--navy-rule);border-radius:3px;padding:0 5px;pointer-events:none}
+.search input:not(:placeholder-shown)~kbd{display:none}
+.icon{width:36px;height:36px;display:grid;place-items:center;background:transparent;border:1px solid var(--navy-rule);border-radius:var(--r);color:var(--hd-ink)}
+.icon svg{width:17px;height:17px}
+.hbtn{height:36px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;background:transparent;border:1px solid var(--navy-rule);border-radius:var(--r);color:var(--hd-ink);white-space:nowrap}
+.hbtn svg{width:16px;height:16px}.hbtn:hover,.icon:hover{border-color:var(--hd-ink)}
+.drop{display:grid;place-items:center;gap:10px;text-align:center;border:2px dashed var(--line);border-radius:var(--r);padding:26px 16px;margin:14px 0 8px;background:var(--tint);color:var(--ink2)}
+.drop.over{border-color:var(--accent);background:var(--accent-weak)}
+.drop b{color:var(--ink)}
+.drop .err{color:#e5484d;font-weight:var(--w-b)}
+.upl .facts{margin:8px 0 4px}
+.upl .fact b{font-size:1.15em}
+.upl .gl{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+.upl .gl li{background:var(--tint);border-radius:999px;padding:3px 10px;font-size:var(--t-s);color:var(--ink2)}
+.upl .gl b{color:var(--ink)}
+/* The theme button shows the theme it switches to. */
+:root[data-theme=dark] #themeBtn .i-moon,:root:not([data-theme=dark]) #themeBtn .i-sun{display:none}
+
+.sug{position:absolute;right:0;top:calc(100% + 6px);width:420px;max-width:calc(100vw - 32px);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh2);padding:4px;z-index:40}
+.sug .sh{font-size:var(--t-xs);color:var(--mut);font-weight:var(--w-b);padding:8px 9px 2px}
+.sug button{display:grid;grid-template-columns:1fr auto;gap:0 10px;width:100%;text-align:left;background:transparent;border:0;border-radius:3px;padding:7px 9px}
+.sug button.on,.sug button:hover{background:var(--accent-weak)}
+.sug .k{color:var(--mut);font-size:var(--t-xs);grid-row:span 2;align-self:center}
+.sug .s{color:var(--mut);font-size:var(--t-s);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sug mark{background:none;color:inherit;font-weight:var(--w-b);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.sug .none{padding:10px;color:var(--mut)}
+
+.tabs{display:flex;gap:2px;align-items:flex-end;padding:0 24px;background:var(--surface);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{display:flex;align-items:center;gap:7px;padding:11px 12px 12px;color:var(--ink2);text-decoration:none;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs a:hover{color:var(--ink)}
+.tabs a[aria-current=page]{color:var(--ink);font-weight:var(--w-b);border-bottom-color:var(--accent)}
+.tabs .c{font:var(--t-xs) var(--mono);color:var(--mut)}
+.tabs .sep{width:1px;background:var(--line);margin:10px 6px;flex:none;align-self:stretch}
+.tabs a.motion{color:var(--accent);font-weight:var(--w-b);background:var(--accent-weak);border-radius:var(--r) var(--r) 0 0;margin:6px 4px -1px 0;padding:6px 14px 9px}
+.tabs a.motion[aria-current=page]{border-bottom-color:var(--accent)}
+.tabs a.motion .c{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:0 7px;font-weight:var(--w-b)}
+.tabs a.motion .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.tabs .c.pulse{animation:pulse .6s ease}
+@keyframes pulse{40%{transform:scale(1.35)}}
+.gsel{display:none}
+
+main{flex:1;padding:16px 24px 90px;outline:none}
+
+/* Page head: the group's name is the headline, its count beside it. */
+.ph{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 12px}
+.ph .tools{margin:0 0 0 auto;align-self:center}
+.lede{margin:0;color:var(--ink2);font-size:var(--t-m);display:flex;align-items:center;align-self:center}
+.ph[class*="g-"] .lede::before,.ph.motion .lede::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gc,var(--accent));box-shadow:0 0 0 4px color-mix(in srgb,var(--gc,var(--accent)) 25%,transparent);margin-right:12px;flex:none}
+.ph h1{margin:0;font-size:var(--t-xl);line-height:1.1;letter-spacing:-.02em;font-weight:var(--w-b)}
+.cnt{color:var(--mut)}.cnt b{font-family:var(--mono);color:var(--ink);font-weight:var(--w-b)}
+.inmo{font-size:var(--t-s)}
+.about{position:relative;align-self:center}
+.about summary{list-style:none;cursor:pointer;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--mut);font-size:var(--t-s)}
+.about summary::-webkit-details-marker{display:none}
+.about[open] summary{color:var(--ink);border-color:var(--ink2)}
+.pop{position:absolute;left:0;top:32px;z-index:12;width:min(360px,80vw);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh2);padding:12px 14px;color:var(--ink2)}
+.pop p{margin:0}.pop ol{margin:6px 0 0;padding-left:18px}.pop li{margin:2px 0}
+
+/* One toolbar row: filters left, view and sort right. */
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.tools .sp{flex:1}
+.chipf{background:var(--surface);border:1px solid var(--line);color:var(--ink2);border-radius:999px;padding:4px 12px;height:32px}
+.chipf[aria-pressed=true]{background:var(--accent-weak);border-color:var(--accent);color:var(--accent);font-weight:var(--w-b)}
+.seg{display:inline-flex;align-items:center;gap:2px;background:var(--line2);border:1px solid var(--line);border-radius:var(--r);padding:2px}
+.seg span{font-size:var(--t-s);color:var(--mut);padding:0 8px 0 6px}
+.seg button{border:0;background:transparent;border-radius:3px;padding:4px 12px;height:28px;color:var(--ink2)}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);font-weight:var(--w-b);box-shadow:var(--sh)}
+.mtools{display:none}
+
+/* The ranked list. */
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.row,.lhead{display:grid;grid-template-columns:22px 34px minmax(200px,1.25fr) minmax(130px,.8fr) minmax(0,1.6fr) auto;align-items:center;gap:12px;padding:5px 14px 5px 12px;border-bottom:1px solid var(--line2);min-height:52px}
+.row:last-child{border-bottom:0}
+.row{transition:background .12s ease}
+.row:hover{background:var(--raise)}
+.row.focus{background:var(--raise);box-shadow:inset 3px 0 0 var(--accent)}
+.row.selected{background:var(--accent-weak)}
+.row.leaving{opacity:0;overflow:hidden;transition:height .15s ease,opacity .12s ease,padding .15s ease;padding-top:0;padding-bottom:0;min-height:0}
+.lhead{min-height:0;padding-top:8px;padding-bottom:8px;background:var(--navy);border-bottom:1px solid var(--navy-rule);font-size:var(--t-xs);font-weight:var(--w-b);color:var(--hd-dim);position:sticky;top:var(--top-h,96px);z-index:5}
+.list>.lhead:first-child{border-radius:var(--r) var(--r) 0 0}
+.ck{width:16px;height:16px;accent-color:var(--accent);margin:0 auto;display:block}
+.row .ck{opacity:0;transition:opacity .1s}
+.row:hover .ck,.row:focus-within .ck,.selecting .row .ck,.row .ck:checked{opacity:1}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:var(--t-xs);font-weight:var(--w-b);letter-spacing:.02em;background:color-mix(in srgb,var(--gc) 20%,var(--surface));color:color-mix(in srgb,var(--gc) 70%,var(--ink));flex:none}
+.av.sm{width:26px;height:26px;font-size:11px}
+.av.lg{width:48px;height:48px;font-size:var(--t-m)}
+.g-others{--gc:var(--g-others)}
+/* Each group's color class (.g-<key>) is written by the script, since the groups come from the config. */
+.who{background:transparent;border:0;text-align:left;padding:0;min-width:0;display:block;width:100%;line-height:1.35}
+.who .nm{font-weight:var(--w-b);display:inline}
+.who .sub{color:var(--mut);font-size:var(--t-s);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who .co-in{display:none}
+.nmline{display:flex;align-items:center;gap:6px;min-width:0}
+.starb{background:transparent;border:0;color:var(--mut);font-size:var(--t-m);line-height:1;width:24px;height:24px;border-radius:var(--r);flex:none;opacity:0;transition:opacity .1s}
+.row:hover .starb,.row:focus-within .starb,.starb[aria-pressed=true]{opacity:1}
+.starb[aria-pressed=true]{color:var(--accent)}
+.coc{color:var(--ink2);font-size:var(--t-s);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.why{display:flex;align-items:center;gap:8px;min-width:0;color:var(--mut);font-size:var(--t-s)}
+.why .txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:var(--t-xs);font-weight:var(--w-b);padding:1px 8px;border-radius:999px;border:1px solid transparent;color:var(--tint-ink);white-space:nowrap;background:var(--tint)}
+.tag.grp{background:color-mix(in srgb,var(--gc) 18%,var(--surface));color:color-mix(in srgb,var(--gc) 70%,var(--ink))}
+.tag.help{border-color:transparent;background:var(--help-bg);color:var(--help)}
+.tag .tgt{width:10px;height:10px;color:var(--accent)}
+.act{justify-self:end;display:flex;gap:6px;align-items:center}
+.btn{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:5px 12px;color:var(--ink);height:32px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--ink2)}
+.btn .ic{display:none;width:16px;height:16px}
+.btn.go{font-weight:var(--w-b);background:var(--accent-weak);border-color:transparent;color:var(--accent)}
+.row:hover .btn.go,.row:focus-within .btn.go,.btn.go:hover,.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary{font-weight:var(--w-b)}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--mut)}
+.btn.quiet:hover{color:var(--ink);border-color:var(--line)}
+.stp{font-size:var(--t-xs);color:var(--mut)}
+.more{display:block;margin:12px auto 0}
+.empty{padding:40px 20px;text-align:center;color:var(--ink2)}
+.linkish{color:var(--ink);background:none;border:0;padding:0;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.linkish:hover{color:var(--accent);text-decoration-color:currentColor}
+
+/* Guide cards. */
+.tip{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r);padding:12px 14px;margin:0 0 14px;max-width:880px}
+.tip ul{margin:4px 0 0;padding-left:18px;color:var(--ink2)}.tip li{margin:2px 0}
+.tip-x{display:flex;gap:12px;align-items:center;flex:none}
+
+/* In Motion: four columns that fill the window. */
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,.8fr);gap:12px;min-height:calc(100dvh - var(--top-h,96px) - 190px)}
+.col{background:color-mix(in srgb,var(--surface) 55%,var(--bg));border:1px solid var(--line);border-radius:var(--r);padding:10px;display:flex;flex-direction:column}
+.col{border-top:3px solid var(--st,var(--line))}
+.col[data-stage="Up Next"]{--st:color-mix(in srgb,var(--accent) 50%,var(--surface))}.col[data-stage="Contacted"]{--st:var(--accent)}.col[data-stage="Active"]{--st:var(--g-active,#2f9e64)}.col[data-stage="Concluded"]{--st:var(--help)}
+.col.over{outline:2px dashed var(--accent);outline-offset:-2px}
+.col h2{font-size:var(--t-m);margin:0 2px 2px;display:flex;justify-content:space-between;font-weight:var(--w-b)}
+.col h2 span{font:var(--t-xs) var(--mono);color:var(--mut);align-self:center}
+.colsub{margin:0 2px 10px;font-size:var(--t-xs);color:var(--mut)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:8px;box-shadow:var(--sh);cursor:pointer;position:relative}
+.card:hover{border-color:var(--ink2)}
+.card.drag{opacity:.4}
+.card .top2{display:flex;gap:10px;align-items:center}
+.card .who{padding:0}
+.card .last{margin:8px 0 0;font-size:var(--t-s);color:var(--ink2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .last b{color:var(--mut)}
+/* A fixed footer row: the tag sits there, and the actions fade in over it, so a card never changes height. */
+.card .cfoot{position:relative;height:30px;margin-top:8px}
+.card .meta{position:absolute;inset:0;display:flex;gap:6px;align-items:center;transition:opacity .12s}
+.card .mv{position:absolute;inset:0;display:flex;gap:4px;align-items:center;opacity:0;pointer-events:none;transition:opacity .12s}
+.card .mv .btn{height:28px;padding:2px 9px;font-size:var(--t-s)}
+.card .mv .sp{flex:1}
+.card:hover .mv,.card:focus-within .mv{opacity:1;pointer-events:auto}
+.card:hover .meta,.card:focus-within .meta{opacity:0}
+@media (hover:none){.card .mv{display:none}.card:hover .meta,.card:focus-within .meta{opacity:1}}
+.col.done .card{box-shadow:none;background:transparent}
+.colhint{color:var(--mut);font-size:var(--t-s);text-align:center;padding:18px 8px;border:1px dashed var(--line);border-radius:var(--r);margin-top:auto;margin-bottom:auto}
+.mseg{display:none}
+
+/* Company view: each company a header, its people beneath. */
+.coblk{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin:0 0 12px;box-shadow:var(--sh)}
+.cohead{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line2);background:var(--tint);border-radius:var(--r) var(--r) 0 0}
+.cohead .who{color:var(--tint-ink)}
+.mono{width:32px;height:32px;border-radius:var(--r);display:grid;place-items:center;font-size:var(--t-xs);font-weight:var(--w-b);background:var(--navy);color:var(--hd-ink);border:1px solid var(--navy-rule);flex:none}
+.mono.lg{width:48px;height:48px;font-size:var(--t-m)}
+.cohead .who{width:auto;font-weight:var(--w-b);padding:0}
+.cohead .cnt2{color:var(--mut);font-size:var(--t-s);margin-left:auto}
+.cohead .starb{opacity:1}
+.coblk .list{border:0;box-shadow:none;border-radius:0}
+.coblk .row{grid-template-columns:22px 34px minmax(200px,1.25fr) minmax(0,1.6fr) auto}
+.coblk .row .coc{display:none}
+.coblk .morep{display:block;padding:8px 14px 10px;font-size:var(--t-s)}
+.menu{position:relative}
+.menu summary{list-style:none;cursor:pointer;width:30px;height:30px;border-radius:var(--r);display:grid;place-items:center;color:var(--mut);border:1px solid transparent}
+.menu summary::-webkit-details-marker{display:none}
+.menu summary:hover,.menu[open] summary{border-color:var(--line);color:var(--ink)}
+.mpop{position:absolute;right:0;top:34px;z-index:12;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh2);padding:4px;min-width:200px}
+.mpop button{display:block;width:100%;text-align:left;background:none;border:0;border-radius:3px;padding:8px 10px;color:var(--ink)}
+.mpop button:hover{background:var(--raise)}
+
+/* Panel: overlays, never reflows the page. */
+.scrim{position:fixed;inset:0;background:rgba(8,12,22,.4);z-index:30}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(500px,100vw);background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--sh2);z-index:31;display:flex;flex-direction:column}
+.pn-top{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--navy);color:var(--hd-ink);border-top:3px solid var(--orange)}
+.pn-top .pos{font:var(--t-xs) var(--mono);color:var(--hd-dim);margin-right:auto}
+.pn-top .icon{width:32px;height:32px}
+.pn-body{overflow:auto;padding:18px 20px 24px;flex:1}
+.pn-foot{border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:center;background:var(--surface)}
+.pn-foot .btn{height:40px}
+.pn-foot .btn.primary{flex:1;justify-content:center}
+.ident{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center}
+.ident h2{margin:0;font-size:var(--t-l);line-height:1.2;font-weight:var(--w-b);letter-spacing:-.01em}
+#pnTitle:focus{outline:none}
+.ident .sub{color:var(--ink2)}
+.ident .acts{grid-column:1/-1;display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.whyline{margin:10px 0 0;font-size:var(--t-s);color:var(--mut)}
+.sec{margin-top:22px}
+.sec h3{font-size:var(--t-s);margin:0 0 8px;color:var(--ink2);font-weight:var(--w-b);display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.sec h3 small{font-weight:var(--w-r);color:var(--mut);font-size:var(--t-xs)}
+.track{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.track button{border:0;border-right:1px solid var(--line);background:var(--surface);padding:7px 2px;font-size:var(--t-s);color:var(--ink2);min-height:36px}
+.track button:last-child{border-right:0}
+.track button.past{background:var(--tint);color:var(--tint-ink)}
+.track button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);font-weight:var(--w-b)}
+.stnote{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:var(--t-s);color:var(--mut)}
+.outc{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.outc span{color:var(--mut);font-size:var(--t-s);margin-right:2px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fact{background:var(--tint);border-radius:var(--r);padding:8px 10px}
+.fact b{color:var(--tint-ink)}
+.fact span{display:block;font-size:var(--t-xs);color:var(--mut)}
+.fact b{font-size:var(--t-m)}
+.fact .linkish{font-weight:var(--w-b)}
+textarea{width:100%;min-height:84px;resize:vertical;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;line-height:1.5}
+.saved{color:var(--mut);font-size:var(--t-xs);font-weight:var(--w-r);opacity:0;transition:opacity .2s}
+.saved.on{opacity:1}
+.composer input[type=text]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;height:38px}
+.typechips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.typechips button{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:var(--t-s);color:var(--ink2);height:28px}
+.typechips button[aria-pressed=true]{background:var(--accent-weak);border-color:var(--accent);color:var(--accent)}
+.crow{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.crow .when{font-size:var(--t-s);color:var(--mut);display:flex;gap:8px;align-items:center}
+.crow input[type=date]{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:4px 6px;height:32px}
+.lg{list-style:none;margin:12px 0 0;padding:0}
+.lg li{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:8px 0;border-top:1px solid var(--line2)}
+.lg .d{font:var(--t-xs) var(--mono);color:var(--mut)}
+.lg .x{grid-row:span 2;display:flex;gap:2px;align-self:start}
+.lg .x button{background:none;border:0;color:var(--mut);font-size:var(--t-s);padding:2px 6px;border-radius:3px}
+.lg .x button:hover{color:var(--ink)}
+.lg li.auto{color:var(--mut)}
+.lg-edit{display:grid;grid-template-columns:132px 1fr;gap:6px;grid-column:1/-1}
+.lg-edit input,.lg-edit select{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:5px 8px;height:34px;min-width:0}
+.lg-edit input[type=text]{grid-column:1/-1}
+.lg-edit .row2{grid-column:1/-1;display:flex;gap:6px;justify-content:flex-end}
+.help p{color:var(--ink2);margin:0 0 6px}
+.help .steps{list-style:none;counter-reset:s;padding:0;margin:16px 0 4px}
+.help .steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px;margin:0 0 14px;color:var(--ink2)}
+.help .steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:var(--w-b);display:grid;place-items:center;font-size:var(--t-s)}
+.help .steps b{display:block;color:var(--ink);margin-bottom:2px}
+.help .howto{margin:6px 0 6px;padding-left:20px;color:var(--ink2)}.help .howto li{margin:0 0 4px}.help .howto b{color:var(--ink)}
+.help .good{padding-left:18px;margin:0;color:var(--ink2)}.help .good li{margin:0 0 7px}.help .good b{color:var(--ink)}
+.help dl{display:grid;grid-template-columns:72px 1fr;gap:6px 10px;margin:0}
+.help dt{font-family:var(--mono);font-size:var(--t-s)}.help dd{margin:0;color:var(--ink2)}
+
+/* Bulk bar, toast, footer */
+.bulk{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--navy);color:var(--hd-ink);border:1px solid var(--navy-rule);border-top:3px solid var(--orange);border-radius:var(--r);box-shadow:var(--sh2);padding:8px 10px 8px 16px;display:flex;align-items:center;gap:8px;z-index:25}
+.bulk .btn{height:32px}
+.toast{position:fixed;left:24px;bottom:18px;background:var(--navy);color:var(--hd-ink);border:1px solid var(--navy-rule);border-radius:var(--r);padding:9px 12px 9px 14px;display:flex;gap:12px;align-items:center;box-shadow:var(--sh2);z-index:50;transform:translateY(120px);transition:transform .18s ease;max-width:calc(100vw - 48px)}
+.toast.on{transform:none}
+.toast a,.toast button{background:none;border:0;color:var(--orange-l);font-weight:var(--w-b);padding:2px 4px;text-decoration:none}
+.ft{padding:14px 24px 18px;color:var(--mut);font-size:var(--t-xs);text-align:center;border-top:1px solid var(--line)}
+.ft .bad{color:#e5484d;font-weight:var(--w-b)}
+/* Before any export: the upload panel is the page. */
+.welcome{max-width:720px;margin:24px auto 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:22px 26px 24px}
+.welcome h1{margin:0 0 6px;font-size:var(--t-l);font-weight:var(--w-b);letter-spacing:-.01em}
+.welcome .pn-foot{padding:14px 0 0;border:0;background:none}
+
+@media (max-width:1100px){.row,.lhead{grid-template-columns:22px 34px minmax(180px,1.3fr) minmax(0,1.5fr) auto}.row .coc,.lhead .h-co{display:none}.who .co-in{display:inline}}
+@media (max-width:980px){.search input{width:240px}}
+@media (max-width:520px){.hbtn .lbl{display:none}.hbtn{width:36px;padding:0;justify-content:center}}
+@media (max-width:720px){
+  .hd-in{flex-wrap:wrap;padding:8px 16px;gap:8px;min-height:0}
+  .hd-tools{width:100%;margin:0}
+  .search{flex:1}.search input{width:100%}
+  .tabs{padding:0 12px;gap:8px;align-items:center}
+  .tabs a:not(.motion),.tabs .sep{display:none}
+  .tabs a.motion{margin:8px 0}
+  .gsel{display:block;flex:1;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);height:36px;padding:0 10px;font-weight:var(--w-b)}
+  main{padding:16px 16px 100px}
+  .ph h1{font-size:28px}
+  .ph .tools,.tools{display:none;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin:0;width:100%;order:9}
+  .ph .tools.open,.tools.open{display:flex}
+  .tools .sp{display:none}
+  .mtools{display:flex;gap:8px;margin:0 0 0 auto;order:8}
+  .lhead{display:none}
+  .row{grid-template-columns:34px minmax(0,1fr) auto;grid-template-areas:"av who who" "av why act";gap:4px 10px;padding:10px 12px;align-items:center}
+  .row .ck{display:none}
+  .selecting .row .av{display:none}
+  .selecting .row .ck{display:block;opacity:1;grid-area:av;width:20px;height:20px}
+  .row .av{grid-area:av;align-self:start;margin-top:2px}
+  .row .nmline{grid-area:who}.row .who{padding:0}
+  .row .why{grid-area:why;display:block;line-height:1.5}
+  .row .why .tag{margin-right:6px}
+  .row .why .txt{white-space:normal}
+  .inmo{display:none}
+  .row .oth{display:none}
+  .row .act{grid-area:act}
+  .row .coc{display:none}
+  .starb{opacity:1}
+  .row .starb:not([aria-pressed=true]){display:none}
+  .btn.ic-only .lbl{display:none}
+  .btn.ic-only .ic{display:block}
+  .btn.ic-only{width:40px;height:40px;padding:0;justify-content:center}
+  .coblk .row{grid-template-columns:34px minmax(0,1fr) auto}
+  .board{display:block;min-height:0}
+  .board .col{display:none;margin-bottom:12px}
+  .board .col.show{display:flex}
+  .mseg{display:flex;margin:0 0 12px;width:100%}
+  .mseg button{flex:1;padding:4px 2px;white-space:nowrap;font-size:var(--t-s)}
+  .card .mv{display:none}
+  .panel{width:100vw;border-left:0}
+  .facts{grid-template-columns:1fr 1fr}
+  .bulk{left:16px;right:16px;transform:none;justify-content:space-between}
+  .toast{left:16px;right:16px}
+  .tip{flex-direction:column;gap:10px}
+}
+@media (prefers-reduced-motion:reduce){.toast,.top,.row,.row.leaving{transition:none}.tabs .c.pulse{animation:none}}
+</style>
+</head>
+<body>
+<a class="sr" href="#main">Skip to the List</a>
+<div class="top" id="top">
+<header class="hd" id="hd">
+  <div class="hd-in">
+    <a class="brand" id="brand" href="#/" aria-label="Outreach, Bishop">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="bm-helm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef0f2"/><stop offset="1" stop-color="#8a919a"/></linearGradient><radialGradient id="bm-visor" cx=".5" cy=".42" r=".75"><stop offset="0" stop-color="#ffa04a"/><stop offset="1" stop-color="#e2500f"/></radialGradient></defs><path d="M20 14 17 5M44 14 47 5" stroke="#aeb4bc" stroke-width="2.5" stroke-linecap="round"/><circle cx="17" cy="5" r="3.2" fill="#d5d9de"/><circle cx="47" cy="5" r="3.2" fill="#d5d9de"/><rect x="3" y="27" width="9" height="17" rx="4.5" fill="#9aa1aa"/><rect x="52" y="27" width="9" height="17" rx="4.5" fill="#9aa1aa"/><rect x="8" y="11" width="48" height="46" rx="16" fill="url(#bm-helm)"/><rect x="14" y="19" width="36" height="29" rx="10" fill="#2a2522"/><rect x="16.5" y="21.5" width="31" height="24" rx="8.5" fill="url(#bm-visor)"/><circle cx="25.5" cy="31" r="2.7" fill="#3a1606"/><circle cx="38.5" cy="31" r="2.7" fill="#3a1606"/><path d="M25 37.5q7 5 14 0" fill="none" stroke="#3a1606" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <span class="wm" id="brandName">Bishop</span><span class="wm-sub">Outreach</span>
+    </a>
+    <div class="hd-tools">
+      <div class="search">
+        <input id="q" type="search" placeholder="Search people, companies, notes" aria-label="Search people, companies and notes" autocomplete="off" aria-controls="sug" aria-expanded="false">
+        <kbd aria-hidden="true">/</kbd>
+        <div id="sug" class="sug" role="listbox" aria-label="Search results" hidden></div>
+      </div>
+      <button id="uplBtn" class="hbtn" type="button" data-act="upload" aria-label="Upload your LinkedIn export" title="Upload Export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7 9l5-5 5 5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg><span class="lbl">Upload Export</span></button>
+      <button id="helpBtn" class="icon" type="button" data-act="help" aria-label="How this board works" title="How This Board Works"><b aria-hidden="true">?</b></button>
+      <button id="themeBtn" class="icon" type="button" aria-label="Switch to light theme" title="Light Theme"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+    </div>
+  </div>
+</header>
+<nav class="tabs" id="tabs" aria-label="Groups"></nav>
+</div>
+<main id="main" tabindex="-1"></main>
+<footer class="ft"><span id="saveState">Saved in this browser</span><span id="ftCount"></span> · Nothing leaves this page</footer>
+<div id="scrim" class="scrim" hidden></div>
+<aside id="panel" class="panel" aria-labelledby="pnTitle" hidden></aside>
+<div id="bulk" class="bulk" role="region" aria-label="Selected people" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ---------- Settings: filled in by build_page.py from the user's Bishop folder ---------- */
+const CONFIG=(()=>{try{const c=JSON.parse(document.getElementById('outreach-config').textContent);return c&&typeof c==='object'&&!Array.isArray(c)?c:{}}catch(e){return{}}})();
+const BOT_NAME=String(CONFIG.name||'').trim()||'Bishop';
+
+/* ---------- The network: the user's own LinkedIn export, read in this browser ---------- */
+let EXPORT_LABEL='',EXPORTED='';
+const BOARD_KEY='bishop_outreach_board_v1',NET_KEY='bishop_outreach_network_v1',THEME_KEY='bishop_outreach_theme';
+const slug=s=>s.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const COS=[],CO={},P=[],PI={};
+const LV=t=>/chief|\bceo\b|\bcoo\b|\bcfo\b|\bcto\b|chro|president|founder|managing director|owner/i.test(t)?0:/\bvp\b|svp|head of|general manager|partner/i.test(t)?1:/director|lead|principal|manager/i.test(t)?2:3;
+// A company counts as a search firm when its name says so.
+const SEARCH_FIRM=/\b(search|recruit\w*|staffing|headhunt\w*|talent partners)\b/i;
+/* Company names compare without case, accents, punctuation, or a trailing Inc, LLC, Ltd and the like. */
+const CO_SUFFIX=new Set(['inc','incorporated','llc','llp','lp','pllc','ltd','limited','corp','corporation','co','company','plc','gmbh','ag','sa','nv','bv','pty','pc']);
+function normCo(s){const w=String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(Boolean);
+  while(w.length>1&&CO_SUFFIX.has(w[w.length-1]))w.pop();return w.join(' ')}
+const normName=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/’/g,"'").replace(/[^a-z0-9' -]+/g,' ').replace(/\s+/g,' ').trim();
+let PAST=new Set(),SEARCH=new Set();
+function companyOf(name){const nm=(name||'').trim()||'No company listed',n=normCo(name);
+  return{name:nm,slug:slug(n||'none')||'none',norm:n,search:SEARCH_FIRM.test(name||''),inSearch:!!n&&SEARCH.has(n),past:!!n&&PAST.has(n),people:[]}}
+function resetNet(){COS.length=0;P.length=0;for(const k in CO)delete CO[k];for(const k in PI)delete PI[k]}
+// "Acme Robotics" and "Acme Robotics, LLC" are one company.
+function addCo(name){const k=normCo(name)||'(none)';if(CO[k])return CO[k];const c=companyOf(name);CO[k]=c;COS.push(c);return c}
+function personOf(o,co){return{id:o.id,first:o.first||'',last:o.last||'',name:((o.first||'')+' '+(o.last||'')).trim(),title:o.title||'',co,url:o.url||'',connected:o.connected||'',dir:o.dir||'none',count:o.count||0,fm:o.fm||null,lm:o.lm||null,level:LV(o.title||'')}}
+function addPerson(o){const co=addCo(o.company);const p=personOf(o,co);P.push(p);PI[p.id]=p;co.people.push(p);return p}
+function buildFromNet(net){resetNet();net.people.forEach(o=>addPerson(o))}
+
+/* ---------- Groups. A person lives in the first group that matches, in the user's order; other matches are tags. ---------- */
+/* Warm: a two-way thread whose last message falls inside the warm window, counted back from the export's date. */
+let WARM_WINDOW='any';
+function inWindow(d){if(WARM_WINDOW==='any')return true;if(!d)return false;
+  const ref=EXPORTED||today(),yrs=WARM_WINDOW==='1y'?1:3;return d>=(+ref.slice(0,4)-yrs)+ref.slice(4)}
+const DEFAULTS={
+  warm:{label:'Warm',rule:"Anyone you've exchanged messages with.",test:p=>p.dir==='both'&&inWindow(p.lm)?'exchanged messages'+(p.lm?', the last in '+fmtM(p.lm):''):null},
+  recruiters:{label:'Recruiters',rule:'Recruiters, sourcers, headhunters and talent acquisition, plus anyone at a search firm.',test:p=>{const m=p.title.match(/recruit\w*|talent acquisition|sourcer|headhunt\w*|search/i);return m?'title has "'+m[0].toLowerCase()+'"':p.co.search?'works at a search firm':null}},
+  hr:{label:'HR / People',rule:'HR and People titles. Recruiters have their own group.',test:p=>{if(/recruit|talent acq/i.test(p.title))return null;const m=p.title.match(/\bHRBP\b|\bCHRO\b|\bHR\b|human resources|people|total rewards/i);return m?'title has "'+m[0]+'"':null}},
+  exec:{label:'Executives',rule:'C-suite and VPs, plus general managers and managing directors.',test:p=>{const m=p.title.match(/\b(CEO|COO|CFO|CTO|Chief|VP|SVP|EVP|President|General Manager|Managing Director)\b/);return m?'title has "'+m[0]+'"':null}},
+  founders:{label:'Entrepreneurs',rule:'Founders, owners and the self-employed.',test:p=>{const m=p.title.match(/founder|owner|self-employed/i);return m?'title has "'+m[0].toLowerCase()+'"':null}}
+};
+/* A custom group's rule, as references/data-format.md describes it. Each returns the reason it matched, or null. */
+const wordRe=w=>new RegExp('(^|[^a-z0-9])'+w.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'($|[^a-z0-9])','i');
+function matcher(m){
+  if(Array.isArray(m.companies)){const set=new Set(m.companies.map(normCo).filter(Boolean));return p=>set.has(p.co.norm)?'works at '+p.co.name:null}
+  if(Array.isArray(m.titleWords)){const rs=m.titleWords.map(w=>String(w).trim()).filter(Boolean).map(w=>[w,wordRe(w)]);return p=>{const hit=rs.find(x=>x[1].test(p.title));return hit?'title has "'+hit[0].toLowerCase()+'"':null}}
+  if(m.connected&&typeof m.connected==='object'){const f=m.connected.from||'',t=m.connected.to||'9999-12-31';return p=>p.connected&&p.connected>=f&&p.connected<=t?'connected '+fmtM(p.connected)+', inside your dates':null}
+  if(Array.isArray(m.names)){const set=new Set(m.names.map(normName).filter(Boolean));return p=>set.has(normName(p.name))?'on your hand-picked list':null}
+  if(m.jobSearch===true)return p=>p.co.inSearch?'works at '+p.co.name+', in your job search':null;
+  return ()=>null}
+const GROUP_COLORS={warm:'#2f9e64',recruiters:'#7c5cd6',hr:'#1f8f8c',exec:'#3b6fd8',founders:'#c9831b'};
+const CUSTOM_COLORS=['#c4487a','#1f8fb8','#8a9a2b','#b05cc6','#d0603f','#4f8f6f','#a8732a','#6a72c8'];
+let GROUPS=[],GL={},TABKEYS=[];
+function readConfig(){
+  WARM_WINDOW=['any','3y','1y'].includes(CONFIG.warmWindow)?CONFIG.warmWindow:'any';
+  PAST=new Set((Array.isArray(CONFIG.pastEmployers)?CONFIG.pastEmployers:[]).map(normCo).filter(Boolean));
+  SEARCH=new Set((Array.isArray(CONFIG.searchCompanies)?CONFIG.searchCompanies:[]).map(normCo).filter(Boolean));
+  // No group list at all (the template opened as is): the five defaults, in their usual order.
+  const list=Array.isArray(CONFIG.groups)?CONFIG.groups:Object.keys(DEFAULTS).map(k=>({key:k,default:k}));
+  const seen=new Set();let ci=0;GROUPS=[];
+  list.forEach(g=>{if(!g||typeof g!=='object')return;const d=g.default&&DEFAULTS[g.default];
+    const key=String(g.key||g.default||'').toLowerCase().replace(/[^a-z0-9-]/g,'-');
+    if(!key||seen.has(key)||key==='motion'||key==='others'||(!d&&!(g.match&&typeof g.match==='object')))return;seen.add(key);
+    GROUPS.push({key,def:d?g.default:null,jobSearch:!d&&g.match.jobSearch===true,label:String(g.label||(d&&d.label)||key),rule:String(g.rule||(d&&d.rule)||''),test:d?d.test:matcher(g.match),color:d?GROUP_COLORS[g.default]:CUSTOM_COLORS[ci++%CUSTOM_COLORS.length]})});
+  GL=Object.fromEntries(GROUPS.map(g=>[g.key,g.label]));GL.others='Everyone Else';GL.motion='In Motion';
+  TABKEYS=['motion',...GROUPS.map(g=>g.key),'others'];
+}
+const RULE_OTHERS='Everyone who fits no other group.';
+function classify(p){const hits=GROUPS.map(g=>[g,g.test(p)]).filter(x=>x[1]);p.home=hits.length?hits[0][0].key:'others';p.why=hits.length?hits[0][1]:'no group matched';p.tags=hits.slice(1).map(x=>x[0].key);return p}
+function assignGroups(){P.forEach(classify)}
+
+/* ---------- Board state: stage, star, notes, log, outcome. The upload's contacts are stored apart, under NET_KEY. ---------- */
+const STAGES=['Not Started','Up Next','Contacted','Active','Concluded','Archived'],LIVE=['Up Next','Contacted','Active'],TRACK=STAGES.slice(0,5);
+const LOGTYPES=['Email','Call','Meeting','Intro','Message','Note'];
+const BLANK={stage:'Not Started'};
+let S=null,HAS_NET=false;const KEY=BOARD_KEY;
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.v===1){
+  // Older boards used other names; carry them forward.
+  const RN={'Skipped':'Archived','Up next':'Up Next','Not started':'Not Started','No reply':'No Reply','Not now':'Not Now','LinkedIn message':'Message','LinkedIn Message':'Message'};
+  s.p=s.p||{};s.co=s.co||{};
+  Object.values(s.p).forEach(x=>{if(RN[x.stage])x.stage=RN[x.stage];if(RN[x.outcome])x.outcome=RN[x.outcome];(x.log||[]).forEach(e=>{if(RN[e.type])e.type=RN[e.type];e.text=String(e.text||'').replace(/^Moved to (.+)$/,(m,t)=>'Moved to '+(RN[t]||t))})});return s}}catch(e){}return null}
+const get=id=>S.p[id]||BLANK;
+const mut=id=>S.p[id]||(S.p[id]={stage:'Not Started'});
+let saveOk=true;
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(S));saveOk=localStorage.getItem(KEY)!==null}catch(e){saveOk=false}
+  const el=document.getElementById('saveState');
+  el.className=saveOk?'':'bad';
+  el.textContent=saveOk?'Saved in this browser':"Couldn't save. Recent changes will be lost when you close this page";
+  return saveOk;
+}
+function today(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtM=s=>{if(!s)return'Unknown';const[y,m]=s.split('-');return MON[+m-1]+' '+y};
+const fmtD=s=>{if(!s)return'';const[y,m,d]=s.split('-');return MON[+m-1]+' '+(+d)+', '+y};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const initials=p=>(((p.first||'?')[0]||'')+((p.last||'')[0]||'')).toUpperCase()||'?';
+const coMono=c=>c.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const avatar=(p,size)=>'<span class="av'+(size?' '+size:'')+' g-'+p.home+'" aria-hidden="true">'+initials(p)+'</span>';
+const ICON={
+  up:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  arch:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/></svg>',
+  tgt:'<svg class="tgt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>'
+};
+
+/* ---------- Reach-out-first order ---------- */
+const isTarget=p=>p.co.inSearch||!!S.co[p.co.slug];
+const helped=p=>get(p.id).outcome==='Helped';
+const WB={both:0,you:1,them:1,none:2};
+function cmp(a,b){const A=get(a.id),B=get(b.id);
+  return (B.star?1:0)-(A.star?1:0)||isTarget(b)-isTarget(a)||helped(b)-helped(a)||b.co.past-a.co.past||WB[a.dir]-WB[b.dir]||a.level-b.level||b.count-a.count||a.last.localeCompare(b.last)||a.first.localeCompare(b.first)}
+const warmth=p=>p.dir==='both'?'Exchanged '+p.count+' messages':p.dir==='you'?'One-way, you wrote':p.dir==='them'?'One-way, they wrote':(p.connected?'Connected '+p.connected.slice(0,4):'Connected');
+const grpTag=k=>'<span class="tag grp g-'+k+'">'+esc(GL[k])+'</span>';
+/* One reason tag (the strongest), the person's other groups as tags, then the rest as plain text. */
+function whyHtml(p,o){o=o||{};
+  let tag='';const parts=[];
+  if(!o.noCo&&p.co.inSearch)tag='<span class="tag">'+ICON.tgt+'In Your Search</span>';
+  else if(!o.noCo&&S.co[p.co.slug])tag='<span class="tag">'+ICON.tgt+'Starred Company</span>';
+  if(p.co.past&&!o.noCo){if(tag)parts.push('worked there');else tag='<span class="tag">Worked There</span>'}
+  if(helped(p)){if(tag)parts.push('helped before');else tag='<span class="tag help">Helped Before</span>'}
+  parts.unshift(warmth(p));
+  // A job-search group's tag would repeat the In Your Search tag, so rows leave it out; the panel lists it.
+  const ts=(p.tags||[]).filter(k=>!(p.co.inSearch&&!o.noCo&&GROUPS.some(g=>g.key===k&&g.jobSearch)));
+  const tags=ts.slice(0,2).map(grpTag).join('')+(ts.length>2?'<span class="tag">+'+(ts.length-2)+'</span>':'');
+  const n=p.co.people.length-1;const oth=n>=2&&!o.noOthers?'<span class="oth"> · '+n+' others there</span>':'';
+  return '<span class="why">'+tag+tags+'<span class="txt">'+esc(parts.join(' · '))+oth+'</span></span>';
+}
+
+/* Load the network: the user's upload when there is one. Before any upload the page is the upload panel. */
+function readNet(){try{const n=JSON.parse(localStorage.getItem(NET_KEY)||'null');return n&&n.v===1&&n.people&&n.people.length?n:null}catch(e){return null}}
+function initNetwork(){const net=readNet();resetNet();HAS_NET=!!net;
+  EXPORTED=net&&/^\d{4}-\d\d-\d\d$/.test(net.exported||'')?net.exported:'';EXPORT_LABEL=fmtD(EXPORTED);
+  if(net)buildFromNet(net);assignGroups();S=load()||{v:1,p:{},co:{}};
+}
+readConfig();initNetwork();
+
+/* ---------- Routing: every tab, person and company is a history step ---------- */
+function route(){const h=location.hash.replace(/^#\/?/,'').split('/');return{tab:TABKEYS.includes(h[0])?h[0]:null,kind:h[1]||null,id:h[2]?decodeURIComponent(h[2]):null}}
+let R0=route();
+function go(tab,kind,id,replace){const h='#/'+tab+(kind?'/'+kind+'/'+encodeURIComponent(id):'');
+  if(location.hash!==h){const st={panel:!!kind};(replace?history.replaceState:history.pushState).call(history,st,'',h)}render()}
+window.addEventListener('popstate',render);
+
+/* ---------- UI state ---------- */
+const F={search:false,talked:false,closed:false};
+const STAGE_HELP={'Not Started':'Not on your board yet.','Up Next':'You plan to reach out.','Contacted':'Waiting to hear back.','Active':"You're talking.",'Concluded':'Finished.','Archived':'Off the list. Restore any time.'};
+const NEXT={'Not Started':['Up Next','Up Next'],'Up Next':['Contacted','Mark Contacted'],'Contacted':['Active','Mark Active'],'Active':['Concluded','Conclude'],'Concluded':['Active','Reopen'],'Archived':['Not Started','Restore']};
+const TIPS_KEY='bishop_outreach_tips';let TIPS={};try{TIPS=JSON.parse(localStorage.getItem(TIPS_KEY)||'{}')||{}}catch(e){}
+const VIEW_KEY='bishop_outreach_view';let VIEW='people';try{VIEW=localStorage.getItem(VIEW_KEY)==='company'?'company':'people'}catch(e){}
+let LIMIT=150,sel=new Set(),lastChecked=null,listIds=[],editLog=null,focusAfter=null,openerId=null,undoStack=[];
+let FOPEN=false,SELMODE=false,MSHOW=null,LOGTYPE='Email',LOGDATE=null,prevLive=null;const EXPANDED=new Set();
+const $=id=>document.getElementById(id);
+const phone=()=>matchMedia('(max-width:720px)').matches;
+const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+function livePeople(){return P.filter(p=>LIVE.includes(get(p.id).stage))}
+
+/* ---------- Render ---------- */
+function setTopH(){const top=$('top');document.documentElement.style.setProperty('--top-h',top.offsetHeight+'px');top.style.setProperty('--hd-h',$('hd').offsetHeight+'px')}
+window.addEventListener('resize',()=>{setTopH();render()});
+function render(){
+  R0=route();
+  if(!R0.tab){const t=livePeople().length?'motion':TABKEYS[1];history.replaceState({},'','#/'+t);R0=route()}
+  $('brand').setAttribute('href','#/'+TABKEYS[1]);
+  $('ftCount').textContent=HAS_NET?' · '+P.length.toLocaleString()+' people · LinkedIn export, '+EXPORT_LABEL:'';
+  document.body.classList.toggle('selecting',sel.size>0||SELMODE);
+  $('q').disabled=!HAS_NET;
+  const m=$('main');
+  // Before any export, the upload panel is the page: no tabs, no lists.
+  if(!HAS_NET){$('tabs').innerHTML='';$('tabs').hidden=true;if(R0.kind&&R0.kind!=='h'){history.replaceState({},'','#/'+R0.tab);R0=route()}
+    m.innerHTML=welcomeView();renderPanel();renderBulk();setTopH();return}
+  $('tabs').hidden=false;
+  renderTabs();
+  m.innerHTML=R0.tab==='motion'?motionView():groupView(R0.tab);
+  renderPanel();renderBulk();setTopH();
+  if(focusAfter!=null){const rows=[...m.querySelectorAll('.row')];const r=rows[Math.min(focusAfter,rows.length-1)];if(r){r.querySelector('.who').focus()}focusAfter=null}
+}
+function renderTabs(){
+  const live=livePeople().length;
+  const n=k=>k==='motion'?live:P.filter(p=>p.home===k&&get(p.id).stage==='Not Started').length;
+  const a=k=>'<a href="#/'+k+'"'+(k==='motion'?' class="motion"':'')+(R0.tab===k?' aria-current="page"':'')+'>'+(k==='motion'?'<span class="dot" aria-hidden="true"></span>':'')+esc(GL[k])+'<span class="c">'+n(k).toLocaleString()+'</span></a>';
+  const keys=[...GROUPS.map(g=>g.key),'others'];
+  $('tabs').innerHTML=a('motion')+'<span class="sep"></span>'+keys.map(a).join('')+
+    '<label class="sr" for="gsel">Group</label><select id="gsel" class="gsel">'+(R0.tab==='motion'?'<option value="" selected>Choose a Group</option>':'')+keys.map(k=>'<option value="'+k+'"'+(R0.tab===k?' selected':'')+'>'+esc(GL[k])+' ('+n(k)+')</option>').join('')+'</select>';
+  // The In Motion badge pulses when someone joins.
+  if(prevLive!=null&&live>prevLive&&!reduced()){const c=document.querySelector('.tabs a.motion .c');c.classList.add('pulse')}
+  prevLive=live;
+}
+function visibleIn(k){
+  return P.filter(p=>{if(p.home!==k)return false;const s=get(p.id).stage;if(LIVE.includes(s))return false;
+    if(!F.closed&&(s==='Archived'||s==='Concluded'))return false;if(F.search&&!isTarget(p))return false;if(F.talked&&p.dir!=='both')return false;return true}).sort(cmp)}
+function groupView(k){
+  const g=GROUPS.find(x=>x.key===k);
+  const vis=visibleIn(k);
+  const live=P.filter(p=>p.home===k&&LIVE.includes(get(p.id).stage)).length;
+  const chip=(f,l)=>'<button class="chipf" data-f="'+f+'" aria-pressed="'+F[f]+'">'+l+'</button>';
+  const byCo=VIEW==='company';
+  const seg='<div class="seg" role="group" aria-label="View this group by"><span>View By</span><button data-act="view" data-to="people" aria-pressed="'+!byCo+'">People</button><button data-act="view" data-to="company" aria-pressed="'+byCo+'">Company</button></div>';
+  const sortnote='<details class="about"><summary aria-label="How this list is sorted">ⓘ</summary><div class="pop"><p><b>Sorted by</b></p><ol><li>Starred</li><li>At a company in your search or starred</li><li>Helped you before</li>'+(PAST.size?'<li>At a company you worked for</li>':'')+'<li>Exchanged messages, then one-way, then connected only</li><li>Seniority, then message count</li></ol>'+(byCo?'<p style="margin-top:6px">Companies in your search or starred come first, then the biggest.</p>':'')+'</div></details>';
+  const tools='<div class="tools'+(FOPEN?' open':'')+'">'+(SEARCH.size?chip('search','In Your Search'):'')+chip('talked','Exchanged Messages')+chip('closed','Show Archived')+'<span class="sp"></span>'+seg+'</div>';
+  const filtered=F.search||F.talked||F.closed;
+  const head='<div class="ph g-'+k+'"><h1 class="sr">'+esc(GL[k])+'</h1><p class="lede">'+esc(g?g.rule:RULE_OTHERS)+'</p>'+(filtered?'<span class="cnt"><b>'+vis.length.toLocaleString()+'</b> match</span>':'')+sortnote+(live?'<a class="inmo" href="#/motion">'+live+' in motion</a>':'')+'<div class="mtools"><button class="btn" data-act="ftoggle" aria-expanded="'+FOPEN+'">Filters'+(F.search||F.talked||F.closed?' ·':'')+'</button><button class="btn" data-act="seltoggle" aria-pressed="'+SELMODE+'">'+(SELMODE?'Done':'Select')+'</button></div>'+tools+'</div>'+
+    tipHtml('group','Work Down the List',['Best matches are at the top. <b>Up Next</b> moves someone to <a href="#/motion">In Motion</a>.','<b>Archive</b> clears them away. <b>★</b> keeps them on top.'])+
+    '';
+  if(byCo)return head+companiesView(k,vis);
+  listIds=vis.map(p=>p.id);
+  const shown=vis.slice(0,LIMIT);
+  const allSel=shown.length&&shown.every(p=>sel.has(p.id));
+  return head+
+    (vis.length?'<ul class="list" aria-label="'+esc(GL[k])+', ranked">'+
+      '<li class="lhead"><input type="checkbox" class="ck" data-act="selall"'+(allSel?' checked':'')+' aria-label="Select all '+shown.length+' shown"><span></span><span>Person</span><span class="h-co">Company</span><span>Why They Rank Here</span><span></span></li>'+
+      shown.map(p=>rowHtml(p)).join('')+'</ul>'+(vis.length>LIMIT?'<button class="btn more" data-act="more">Show '+Math.min(150,vis.length-LIMIT)+' More</button>':'')
+      :'<div class="empty">'+(F.search||F.talked?'Nobody here matches those filters.':'Everyone in this group is sorted.')+'</div>');
+}
+function rowHtml(p,o){
+  const s=get(p.id);const on=sel.has(p.id);
+  const act=s.stage==='Not Started'
+    ?'<button class="btn quiet ic-only" data-act="skip" aria-label="Archive '+esc(p.name)+'">'+ICON.arch+'<span class="lbl">Archive</span></button><button class="btn go ic-only" data-act="up" aria-label="Up Next: add '+esc(p.name)+' to In Motion">'+ICON.up+'<span class="lbl">Up Next</span></button>'
+    :'<span class="stp">'+esc(s.stage)+(s.outcome?' · '+esc(s.outcome):'')+'</span><button class="btn quiet" data-act="restore">Restore</button>';
+  return '<li class="row'+(on?' selected':'')+'" data-id="'+p.id+'">'+
+    '<input type="checkbox" class="ck" data-act="sel" aria-label="Select '+esc(p.name)+'"'+(on?' checked':'')+'>'+
+    avatar(p)+
+    '<div class="nmline"><button class="who" data-act="open"><span class="nm">'+esc(p.name)+'</span><span class="sub">'+esc(p.title)+'<span class="co-in"> · '+esc(p.co.name)+'</span></span></button>'+
+    '<button class="starb" data-act="star" aria-pressed="'+!!s.star+'" aria-label="Star '+esc(p.name)+'">'+(s.star?'★':'☆')+'</button></div>'+
+    '<span class="coc">'+esc(p.co.name)+'</span>'+
+    whyHtml(p,o)+'<span class="act">'+act+'</span></li>';
+}
+function motionView(){
+  const live=livePeople().sort((a,b)=>a.last.localeCompare(b.last));
+  const done=P.filter(p=>get(p.id).stage==='Concluded').sort((a,b)=>a.last.localeCompare(b.last));
+  const cols=[...LIVE,'Concluded'];
+  const by=st=>st==='Concluded'?done:live.filter(p=>get(p.id).stage===st);
+  if(!MSHOW||!by(MSHOW).length&&cols.some(c=>by(c).length))MSHOW=cols.find(c=>by(c).length)||'Up Next';
+  listIds=cols.flatMap(c=>by(c).map(p=>p.id));
+  const hint={'Up Next':'Press Up Next in any group.','Contacted':'Drag a card here.','Active':'Drag a card here.','Concluded':'Finished conversations land here.'};
+  const html=cols.map(st=>{const ps=by(st);
+    return '<section class="col'+(st==='Concluded'?' done':'')+(st===MSHOW?' show':'')+'" data-stage="'+st+'" aria-label="'+st+'"><h2>'+st+'<span>'+ps.length+'</span></h2><p class="colsub">'+esc(STAGE_HELP[st])+'</p>'+
+      (ps.map(cardHtml).join('')||'<div class="colhint">'+hint[st]+'</div>')+'</section>'}).join('');
+  return '<div class="ph motion"><h1 class="sr">In Motion</h1><p class="lede">Everyone you\'re reaching out to.</p></div>'+
+    tipHtml('motion','Everyone You Picked Waits Here',['Move a card to <b>Contacted</b> when you reach out, <b>Active</b> when you\'re talking.','<b>Conclude</b> when it\'s done.'])+
+    '<div class="seg mseg" role="group" aria-label="Stage">'+cols.map(c=>'<button data-act="mshow" data-to="'+c+'" aria-pressed="'+(c===MSHOW)+'">'+(c==='Concluded'?'Done':c)+' <span class="num">'+by(c).length+'</span></button>').join('')+'</div>'+
+    (live.length||done.length?'<div class="board">'+html+'</div>':'<div class="empty">Nothing in motion yet. Press Up Next on anyone in a group.</div>');
+}
+function cardHtml(p){
+  const s=get(p.id),done=s.stage==='Concluded',i=LIVE.indexOf(s.stage);
+  const prev=i>0?LIVE[i-1]:null,next=i<LIVE.length-1?LIVE[i+1]:'Concluded';
+  const last=(s.log||[]).filter(e=>e.type!=='Stage').sort((a,b)=>a.date<b.date?1:-1)[0];
+  return '<article class="card" draggable="'+!done+'" data-id="'+p.id+'">'+
+    '<div class="top2">'+avatar(p,'sm')+'<button class="who" data-act="open"><span class="nm">'+(s.star?'<span style="color:var(--accent)">★</span> ':'')+esc(p.name)+'</span><span class="sub">'+esc(p.title)+' · '+esc(p.co.name)+'</span></button></div>'+
+    (last?'<p class="last"><b>'+esc(last.type)+'</b> · '+esc(last.text)+'</p>':'')+
+    '<div class="cfoot"><div class="meta">'+(done?(s.outcome?'<span class="tag'+(s.outcome==='Helped'?' help':'')+'">'+esc(s.outcome)+'</span>':'<span class="tag">No Outcome Yet</span>'):'<span class="tag grp g-'+p.home+'">'+esc(GL[p.home])+'</span>')+'</div>'+
+    '<div class="mv">'+(done?'<span class="sp"></span><button class="btn" data-act="reopen">Reopen</button>':
+      (prev?'<button class="btn" data-act="mv" data-to="'+prev+'" aria-label="Move '+esc(p.name)+' back to '+prev+'">←</button>':'')+
+      '<button class="btn" data-act="log">Note It</button><span class="sp"></span>'+
+      '<button class="btn" data-act="mv" data-to="'+next+'" aria-label="Move '+esc(p.name)+' to '+next+'">'+(next==='Concluded'?'Conclude':'→')+'</button>')+'</div></div></article>';
+}
+/* The same people as the group list, grouped by where they work. */
+function companiesView(k,vis){
+  const by={};vis.forEach(p=>{(by[p.co.slug]=by[p.co.slug]||{c:p.co,ps:[]}).ps.push(p)});
+  const tgt=c=>(c.inSearch||S.co[c.slug])?1:0;
+  const cs=Object.values(by).sort((a,b)=>tgt(b.c)-tgt(a.c)||b.ps.length-a.ps.length||a.c.name.localeCompare(b.c.name));
+  listIds=[];
+  if(!cs.length)return '<div class="empty">'+(F.search||F.talked?'Nobody here matches those filters.':'Everyone in this group is sorted.')+'</div>';
+  return cs.slice(0,Math.ceil(LIMIT/3)).map(({c,ps})=>{
+    const st=!!S.co[c.slug],open=ps.filter(p=>get(p.id).stage==='Not Started'),exp=EXPANDED.has(c.slug),show=exp?ps:ps.slice(0,3);
+    listIds.push(...show.map(p=>p.id));
+    const tag=(c.inSearch?'<span class="tag">'+ICON.tgt+'In Your Search</span>':st?'<span class="tag">'+ICON.tgt+'Starred Company</span>':c.search?'<span class="tag">Search Firm</span>':'')+(c.past?'<span class="tag">Worked There</span>':'');
+    return '<section class="coblk" data-co="'+c.slug+'"><div class="cohead"><span class="mono" aria-hidden="true">'+coMono(c)+'</span><button class="who" data-act="opencompany">'+esc(c.name)+'</button>'+tag+
+      '<span class="cnt2">'+ps.length+' here</span><button class="starb" data-act="costar" aria-pressed="'+st+'" aria-label="Star '+esc(c.name)+'">'+(st?'★':'☆')+'</button>'+
+      (open.length?'<details class="menu"><summary aria-label="More for '+esc(c.name)+'">⋯</summary><div class="mpop"><button data-act="coskipgrp" data-ids="'+open.map(p=>p.id).join(',')+'">Archive '+(open.length===1?'1 Person':'All '+open.length)+'</button><button data-act="opencompany">Open Company</button></div></details>':'')+
+      '</div><ul class="list">'+show.map(p=>rowHtml(p,{noCo:true,noOthers:true})).join('')+'</ul>'+
+      (ps.length>3?'<button class="linkish morep" data-act="coexpand" data-co="'+c.slug+'">'+(exp?'Show Fewer':'+'+(ps.length-3)+' More')+'</button>':'')+'</section>'}).join('')+
+    (cs.length>Math.ceil(LIMIT/3)?'<button class="btn more" data-act="more">Show More Companies</button>':'');
+}
+
+/* ---------- Panel ---------- */
+function renderPanel(){
+  const pn=$('panel'),sc=$('scrim');
+  if(!R0.kind){if(!pn.hidden){pn.hidden=true;sc.hidden=true;const o=openerId&&document.querySelector('[data-id="'+openerId+'"] .who, [data-co="'+openerId+'"] .who');if(o)o.focus()}return}
+  const wasHidden=pn.hidden;pn.hidden=false;sc.hidden=false;
+  const same=pn.dataset.key===location.hash;const keepScroll=same?(pn.querySelector('.pn-body')?.scrollTop||0):0;pn.dataset.key=location.hash;
+  pn.innerHTML=R0.kind==='h'?helpPanel():R0.kind==='u'?uploadPanel():R0.kind==='p'&&PI[R0.id]?personPanel(PI[R0.id]):R0.kind==='c'?companyPanel(COS.find(c=>c.slug===R0.id)):'<div class="pn-body">Not found.</div>';
+  const b=pn.querySelector('.pn-body');if(b)b.scrollTop=wasHidden?0:keepScroll;
+  if(wasHidden){pn.querySelector('h2')?.focus()}
+}
+function pnTop(idx,total){
+  return '<div class="pn-top"><span class="pos">'+(idx>=0?(idx+1)+' of '+total.toLocaleString():'')+'</span>'+
+    (idx>=0?'<button class="icon" data-act="prev" aria-label="Previous person">↑</button><button class="icon" data-act="next" aria-label="Next person">↓</button>':'')+
+    '<button class="icon" data-act="close" aria-label="Close (Esc)">✕</button></div>';
+}
+function personPanel(p){
+  const s=get(p.id),idx=listIds.indexOf(p.id);if(idx>=0)panelIdx=idx;
+  const others=p.co.people.length-1;
+  const msgs=p.dir==='both'?p.count+', both ways':p.dir==='you'?p.count+', you only':p.dir==='them'?p.count+', them only':'None';
+  const log=(s.log||[]).slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+  const si=TRACK.indexOf(s.stage),nx=NEXT[s.stage];
+  return pnTop(idx,listIds.length)+'<div class="pn-body">'+
+    '<div class="ident">'+avatar(p,'lg')+'<div><h2 id="pnTitle" tabindex="-1">'+esc(p.name)+'</h2><div class="sub">'+esc(p.title)+' · <button class="linkish" data-act="opencompany" data-co="'+p.co.slug+'">'+esc(p.co.name)+'</button></div></div>'+
+      '<div class="acts">'+(p.url?'<a class="btn" href="'+esc(p.url)+'" target="_blank" rel="noopener" data-act="linkedin">Open in LinkedIn ↗</a>':'')+'<button class="btn" data-act="pstar" aria-pressed="'+!!s.star+'">'+(s.star?'★ Starred':'☆ Star')+'</button></div></div>'+
+    '<p class="whyline" id="whyHere"><b>Why here:</b> '+esc(GL[p.home])+', '+esc(p.why)+(p.co.past?' · You worked there':'')+(p.tags.length?' · Also in '+p.tags.map(grpTag).join(' '):'')+'</p>'+
+    '<div class="sec"><h3>Stage</h3><div class="track" role="group" aria-label="Stage">'+
+      TRACK.map((x,i)=>'<button data-act="stage" data-to="'+x+'" class="'+(si>i?'past':'')+'" aria-pressed="'+(s.stage===x)+'">'+x+'</button>').join('')+'</div>'+
+      '<div class="stnote"><span>'+esc(STAGE_HELP[s.stage])+(LIVE.includes(s.stage)?' Shows in In Motion.':s.stage==='Not Started'?' Up Next adds them to In Motion.':'')+'</span>'+
+      (s.stage==='Archived'?'':'<button class="linkish" data-act="stage" data-to="Archived">Archive</button>')+'</div>'+
+      (s.stage==='Concluded'?'<div class="outc" role="group" aria-label="Outcome"><span>How did it end?</span>'+['Helped','No Reply','Not Now'].map(o=>'<button class="btn'+(s.outcome===o?' primary':'')+'" data-act="outcome" data-to="'+o+'" aria-pressed="'+(s.outcome===o)+'">'+o+'</button>').join('')+'</div>':'')+'</div>'+
+    '<div class="sec"><h3>How You Know Them <small>As of '+EXPORT_LABEL+'</small></h3><div class="facts">'+
+      '<div class="fact"><span>Connected</span><b>'+fmtM(p.connected)+'</b></div>'+
+      '<div class="fact"><span>Messages</span><b>'+msgs+'</b></div>'+
+      '<div class="fact"><span>Last Message</span><b>'+(p.lm?fmtD(p.lm):'None')+'</b></div>'+
+      '<div class="fact"><span>Others There</span><b>'+(others?'<button class="linkish" data-act="opencompany" data-co="'+p.co.slug+'">'+others+(p.co.inSearch?', in your search':'')+'</button>':'None')+'</b></div></div></div>'+
+    '<div class="sec"><h3><label for="notes">Notes</label><span class="saved" id="notesSaved">Saved</span></h3><textarea id="notes" data-id="'+p.id+'" placeholder="How you know them, what they care about, what they offered.">'+esc(s.notes||'')+'</textarea></div>'+
+    '<div class="sec composer"><h3><label for="lgText">Log</label></h3>'+
+      '<input type="text" id="lgText" placeholder="What happened?">'+
+      '<div class="typechips" role="group" aria-label="Type">'+LOGTYPES.map(t=>'<button data-act="ltype" data-to="'+t+'" aria-pressed="'+(LOGTYPE===t)+'">'+t+'</button>').join('')+'</div>'+
+      '<div class="crow"><span class="when">'+(LOGDATE===null?'Today <button class="linkish" data-act="ldate">Change Date</button>':'<input type="date" id="lgDate" value="'+(LOGDATE||today())+'" aria-label="Date">')+'</span><button class="btn" data-act="logadd">Add to Log</button></div>'+
+      '<ul class="lg">'+(log.map(e=>editLog===e.id?logEditHtml(e):'<li class="'+(e.type==='Stage'?'auto':'')+'"><span class="d">'+fmtD(e.date)+' · '+esc(e.type)+'</span>'+
+        (e.type==='Stage'?'<span></span>':'<span class="x"><button data-act="logedit" data-lg="'+e.id+'">Edit</button><button data-act="logdel" data-lg="'+e.id+'">Delete</button></span>')+'<span>'+esc(e.text)+'</span></li>').join('')||'<li class="auto"><span>Nothing logged yet.</span></li>')+'</ul></div>'+
+  '</div>'+
+  '<div class="pn-foot"><button class="btn primary" data-act="stage" data-to="'+nx[0]+'">'+nx[1]+'</button>'+(LIVE.includes(s.stage)?'<button class="btn" data-act="focuslog">Note It</button>':'')+'</div>';
+}
+const howto=last=>'<ol class="howto"><li>On LinkedIn, click <b>Me</b> (your photo at the top).</li><li>Click <b>Settings &amp; Privacy</b>, then <b>Data privacy</b>.</li>'+
+  '<li>Click <b>Get a copy of your data</b> and choose to pick specific data.</li><li>Tick <b>Connections</b> and <b>Messages</b>, then click <b>Request archive</b>.</li>'+
+  '<li>LinkedIn emails you, usually within a day. Download the file.</li><li>'+last+'</li></ol>'+
+  '<p class="note">LinkedIn moves its menus now and then. If yours look different, ask Bishop.</p>';
+const nearTop=()=>{const r=['starred'];if(SEARCH.size)r.push('at a company in your search');r.push('helped before');if(PAST.size)r.push('at a company you worked for');r.push('exchanged messages');return r.slice(0,-1).join(', ')+', or '+r[r.length-1]};
+function helpPanel(){
+  return pnTop(-1,0)+'<div class="pn-body help"><h2 id="pnTitle" tabindex="-1">How This Board Works</h2>'+
+    '<p>Your connections, sorted by who to reach out to first.</p>'+
+    '<ol class="steps">'+
+      '<li><div><b>Pick People</b>Open a group and work down the list. Best matches are at the top. Press Up Next for anyone you want to reach, Archive for the rest.</div></li>'+
+      '<li><div><b>Reach Out</b>Your picks wait in In Motion. Send your message and move the card to Contacted, then to Active once you\'re talking.</div></li>'+
+      '<li><div><b>Wrap Up</b>Press Conclude and say how it went. People who helped rank higher next time.</div></li>'+
+    '</ol>'+
+    '<div class="sec"><h3>Good to Know</h3><ul class="good">'+
+      '<li><b>Nothing moves on its own.</b></li>'+
+      '<li><b>Near the top:</b> '+nearTop()+'.</li>'+
+      '<li><b>Archived isn\'t gone.</b> Show Archived brings them back.</li>'+
+      '<li><b>Log calls, emails and coffees.</b> LinkedIn messages count themselves.</li>'+
+      '<li><b>Private.</b> Saved in this browser, and nothing leaves this page. Clearing the browser data clears the board and your contacts.</li>'+
+    '</ul></div>'+
+    '<div class="sec"><h3>Get a Fresh LinkedIn Export</h3>'+
+      '<p>A new export updates titles and message counts. Your notes and stages stay.</p>'+
+      howto('Press <b>Upload Export</b> at the top of this board and choose the file.')+'<p><button class="btn" data-act="upload">Upload Export</button></p></div>'+
+    '<p style="margin-top:18px"><button class="linkish" data-act="tipsreset">Show Tips Again</button></p></div>';
+}
+function tipHtml(key,title,items){
+  if(TIPS[key])return '';
+  return '<aside class="tip" aria-label="'+esc(title)+'"><div><b>'+esc(title)+'</b><ul>'+items.map(i=>'<li>'+i+'</li>').join('')+'</ul></div>'+
+    '<div class="tip-x"><button class="btn" data-act="tipok" data-tip="'+key+'">Got It</button><button class="linkish" data-act="help">How This Board Works</button></div></aside>';
+}
+function logEditHtml(e){return '<li><div class="lg-edit"><input type="date" id="leDate" value="'+e.date+'" aria-label="Date"><select id="leType" aria-label="Type">'+LOGTYPES.map(t=>'<option'+(t===e.type?' selected':'')+'>'+t+'</option>').join('')+'</select><input type="text" id="leText" value="'+esc(e.text)+'" aria-label="What happened"><div class="row2"><button class="btn quiet" data-act="logcancel">Cancel</button><button class="btn primary" data-act="logsave" data-lg="'+e.id+'">Save</button></div></div></li>'}
+function companyPanel(c){
+  if(!c)return '<div class="pn-body">Not found.</div>';
+  const st=!!S.co[c.slug];const ps=c.people.slice().sort(cmp);const open=ps.filter(p=>get(p.id).stage==='Not Started');
+  listIds=ps.map(p=>p.id);
+  return pnTop(-1,0)+'<div class="pn-body"><div class="ident"><span class="mono lg" aria-hidden="true">'+coMono(c)+'</span><div><h2 id="pnTitle" tabindex="-1">'+esc(c.name)+'</h2>'+
+    '<div class="sub">'+ps.length+' '+(ps.length===1?'person':'people')+' you know'+(c.inSearch?' · in your search':'')+(c.past?' · you worked there':'')+(c.search?' · search firm':'')+'</div></div>'+
+    '<div class="acts"><button class="btn" data-act="costar" data-co="'+c.slug+'" aria-pressed="'+st+'">'+(st?'★ Starred':'☆ Star Company')+'</button>'+
+    (open.length?'<button class="btn" data-act="coskipgrp" data-ids="'+open.map(p=>p.id).join(',')+'">Archive '+(open.length===1?'1 Person':'All '+open.length)+'</button>':'')+'</div></div>'+
+    '<div class="sec"><h3>Reach Out First</h3><ul class="list">'+ps.map(p=>rowHtml(p,{noCo:true,noOthers:true})).join('')+'</ul></div></div>';
+}
+
+/* ---------- Bulk bar, toast, undo ---------- */
+function renderBulk(){const b=$('bulk');if(!sel.size){b.hidden=true;return}b.hidden=false;
+  b.innerHTML='<span><b>'+sel.size+'</b> selected</span><button class="btn primary" data-act="bulkup">Up Next</button><button class="btn" data-act="bulkskip">Archive</button><button class="btn quiet" data-act="bulkclear" style="color:var(--hd-dim)">Clear</button>'}
+let toastT;
+function toast(msg,canUndo,link){const t=$('toast');t.innerHTML='<span>'+esc(msg)+'</span>'+(link?'<a href="'+link[1]+'">'+esc(link[0])+'</a>':'')+(canUndo?'<button data-act="undo">Undo</button>':'');t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),5000)}
+function snapshot(ids){return ids.map(id=>({id,prev:S.p[id]?JSON.parse(JSON.stringify(S.p[id])):null}))}
+function pushUndo(snap,label){undoStack.push({snap,label});if(undoStack.length>30)undoStack.shift()}
+function undo(){const u=undoStack.pop();if(!u){toast('Nothing to undo');return}u.snap.forEach(({id,prev})=>{if(prev)S.p[id]=prev;else delete S.p[id]});save();render();
+  const r=document.querySelector('main .row[data-id="'+u.snap[0].id+'"] .who');if(r&&!R0.kind)r.focus();toast('Undid: '+u.label,false)}
+function setStage(ids,to,label){
+  const snap=snapshot(ids);
+  ids.forEach(id=>{const s=mut(id);if(s.stage===to)return;s.stage=to;if(to!=='Concluded')delete s.outcome;(s.log=s.log||[]).unshift({id:uid(),date:today(),type:'Stage',text:'Moved to '+to})});
+  pushUndo(snap,label);save();
+  toast(label,true,to==='Up Next'&&R0.tab!=='motion'?['View In Motion','#/motion']:null);
+}
+/* A row collapses on its way out, so the eye sees where it went. */
+function leave(row,done){
+  if(!row||reduced()){done();return}
+  row.style.height=row.offsetHeight+'px';row.getBoundingClientRect();
+  row.classList.add('leaving');row.style.height='0px';setTimeout(done,160);
+}
+
+/* ---------- LinkedIn export: read in this browser, never sent anywhere ---------- */
+/* Keeps names, titles, companies, profile links, connect dates and message counts. Message text and emails are never kept. */
+let PENDING=null,UPLERR='',UPLBUSY=false;
+function parseCSV(t){const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;else if(c===','){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f=''}
+    else f+=c}
+  if(f||row.length){row.push(f);rows.push(row)}return rows}
+/* Rows as objects, keyed by the header line that starts with `first`. LinkedIn puts notes above it. */
+function table(text,first){const rows=parseCSV(text.replace(/^﻿/,''));const h=rows.findIndex(r=>(r[0]||'').trim().toLowerCase()===first);if(h<0)return null;
+  const keys=rows[h].map(k=>k.trim().toLowerCase());return rows.slice(h+1).filter(r=>r.some(x=>x.trim())).map(r=>Object.fromEntries(keys.map((k,i)=>[k,(r[i]||'').trim()])))}
+const urlKey=u=>{const m=String(u||'').toLowerCase().match(/linkedin\.com\/in\/([^/?#\s]+)/);if(!m)return'';try{return decodeURIComponent(m[1])}catch(e){return m[1]}};
+const MI={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+const connDate=s=>{const m=String(s||'').match(/(\d{1,2})\s+([A-Za-z]{3})\w*\s+(\d{4})/);return m&&MI[m[2].toLowerCase()]!=null?m[3]+'-'+String(MI[m[2].toLowerCase()]+1).padStart(2,'0')+'-'+m[1].padStart(2,'0'):''};
+/* Unzip without a library: walk the central directory, inflate with the browser's own DecompressionStream. */
+async function unzip(buf,want){const v=new DataView(buf),out={};let e=-1;
+  for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-65557);i--)if(v.getUint32(i,true)===0x06054b50){e=i;break}
+  if(e<0)throw new Error('That file is not a zip.');
+  let o=v.getUint32(e+16,true);const n=v.getUint16(e+10,true);const dec=new TextDecoder();
+  for(let k=0;k<n&&v.getUint32(o,true)===0x02014b50;k++){
+    const meth=v.getUint16(o+10,true),csz=v.getUint32(o+20,true),nl=v.getUint16(o+28,true),xl=v.getUint16(o+30,true),cl=v.getUint16(o+32,true),lo=v.getUint32(o+42,true);
+    const name=dec.decode(new Uint8Array(buf,o+46,nl));o+=46+nl+xl+cl;
+    const base=name.split('/').pop().toLowerCase();if(!want.includes(base)||out[base])continue;
+    const start=lo+30+v.getUint16(lo+26,true)+v.getUint16(lo+28,true);const raw=new Uint8Array(buf,start,csz);
+    if(meth===0)out[base]=dec.decode(raw);
+    else if(meth===8)out[base]=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+  }
+  return out}
+async function readExport(files){
+  const want=['connections.csv','messages.csv'];const got={};let dated='';
+  for(const f of files){const nm=f.name.toLowerCase();
+    if(nm.endsWith('.zip')){Object.assign(got,await unzip(await f.arrayBuffer(),want));const m=f.name.match(/(\d{2})-(\d{2})-(\d{4})/);if(m)dated=m[3]+'-'+m[1]+'-'+m[2]}
+    else if(want.includes(nm))got[nm]=await f.text();
+    if(!dated&&f.lastModified)dated=today(new Date(f.lastModified))}
+  if(!got['connections.csv'])throw new Error('No Connections.csv in that file. Pick the zip LinkedIn emailed you.');
+  const conns=table(got['connections.csv'],'first name');if(!conns||!conns.length)throw new Error('Connections.csv has no connections in it.');
+  // Messages: count each one-to-one thread's messages per person. The text itself is skipped.
+  const tally={};let hasMsgs=false;
+  const msgs=got['messages.csv']?table(got['messages.csv'],'conversation id'):null;
+  if(msgs&&msgs.length){hasMsgs=true;
+    const split=s=>(s||'').split(/[,\s]+/).map(urlKey).filter(Boolean);
+    const seen={};msgs.forEach(m=>{[urlKey(m['sender profile url']),...split(m['recipient profile urls'])].filter(Boolean).forEach(k=>seen[k]=(seen[k]||0)+1)});
+    const me=Object.keys(seen).sort((a,b)=>seen[b]-seen[a])[0];
+    msgs.forEach(m=>{if(/spam/i.test(m.folder||'')||/^(yes|true)$/i.test(m['is message draft']||''))return;
+      const from=urlKey(m['sender profile url']);const to=split(m['recipient profile urls']).filter(k=>k!==me);
+      const other=from===me?(to.length===1?to[0]:''):(to.length===0?from:'');if(!other)return;
+      const t=tally[other]||(tally[other]={me:0,them:0,fm:'',lm:''});if(from===me)t.me++;else t.them++;
+      const d=(m.date||'').slice(0,10);if(/^\d{4}-\d\d-\d\d$/.test(d)){if(!t.fm||d<t.fm)t.fm=d;if(!t.lm||d>t.lm)t.lm=d}})}
+  const ids={};
+  const people=conns.map(c=>{const k=urlKey(c.url);let id=k?(slug(k)||'p'):'x-'+slug((c['first name']||'')+'-'+(c['last name']||'')+'-'+(c.company||''));
+    if(ids[id])id+='-'+(++ids[id]);else ids[id]=1;const t=tally[k];
+    const o={id,first:c['first name'],last:c['last name'],title:c.position,company:c.company,url:c.url,connected:connDate(c['connected on'])};
+    if(t){o.dir=t.me&&t.them?'both':t.me?'you':'them';o.count=t.me+t.them;o.fm=t.fm||null;o.lm=t.lm||null}return o});
+  return {v:1,exported:dated||today(),loaded:today(),hasMsgs,people}}
+async function takeFiles(files){if(!files||!files.length)return;UPLBUSY=true;UPLERR='';PENDING=null;render();
+  try{PENDING=await readExport([...files])}catch(err){UPLERR=err.message||'Could not read that file.'}UPLBUSY=false;render()}
+/* The upload panel's counts use the same groups the board does, on a throwaway copy of the export. */
+function previewGroups(net){const n={},keep=EXPORTED,cos={};EXPORTED=/^\d{4}-\d\d-\d\d$/.test(net.exported||'')?net.exported:'';
+  try{net.people.forEach(o=>{const k=normCo(o.company)||'(none)';const p=classify(personOf(o,cos[k]||(cos[k]=companyOf(o.company))));n[p.home]=(n[p.home]||0)+1})}finally{EXPORTED=keep}return n}
+/* A re-upload replaces the contacts and keeps the board: stages, stars, notes and logs stay with everyone
+   still in the network, matched by their LinkedIn profile link. */
+function useExport(){const net=PENDING;if(!net)return;const first=!HAS_NET;
+  try{localStorage.setItem(NET_KEY,JSON.stringify(net))}catch(err){UPLERR="This browser is out of room, so the export wasn't kept.";PENDING=null;render();return}
+  PENDING=null;sel.clear();undoStack.length=0;LIMIT=150;initNetwork();
+  history.replaceState({},'','#/'+TABKEYS[1]);render();
+  toast(net.people.length.toLocaleString()+' people loaded'+(first?'':'. Your stages and notes stayed'))}
+function removeExport(){try{localStorage.removeItem(NET_KEY);localStorage.removeItem(BOARD_KEY)}catch(err){}
+  PENDING=null;sel.clear();undoStack.length=0;LIMIT=150;initNetwork();history.replaceState({},'','#/'+TABKEYS[1]);render();toast('Export removed from this browser')}
+function uploadBody(){
+  if(PENDING){const n=previewGroups(PENDING);const both=PENDING.people.filter(o=>o.dir==='both').length;const warmG=GROUPS.find(g=>g.def==='warm');
+    return '<div class="sec"><h3>Ready to Load <small>Exported '+fmtD(PENDING.exported)+'</small></h3><div class="facts">'+
+      '<div class="fact"><span>Connections</span><b>'+PENDING.people.length.toLocaleString()+'</b></div>'+
+      '<div class="fact"><span>Exchanged Messages</span><b>'+(PENDING.hasMsgs?both.toLocaleString():'No Messages File')+'</b></div></div>'+
+      '<ul class="gl" id="uplGroups">'+TABKEYS.slice(1).map(k=>'<li data-k="'+k+'">'+esc(GL[k])+' <b>'+(n[k]||0).toLocaleString()+'</b></li>').join('')+'</ul>'+
+      (PENDING.hasMsgs||!warmG?'':'<p class="note">Without messages.csv, nobody lands in '+esc(warmG.label)+'. Tick Messages too next time.</p>')+
+      '<p class="note">'+(HAS_NET?'Stages, stars, notes and logs stay with everyone still in your network.':'Your board starts here. It saves in this browser as you work.')+'</p></div>';
+  }
+  return '<div class="drop" id="uplDrop">'+(UPLBUSY?'<b>Reading Your Export…</b>':
+      '<b>Drop Your LinkedIn Export Here</b><span>The zip LinkedIn emailed you, or its Connections.csv and messages.csv.</span>'+
+      '<button class="btn primary" data-act="uplpick">Choose File</button>'+(UPLERR?'<span class="err" role="alert">'+esc(UPLERR)+'</span>':''))+
+      '<input type="file" id="uplFile" accept=".zip,.csv" multiple hidden></div>'+
+      '<p class="note">Read in this browser. Nothing is sent anywhere. Message text and email addresses are skipped.</p>'+
+      (HAS_NET?'<div class="sec"><h3>Your Export <small>Exported '+EXPORT_LABEL+'</small></h3><p>'+P.length.toLocaleString()+' people. A newer export updates titles, companies and message counts.</p><button class="linkish" data-act="uplremove">Remove My Export</button></div>':'')+
+      '<div class="sec"><h3>Get Your Export</h3>'+howto('Drop the file in the box above.')+'</div>';
+}
+const uploadFoot=()=>PENDING?'<div class="pn-foot"><button class="btn primary" data-act="uplok">Use This Export</button><button class="btn quiet" data-act="uplcancel">Cancel</button></div>':'';
+function uploadPanel(){
+  return pnTop(-1,0)+'<div class="pn-body help upl"><h2 id="pnTitle" tabindex="-1">Upload Export</h2>'+uploadBody()+'</div>'+uploadFoot();
+}
+/* Before any export: the same panel, as the page itself. */
+function welcomeView(){
+  return '<section class="welcome help upl" id="welcome" aria-labelledby="welcomeTitle"><h1 id="welcomeTitle">Upload Your LinkedIn Export</h1>'+
+    '<p>Your connections, sorted into groups, with a board to track who you reach out to.</p>'+uploadBody()+uploadFoot()+'</section>';
+}
+document.addEventListener('change',e=>{if(e.target.id==='uplFile')takeFiles(e.target.files)});
+document.addEventListener('dragover',e=>{const d=e.target.closest&&e.target.closest('#uplDrop');if(d&&!dragId){e.preventDefault();d.classList.add('over')}});
+document.addEventListener('dragleave',e=>{const d=e.target.closest&&e.target.closest('#uplDrop');if(d&&!d.contains(e.relatedTarget))d.classList.remove('over')});
+document.addEventListener('drop',e=>{const d=e.target.closest&&e.target.closest('#uplDrop');if(d&&!dragId){e.preventDefault();takeFiles(e.dataTransfer.files)}});
+
+/* ---------- Events ---------- */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');
+  if(!el){
+    if(e.target.id==='scrim'){closePanel();return}
+    const card=e.target.closest('main .card');if(card&&!e.target.closest('button')){openerId=card.dataset.id;openPerson(card.dataset.id)}
+    if(!e.target.closest('details'))document.querySelectorAll('details.about[open],details.menu[open]').forEach(d=>d.open=false);
+    return}
+  const a=el.dataset.act;const row=el.closest('[data-id]');const id=row&&row.dataset.id;const p=id&&PI[id];
+  const inMain=row&&row.classList.contains('row')&&row.closest('main');
+  const rowIdx=inMain?[...document.querySelectorAll('main .row')].indexOf(row):null;
+  const kb=e.detail===0;
+  switch(a){
+    case 'open':openerId=id;openPerson(id);break;
+    case 'help':go(R0.tab,'h','board',!!R0.kind);break;
+    case 'tipok':TIPS[el.dataset.tip]=1;try{localStorage.setItem(TIPS_KEY,JSON.stringify(TIPS))}catch(err){}render();break;
+    case 'tipsreset':TIPS={};try{localStorage.removeItem(TIPS_KEY)}catch(err){}closePanel();toast('Tips are back');break;
+    // A mouse click leaves focus alone; only a keyboard press (detail 0) carries focus to the next row.
+    case 'up':leave(inMain?row:null,()=>{setStage([id],'Up Next',p.name+' added to In Motion');if(rowIdx!=null&&kb)focusAfter=rowIdx;render()});break;
+    case 'skip':leave(inMain?row:null,()=>{setStage([id],'Archived',p.name+' archived');if(rowIdx!=null&&kb)focusAfter=rowIdx;render()});break;
+    case 'restore':setStage([id],'Not Started',p.name+' restored');render();break;
+    case 'reopen':setStage([id],'Active',p.name+' reopened');render();break;
+    case 'star':case 'pstar':{const pid=id||R0.id;const s=mut(pid);s.star=!s.star;save();render();toast((s.star?'Starred ':'Unstarred ')+PI[pid].name);break}
+    case 'sel':{const ids=listIds;if(e.shiftKey&&lastChecked!=null){const i1=ids.indexOf(lastChecked),i2=ids.indexOf(id);const[lo,hi]=i1<i2?[i1,i2]:[i2,i1];for(let i=lo;i<=hi;i++)if(i<LIMIT)sel.add(ids[i])}else{el.checked?sel.add(id):sel.delete(id)}lastChecked=id;render();break}
+    case 'selall':{const shown=listIds.slice(0,LIMIT);if(shown.every(x=>sel.has(x)))shown.forEach(x=>sel.delete(x));else shown.forEach(x=>sel.add(x));render();break}
+    case 'more':LIMIT+=150;render();break;
+    case 'mv':{const to=el.dataset.to;setStage([id],to,p.name+' moved to '+to);if(to==='Concluded'){openerId=id;openPerson(id)}else render();break}
+    case 'log':openerId=id;openPerson(id);setTimeout(()=>$('lgText')?.focus(),30);break;
+    case 'focuslog':$('lgText')?.focus();$('lgText')?.scrollIntoView({block:'center'});break;
+    case 'costar':{const sl=el.dataset.co||el.closest('[data-co]').dataset.co;S.co[sl]=!S.co[sl];if(!S.co[sl])delete S.co[sl];save();render();break}
+    case 'view':VIEW=el.dataset.to;try{localStorage.setItem(VIEW_KEY,VIEW)}catch(err){}LIMIT=150;sel.clear();render();break;
+    case 'coexpand':{const sl=el.dataset.co;EXPANDED.has(sl)?EXPANDED.delete(sl):EXPANDED.add(sl);render();break}
+    case 'coskipgrp':{const ids=el.dataset.ids.split(',');const c=PI[ids[0]].co;setStage(ids,'Archived','Archived '+ids.length+' at '+c.name);render();break}
+    case 'opencompany':{const sl=el.dataset.co||el.closest('[data-co]').dataset.co;openerId=sl;go(R0.tab,'c',sl,!!R0.kind);break}
+    case 'close':closePanel();break;
+    case 'prev':step(-1);break;case 'next':step(1);break;
+    case 'stage':{const pid=R0.id;const to=el.dataset.to;setStage([pid],to,PI[pid].name+(to==='Up Next'?' added to In Motion':to==='Archived'?' archived':' moved to '+to));render();break}
+    case 'outcome':{const s=mut(R0.id);const snap=snapshot([R0.id]);s.outcome=s.outcome===el.dataset.to?undefined:el.dataset.to;pushUndo(snap,'outcome');save();render();break}
+    case 'ltype':LOGTYPE=el.dataset.to;{const v=$('lgText').value;render();$('lgText').value=v;$('lgText').focus()}break;
+    case 'ldate':LOGDATE=today();{const v=$('lgText').value;render();$('lgText').value=v;$('lgDate')?.focus()}break;
+    case 'logadd':{const txt=$('lgText').value.trim();if(!txt){$('lgText').focus();return}const s=mut(R0.id);(s.log=s.log||[]).unshift({id:uid(),date:($('lgDate')&&$('lgDate').value)||today(),type:LOGTYPE,text:txt});LOGDATE=null;save();render();$('lgText')?.focus();toast('Logged');break}
+    case 'logedit':editLog=el.dataset.lg;render();$('leText')?.focus();break;
+    case 'logcancel':editLog=null;render();break;
+    case 'logsave':{const s=mut(R0.id);const en=s.log.find(x=>x.id===el.dataset.lg);if(en){en.date=$('leDate').value||en.date;en.type=$('leType').value;en.text=$('leText').value.trim()||en.text}editLog=null;save();render();break}
+    case 'logdel':{const snap=snapshot([R0.id]);const s=mut(R0.id);s.log=s.log.filter(x=>x.id!==el.dataset.lg);pushUndo(snap,'log entry deleted');save();render();toast('Log entry deleted',true);break}
+    case 'upload':if(!HAS_NET){const b=document.querySelector('#welcome [data-act=uplpick]');if(b){b.scrollIntoView({block:'center'});b.focus()}break}go(R0.tab,'u','export',!!R0.kind);break;
+    case 'uplpick':$('uplFile')?.click();break;
+    case 'uplcancel':PENDING=null;UPLERR='';render();break;
+    case 'uplok':useExport();break;
+    case 'uplremove':if(confirm('Remove your export and its board from this browser? Your stages, notes and log go too.'))removeExport();break;
+    case 'bulkup':{const ids=[...sel];setStage(ids,'Up Next',ids.length+' added to In Motion');sel.clear();render();break}
+    case 'bulkskip':{const ids=[...sel];setStage(ids,'Archived',ids.length+' archived');sel.clear();render();break}
+    case 'bulkclear':sel.clear();render();break;
+    case 'ftoggle':FOPEN=!FOPEN;render();break;
+    case 'seltoggle':SELMODE=!SELMODE;if(!SELMODE)sel.clear();render();break;
+    case 'mshow':MSHOW=el.dataset.to;render();break;
+    case 'undo':undo();break;
+  }
+});
+$('main').addEventListener('click',e=>{const f=e.target.closest('.chipf[data-f]');if(f){F[f.dataset.f]=!F[f.dataset.f];LIMIT=150;render()}});
+document.addEventListener('change',e=>{if(e.target.id==='gsel'&&e.target.value)go(e.target.value)});
+function openPerson(id){const p=PI[id];if(!p)return;const tab=R0.tab==='motion'||R0.tab===p.home?R0.tab:p.home;editLog=null;LOGDATE=null;go(tab,'p',id,!!R0.kind)}
+function closePanel(){editLog=null;if(history.state&&history.state.panel)history.back();else go(R0.tab,null,null,true)}
+let panelIdx=0;
+function step(d){if(R0.kind!=='p')return;let i=listIds.indexOf(R0.id);if(i<0)i=d>0?panelIdx-1:panelIdx;const n=listIds[i+d];if(n){editLog=null;openerId=n;go(R0.tab,'p',n,true)}}
+let notesT;
+document.addEventListener('input',e=>{if(e.target.id==='notes'){const id=e.target.dataset.id;clearTimeout(notesT);const v=e.target.value;notesT=setTimeout(()=>{mut(id).notes=v;if(save()){const t=$('notesSaved');if(t){t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1500)}}},400)}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='lgText'){e.preventDefault();document.querySelector('[data-act=logadd]')?.click()}});
+
+/* Drag between In Motion columns */
+let dragId=null;
+document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.card');if(!c)return;dragId=c.dataset.id;c.classList.add('drag');e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move'});
+document.addEventListener('dragend',e=>{const c=e.target.closest&&e.target.closest('.card');if(c)c.classList.remove('drag');document.querySelectorAll('.col.over').forEach(x=>x.classList.remove('over'))});
+document.addEventListener('dragover',e=>{const c=e.target.closest('.col');if(!c||!dragId)return;e.preventDefault();c.classList.add('over')});
+document.addEventListener('dragleave',e=>{const c=e.target.closest('.col');if(c&&!c.contains(e.relatedTarget))c.classList.remove('over')});
+document.addEventListener('drop',e=>{const c=e.target.closest('.col');if(!c||!dragId)return;e.preventDefault();const to=c.dataset.stage;if(get(dragId).stage!==to)setStage([dragId],to,PI[dragId].name+' moved to '+to);dragId=null;render()});
+
+/* Keys: / opens search and Esc closes. Everything else has a button. */
+document.addEventListener('keydown',e=>{
+  const t=e.target;const typing=(t.tagName==='INPUT'&&t.type!=='checkbox')||t.tagName==='TEXTAREA'||t.tagName==='SELECT';
+  if(e.key==='Escape'){if(!$('sug').hidden){hideSug();$('q').blur();return}if(R0.kind){closePanel();return}if(sel.size){sel.clear();render();return}return}
+  if(typing||e.metaKey||e.ctrlKey||e.altKey)return;
+  if(e.key==='/'){e.preventDefault();$('q').focus()}
+});
+document.addEventListener('focusin',e=>{document.querySelectorAll('main .row.focus').forEach(r=>r.classList.remove('focus'));const r=e.target.closest&&e.target.closest('main .row');if(r&&e.target.matches(':focus-visible'))r.classList.add('focus')});
+
+/* Search across everyone */
+const q=$('q'),sug=$('sug');let sIdx=0,sRes=[];
+function hideSug(){sug.hidden=true;q.setAttribute('aria-expanded','false')}
+const hl=(text,v)=>{const s=esc(text);const i=text.toLowerCase().indexOf(v);if(i<0)return s;return esc(text.slice(0,i))+'<mark>'+esc(text.slice(i,i+v.length))+'</mark>'+esc(text.slice(i+v.length))};
+q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();if(v.length<2){hideSug();return}
+  const ps=P.filter(p=>(p.name+' '+p.title+' '+p.co.name+' '+(get(p.id).notes||'')).toLowerCase().includes(v)).sort((a,b)=>(b.name.toLowerCase().startsWith(v))-(a.name.toLowerCase().startsWith(v))||cmp(a,b)).slice(0,8);
+  const cs=COS.filter(c=>c.people.length&&c.name.toLowerCase().includes(v)).slice(0,4);
+  sRes=[...cs.map(c=>({k:'c',id:c.slug,n:c.name,s:c.people.length+' you know'+(c.inSearch?' · in your search':''),t:'Company'})),...ps.map(p=>{const st=get(p.id).stage;return{k:'p',id:p.id,n:p.name,s:p.title+' · '+p.co.name,t:LIVE.includes(st)?'In Motion':GL[p.home]}})];
+  sIdx=0;let i=-1;const item=r=>{i++;return '<button role="option" data-i="'+i+'" class="'+(i===0?'on':'')+'" aria-selected="'+(i===0)+'"><span class="n">'+hl(r.n,v)+'</span><span class="k">'+esc(r.t)+'</span><span class="s">'+hl(r.s,v)+'</span></button>'};
+  const cRes=sRes.filter(r=>r.k==='c'),pRes=sRes.filter(r=>r.k==='p');
+  sug.innerHTML=sRes.length?(cRes.length?'<div class="sh">Companies</div>'+cRes.map(item).join(''):'')+(pRes.length?'<div class="sh">People</div>'+pRes.map(item).join(''):''):'<div class="none">No one matches "'+esc(q.value)+'"</div>';
+  sug.hidden=false;q.setAttribute('aria-expanded','true')});
+q.addEventListener('keydown',e=>{if(sug.hidden||!sRes.length)return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();sIdx=(sIdx+(e.key==='ArrowDown'?1:-1)+sRes.length)%sRes.length;sug.querySelectorAll('button').forEach((b,i)=>{b.classList.toggle('on',i===sIdx);b.setAttribute('aria-selected',i===sIdx)})}
+  else if(e.key==='Enter'){e.preventDefault();pickSug(sIdx)}});
+sug.addEventListener('mousedown',e=>{const b=e.target.closest('button[data-i]');if(b){e.preventDefault();pickSug(+b.dataset.i)}});
+q.addEventListener('blur',()=>setTimeout(hideSug,120));
+function pickSug(i){const r=sRes[i];if(!r)return;hideSug();q.value='';q.blur();
+  if(r.k==='c'){openerId=r.id;go(R0.tab,'c',r.id)}else{const p=PI[r.id];openerId=r.id;go(LIVE.includes(get(p.id).stage)?'motion':p.home,'p',r.id)}}
+
+/* On a phone the header tucks away while scrolling down and returns on the way up. */
+let lastY=0;
+window.addEventListener('scroll',()=>{const y=scrollY;$('top').classList.toggle('tuck',phone()&&y>lastY&&y>120);lastY=y},{passive:true});
+
+/* The accent is the user's color from Bishop setup (the profile's Customization section), carried in
+   the config. Bishop orange stays on the mark and on navy. Light and dark versions are derived here and
+   darkened or lightened until text passes 4.5:1, on the surface and on its own tint. */
+const ACCENT_FALLBACK='#4F6D9F';
+const ACCENT=/^#[0-9a-f]{6}$/i.test(String(CONFIG.accent||'').trim())?String(CONFIG.accent).trim():ACCENT_FALLBACK;
+const rgbOf=h=>{h=h.replace('#','');return[0,2,4].map(i=>parseInt(h.slice(i,i+2),16))};
+const hexOf=c=>'#'+c.map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');
+const mix=(a,b,k)=>a.map((v,i)=>v*k+b[i]*(1-k));
+const lum=c=>{const[r,g,b]=c.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4});return .2126*r+.7152*g+.0722*b};
+const contrast=(a,b)=>{const[x,y]=[lum(a),lum(b)].sort((p,q)=>q-p);return(x+.05)/(y+.05)};
+const toHsl=([r,g,b])=>{r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;
+  if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h/=6}return[h,s,l]};
+const fromHsl=([h,s,l])=>{if(!s)return[l,l,l].map(v=>v*255);const q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;
+  const f=t=>{t=(t+1)%1;return t<1/6?p+(q-p)*6*t:t<1/2?q:t<2/3?p+(q-p)*(2/3-t)*6:p};return[f(h+1/3),f(h),f(h-1/3)].map(v=>v*255)};
+/* Lightness moves in steps toward the ground's opposite; hue and saturation stay, so the color keeps its character. */
+/* A muted color sitting next to the navy layer reads as grey, so a colored accent gets at least
+   55% saturation. A near-neutral pick (Graphite) stays neutral; grey is the point of it. */
+function tune(base,ground,toward,weakK){const up=lum(toward)>lum(ground);let hsl=toHsl(base);
+  if(hsl[1]>=.15&&hsl[1]<.55){hsl=[hsl[0],.55,hsl[2]]}
+  let c=fromHsl(hsl),weak=mix(c,ground,weakK);
+  for(let i=0;i<40&&(contrast(c,ground)<4.5||contrast(c,weak)<4.5);i++){hsl=[hsl[0],hsl[1],Math.max(0,Math.min(1,hsl[2]+(up?.025:-.025)))];c=fromHsl(hsl);weak=mix(c,ground,weakK)}
+  const ink=contrast([255,255,255],c)>=contrast([14,20,34],c)?'#ffffff':'#0e1422';
+  return{accent:hexOf(c),weak:hexOf(weak),ink}}
+/* Group and stage colors carry meaning, so they stay put unless the accent lands on the same hue.
+   Then that group (or the Active column) takes the first spare color that clears the accent and every other group. */
+const ACTIVE_COLOR='#2f9e64';
+const SPARES=['#c4487a','#8a9a2b','#1f8fb8','#b05cc6','#d0603f','#e0559a','#5aa02c','#2fa3c4','#9b59d0','#e07a3a','#3aa88f','#c74b4b','#5d6fd6','#b8962a'];
+const hueGap=(a,b)=>{const d=Math.abs(a-b)%1;return Math.min(d,1-d)*360};
+/* Custom groups take spare colors too, so with many groups no spare may clear every other group by 20
+   degrees. Then the one farthest from its nearest neighbor wins: it still clears the accent. */
+function groupColors(base){const ah=toHsl(base),hue=x=>toHsl(rgbOf(x))[0],eff={},CONCLUDED='#7a3fb0';
+  GROUPS.forEach(g=>eff[g.key]=g.color);eff.active=ACTIVE_COLOR;
+  if(ah[1]>=.15)for(const k of Object.keys(eff)){
+    if(hueGap(hue(eff[k]),ah[0])>=30)continue;
+    const others=[...Object.entries(eff).filter(([j])=>j!==k).map(([,v])=>v),CONCLUDED];
+    const near=x=>Math.min(...others.map(g=>hueGap(hue(x),hue(g))));
+    const free=SPARES.filter(x=>!Object.values(eff).includes(x)&&hueGap(hue(x),ah[0])>=30);
+    const spare=free.find(x=>near(x)>=20)||free.sort((a,b)=>near(b)-near(a))[0];
+    if(spare)eff[k]=spare}
+  return eff}
+function applyAccent(hex){
+  const base=rgbOf(hex),L=tune(base,[255,255,255],[0,0,0],.12),D=tune(base,[21,29,46],[255,255,255],.2);
+  const gc=Object.entries(groupColors(base)).map(([k,v])=>';--g-'+k+':'+v).join('');
+  let st=document.getElementById('accentVars');if(!st){st=document.createElement('style');st.id='accentVars';document.head.appendChild(st)}
+  st.textContent=':root{--accent:'+L.accent+';--accent-weak:'+L.weak+';--accent-ink:'+L.ink+gc+'}:root[data-theme=dark]{--accent:'+D.accent+';--accent-weak:'+D.weak+';--accent-ink:'+D.ink+'}'+
+    GROUPS.map(g=>'.g-'+g.key+'{--gc:var(--g-'+g.key+')}').join('');
+}
+applyAccent(ACCENT);
+/* The name the user gave their Bishop, in the top bar the way the decks and the dashboard show it. */
+$('brandName').textContent=BOT_NAME;$('brand').setAttribute('aria-label','Outreach, '+BOT_NAME);document.title='Outreach · '+BOT_NAME;
+
+/* Theme */
+function themeLabel(){const dark=document.documentElement.dataset.theme==='dark';const b=$('themeBtn');b.setAttribute('aria-label','Switch to '+(dark?'light':'dark')+' theme');b.title=dark?'Light Theme':'Dark Theme'}
+$('themeBtn').addEventListener('click',()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(THEME_KEY,d.dataset.theme)}catch(e){}themeLabel()});
+themeLabel();
+
+render();if(HAS_NET)save();
+</script>
+</body>
+</html>

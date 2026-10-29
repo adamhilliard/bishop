@@ -128,6 +128,12 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 
 > Here's what I read: {your level, current role, that you're based in {city}, and any license or clearance you hold}. Any corrections?
 
+**Step 3 · Keep a copy · picker,** single-select, header `Resume`, only when they shared a resume file. **Say:**
+
+> Want me to keep a copy of your resume in your Bishop folder? Interview practice uses it to ask about specific lines.
+
+Options: *Yes, keep a copy* (Recommended) · *No thanks*. On yes, save it as `Resume.<ext>` in the Bishop folder. On no, keep nothing; interview practice then asks from their career history.
+
 **No resume · free text:**
 
 > No problem. Tell me about your background: your most recent role and the ones before it with rough years, roughly your level, where you're based, and the kind of work you do.

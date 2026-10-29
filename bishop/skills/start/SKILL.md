@@ -190,7 +190,7 @@ Started: {{YYYY-MM-DD}}
 | Interviews | later |
 ```
 
-- **States:** `not started`, `done`, `later`, `waiting on LinkedIn file`.
+- **States:** `not started`, `done`, `later`.
 - **"Let's keep going"** reads it and runs the first module that isn't `done`, in the order of step 7, skipping the splash and the letter.
 - **Adding a module later** adds its row.
 

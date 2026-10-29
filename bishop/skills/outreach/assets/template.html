@@ -704,7 +704,7 @@ function personPanel(p){
     '<div class="sec composer"><h3><label for="lgText">Log</label></h3>'+
       '<input type="text" id="lgText" placeholder="What happened?">'+
       '<div class="typechips" role="group" aria-label="Type">'+LOGTYPES.map(t=>'<button data-act="ltype" data-to="'+t+'" aria-pressed="'+(LOGTYPE===t)+'">'+t+'</button>').join('')+'</div>'+
-      '<div class="crow"><span class="when">'+(LOGDATE===null?'Today <button class="linkish" data-act="ldate">Change Date</button>':'<input type="date" id="lgDate" value="'+(LOGDATE||today())+'" aria-label="Date">')+'</span><button class="btn" data-act="logadd">Add to Log</button></div>'+
+      '<div class="crow"><span class="when">'+(LOGDATE===null?'Today <button class="linkish" data-act="ldate">Change Date</button>':'<input type="date" id="lgDate" value="'+(LOGDATE||today())+'" aria-label="Date">')+'</span><button class="btn" data-act="logadd">Note It</button></div>'+
       '<ul class="lg">'+(log.map(e=>editLog===e.id?logEditHtml(e):'<li class="'+(e.type==='Stage'?'auto':'')+'"><span class="d">'+fmtD(e.date)+' · '+esc(e.type)+'</span>'+
         (e.type==='Stage'?'<span></span>':'<span class="x"><button data-act="logedit" data-lg="'+e.id+'">Edit</button><button data-act="logdel" data-lg="'+e.id+'">Delete</button></span>')+'<span>'+esc(e.text)+'</span></li>').join('')||'<li class="auto"><span>Nothing logged yet.</span></li>')+'</ul></div>'+
   '</div>'+

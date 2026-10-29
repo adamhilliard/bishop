@@ -125,7 +125,9 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 **A front door (`skills/start`) runs every first setup.** It checks this is the right place to run, handles any older Bishop in the folder (add a module, delete everything, archive, or change what's there), shows the splash and the author's letter, and lets people pick modules. Modules always set up in order: job search, interviews, outreach. People still start with "Help me set up a job search."
 
-> **Unreleased.** Ships in 2.0 together with the outreach module, still to be built.
+**Outreach joins Bishop (`/bishop:outreach`).** It sorts the user's LinkedIn connections into groups (Warm, Recruiters, HR / People, Executives, Entrepreneurs, and their own) on a private board that stays on their computer. The board reads the LinkedIn export in the browser, so contacts never pass through the chat; the board saves in the browser. No time tracking and no reminders.
+
+> **Unreleased.** 2.0 ships once every module is ready, not before.
 
 > **`engine/` is the source; `assets/template.html` is built from it.** Edit the engine files, run `python scripts/build_template.py`, and commit both; `build_template.py --check` fails if the committed template is stale. Never hand-edit the template. The robot mark and favicon come from the dashboard's `assets/robot.svg`, so the two pages share one mark.
 

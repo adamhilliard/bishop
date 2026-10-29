@@ -80,6 +80,7 @@ It'll also ask for a one-time OK so it doesn't have to interrupt you at every st
 | `/bishop:job-search` | The main skill: the setup interview, the recurring search, and a weekly self-check. |
 | `/bishop:dashboard` | Optional. Turns your search into a private web dashboard at a bookmarkable link. Run it after your first search. |
 | `/bishop:interviews` | Interview practice. A core deck of the questions every interview asks, answered once in your own words, and a study deck for each interview. Say *"Help me prep for my interview with…"* |
+| `/bishop:outreach` | Your network. Sorts your LinkedIn connections into groups worth contacting, with a private board to track who you've reached out to. Say *"Help me work my network"* |
 
 You don't need to type any of these names. Just describe what you want and Claude picks the right one.
 
@@ -91,7 +92,7 @@ Bishop reads a lot and writes only to your machine. **Anything that reaches one 
 |---|---|
 | **Web search** | Job boards, the hiring systems companies post to directly, and the job pages startup investors keep for their companies. All public pages |
 | **Your browser session** *(optional)* | Reads your logged-in job-board feed and alerts, which anonymous search can't see. **Needs Claude's browser extension.** **Browsing only.** It never applies, never messages, never views anyone's profile |
-| **Your files** | Writes a folder for your search in the place you started it, and an `Interview_Prep` folder inside it for your study decks. Everything stays on your computer. Your deck answers save in your browser as you type, and stay there; ask for a copy and Bishop opens a page of every answer to print or save as a PDF |
+| **Your files** | Writes a folder for your search in the place you started it, an `Interview_Prep` folder inside it for your study decks, and an `Outreach` folder for your network board. Everything stays on your computer. Your deck answers save in your browser as you type, and stay there; ask for a copy and Bishop opens a page of every answer to print or save as a PDF |
 | **Slack** *(optional)* | Posts your digest to your own DM or a private channel you own. Never a shared channel |
 | **Calendar** *(optional)* | Creates events for your interviews and follow-up dates. **Never invites anyone** |
 | **Email** *(optional)* | Reads mail from employers already in your list to log applications and rejections (scoped to those). Can also email you your digest. It only ever emails you, never replies, archives, or deletes |

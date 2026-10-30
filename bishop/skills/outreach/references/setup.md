@@ -38,7 +38,11 @@
 > LinkedIn emails you your data, usually within a day. Tell me when you've finished the request, and we'll set up your board while you wait.
 
 - **LinkedIn's menus change.** If what they see doesn't match, describe the equivalent step on the page they're on.
-- **No LinkedIn account, or they'd rather not?** Outreach is built on the export and can't run without it. Say so in one line, save nothing, and hand back to the front door's step 8.
+- **No LinkedIn account, or they'd rather not?** Outreach is built on the export and can't run without it. **Say:**
+
+  > Outreach works from your LinkedIn data, so I can't set it up without it. If you change your mind, say "set up outreach."
+
+  Save nothing, and hand back to the front door's step 8.
 
 ## O3. Who counts as warm
 

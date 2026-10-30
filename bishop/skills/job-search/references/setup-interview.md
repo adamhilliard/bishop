@@ -399,7 +399,9 @@ Work through these in order. Keep every spoken line plain, per the language rule
 
 1. **Build the files and both scheduled tasks** per `scaffolding.md`, writing the profile from the answers and using the chosen name throughout. The cycle task runs on their cadence; the weekly quality audit runs on its own day, on Friday by default, recorded in Customization, and starts in week two. If the project folder is not a git repository, initialize one and commit the setup files.
 
-2. **Say, in one or two lines, what you just saved and whether they need to touch it.** These files hold their profile, scoring rules, and results, and they're saved locally on their own device, nowhere else. **They don't need to open or read any of it.** The way they change anything later is to tell you in chat, and you edit the files. Don't list file names or paths; say what the files are for.
+2. **Say what you just saved.** No file names or paths. **Say:**
+
+   > Your profile, scoring rules and results are saved in this folder on your computer and nowhere else. You never need to open them. To change anything, tell me here and I'll update them.
 
 3. **Explain the weekly audit in one plain sentence,** since a routine that only says *when* it runs and never *what* it does reads as a black box. **Say:**
 

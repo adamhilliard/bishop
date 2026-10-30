@@ -411,7 +411,7 @@ Work through these in order. Keep every spoken line plain, per the language rule
 
    > Last thing before I go find your first roles. This run takes a while, and you'll want to be around for it.
    >
-   > - I'll ask your permission a lot on this first run. That's normal, and it settles down afterwards.
+   > - I'll ask your permission a lot on this first run. That's normal, and it settles down afterwards. If you'd rather not approve each step, switch me to Auto mode: pick Auto from the mode menu in the desktop app, or press Shift+Tab in the terminal. A safety check then approves routine steps for you and still stops anything risky.
    > - You'll see me open a browser and move around on my own. That's me reading job boards and your LinkedIn.
    > - If I go quiet for a stretch, I'm working, not stuck.
    >
@@ -419,7 +419,11 @@ Work through these in order. Keep every spoken line plain, per the language rule
 
    **If they skipped LinkedIn,** drop the browser line: the browser add-on is only set up for LinkedIn, so no browser opens.
 
-   > **The permission storm is real and it is not a bug.** The approval step earlier writes the permission block, but settings do not take effect mid-session, so this first run gets no benefit from it. **Do not promise otherwise, and do not tell them it will be quiet.** From their next session on, it is.
+   **If the session is already in Auto mode** (Claude Code tells you when it is), the first line is this instead:
+
+   > - You may see a few permission requests on this first run. That's normal, and it settles down afterwards.
+
+   > **The permission storm is real and it is not a bug.** The approval step earlier writes the permission block, but settings do not take effect mid-session, so this first run gets no benefit from it. Auto mode is the one thing that helps mid-session, because they can switch it on while the run is going. It cuts the requests but doesn't end them. **Do not promise otherwise, and do not tell them it will be quiet.** From their next session on, it is.
 
 5. **Run the first search and deliver the digest** to the channel they chose.
 

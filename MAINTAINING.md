@@ -129,6 +129,8 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 **Surprise me picks from twelve robots:** C-3PO and BB-8 join, each with its own block-letter header.
 
+**A first-time pass through setup:** a plain Python message (with an offer to set it up) in place of "go to Code" when only Python is missing; git optional; a folder of its own when the start folder has other files, and a closing line on how to come back; Auto mode offered at Permissions, before any scheduled task exists; connector tools added to the permission list; when searches run (computer awake, Claude open) and where results show up; the browser add-on on its own for job boards when LinkedIn is skipped; plainer pay, equity and ranking questions; a visa option for sponsorship later; relocation cities; and early-career versions of the no-resume, step-down and title lines. The update check reads main's version, since there are no GitHub Releases.
+
 > **Unreleased.** 2.0 ships once every module is ready, not before.
 
 > **`engine/` is the source; `assets/template.html` is built from it.** Edit the engine files, run `python scripts/build_template.py`, and commit both; `build_template.py --check` fails if the committed template is stale. Never hand-edit the template. The robot mark and favicon come from the dashboard's `assets/robot.svg`, so the two pages share one mark.

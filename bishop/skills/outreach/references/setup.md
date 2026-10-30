@@ -74,7 +74,11 @@
 >
 > Want to drop any of these, add a group of your own, or change the order? For example "anyone at a gaming studio," or "people I worked with at {{a past employer}}."
 
-- **A group of their own:** turn the description into a rule (a company list, title words, a range of dates when they connected, a spreadsheet of names they drag into the chat, or anyone at a company in their job search) and say it back. Loop until they say "looks good."
+- **A group of their own:** turn the description into a rule (a company list, title words, a range of dates when they connected, a spreadsheet of names they drag into the chat, or anyone at a company in their job search) and say it back. **Say:**
+
+  > Got it: {{the rule in plain words, e.g. "anyone whose company is on this list of 40 gaming studios"}}. Anything else, or does this look good?
+
+  Loop until they say "looks good."
 - **Names stay off the chat.** A hand-picked group is a spreadsheet they drag in. Save it into `Outreach/` without reading it; the build script reads it. Never ask them to paste names, and never go looking for the file.
 - **The past-employer example** uses a company from their career history when job search has one; otherwise use "people I worked with at my last job."
 - **Save the groups** in `Outreach/segments.json`, then run `build_page.py --check`.

@@ -305,7 +305,7 @@ Record the confirmed browser's identifier in the profile. **Never record an iden
 
 **How it runs · picker,** one call, two questions. **Lead with the cadence note, then present the picker. Say the note close to verbatim:**
 
-> A quick note on cadence before you pick: running more often catches postings that disappear fast, but every run uses part of your weekly Claude usage. Twice a week is the sweet spot, and on a Claude Pro plan it's the one I'd stick to. Testing puts two runs at about half your weekly usage, leaving the rest for everything else you do with Claude. Every weekday would use it all up before the week is out.
+> A quick note on cadence before you pick: running more often catches postings that disappear fast, but every run uses some of your weekly Claude allotment. Twice a week is the sweet spot on a Claude Pro plan.
 
 > **Where that number comes from, and when to stop trusting it.** Measured across 16 real scheduled runs of a live senior-level search in August 2026: one cycle averaged ~22M input-equivalent tokens, two a week came in at roughly half a Pro weekly limit, and five a week exceeded it outright. **Anthropic publishes no absolute limit for any plan**, so this is derived from measured consumption against a known-larger plan, not read off a spec.
 >

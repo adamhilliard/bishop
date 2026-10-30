@@ -26,7 +26,7 @@ Turns a job search's tracking files into a private, interactive web dashboard th
 
 Read, in full: `Reference_Profile.md`, `Methodology.md` (its Sources table), `Operating_Procedures.md`, and every `Tracking_*.md` in the project folder. (Older setups keep all of this in one profile file; read whatever exists.) From them, derive rather than asking the user for anything readable:
 
-- **The search's name**, from the profile's Bot Name field. It goes in the header and the page title, and it picks the header art: Bishop and the ten Surprise Me robots each have a pre-made file in `assets/headers/` (`bishop`, `data`, `wall-e`, `baymax`, `tars`, `johnny-5`, `r2-d2`, `rosie`, `kitt`, `optimus`, `astro`). Any other name gets the stock header.
+- **The search's name**, from the profile's Bot Name field. It goes in the header and the page title, and it picks the header art: Bishop and the twelve Surprise Me robots each have a pre-made file in `assets/headers/` (`bishop`, `data`, `wall-e`, `baymax`, `tars`, `johnny-5`, `r2-d2`, `c-3po`, `bb-8`, `rosie`, `kitt`, `optimus`, `astro`). Any other name gets the stock header.
 - **The palette and any accessibility adjustments**, from the profile's Customization section: accent color, plus any of larger text, higher contrast, reduced motion, and colorblind-safe colors. **Setup asks for the accent, so don't ask again.** Setup does not ask about the adjustments; default to none, and honor any the user names later, writing them into Customization.
 - **Where the digest link should go**, from Customization. It changes where this skill delivers the page at publish time.
 - **Track names** (one per tracking file) and a short label for each.

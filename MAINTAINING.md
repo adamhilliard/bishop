@@ -127,6 +127,8 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 **Outreach joins Bishop (`/bishop:outreach`).** It sorts the user's LinkedIn connections into groups (Warm, Recruiters, HR / People, Executives, Entrepreneurs, and their own) on a private board that stays on their computer. The board reads the LinkedIn export in the browser, so contacts never pass through the chat; the board saves in the browser. No time tracking and no reminders.
 
+**Surprise me picks from twelve robots:** C-3PO and BB-8 join, each with its own block-letter header.
+
 > **Unreleased.** 2.0 ships once every module is ready, not before.
 
 > **`engine/` is the source; `assets/template.html` is built from it.** Edit the engine files, run `python scripts/build_template.py`, and commit both; `build_template.py --check` fails if the committed template is stale. Never hand-edit the template. The robot mark and favicon come from the dashboard's `assets/robot.svg`, so the two pages share one mark.

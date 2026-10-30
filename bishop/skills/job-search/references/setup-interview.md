@@ -331,8 +331,8 @@ Options: *Bishop* (Recommended) · *Surprise me*. The automatic Other is the tex
 
 - **It's the last question of the first module, always,** so someone who stops after one module still has their name. On Everything, ask it after G, not here.
 
-- **On Surprise me, pick from exactly these ten** and say it in one line with the offer to pick again: Data · Wall-E · Baymax · TARS · Johnny 5 · R2-D2 · Rosie · KITT · Optimus · Astro. **Vary it;** handing every user the same one makes it a second default.
-- **Why the list is fixed:** each of the ten, plus Bishop, has a pre-made header in the dashboard skill (`assets/headers/`). A name typed into Other still works and gets the stock header.
+- **On Surprise me, pick from exactly these twelve** and say it in one line with the offer to pick again: Data · Wall-E · Baymax · TARS · Johnny 5 · R2-D2 · C-3PO · BB-8 · Rosie · KITT · Optimus · Astro. **Vary it;** handing every user the same one makes it a second default.
+- **Why the list is fixed:** each of the twelve, plus Bishop, has a pre-made header in the dashboard skill (`assets/headers/`). A name typed into Other still works and gets the stock header.
 - **Warm and competent only.** Never offer the sinister ones (HAL, Skynet, Ultron and the like): a search tool that reads as about to betray you is a bad joke on day one.
 
 > **Rigor is a silent default, not a question.** How deep each run digs defaults to light, which keeps a frequent cadence affordable; the schedule question already carries the token tradeoff.

@@ -433,5 +433,4 @@ Work through these in order. Keep every spoken line plain, per the language rule
 
    **Do not leave this for a command they have to discover.** If they chose chat only, skip this entirely.
 
-7. **Say plainly which answers were thin,** because those are the rules that will need correcting after the first two or three cycles, and **state the known limitations from `feedback-loop.md` out loud**, so nothing there gets mistaken for a bug later.
 

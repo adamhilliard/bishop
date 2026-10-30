@@ -75,18 +75,18 @@ The bot gets meaningfully better around cycle three or four, and only if you clo
 
 ## Known Limitations
 
-State these upfront so nobody mistakes them for bugs.
+Setup doesn't read these out. When one shows up in a run (a quiet week, a flooded table, a browser drop), the digest says so in one plain sentence, so nobody mistakes it for a bug.
 
 > **These are written for you, not for the user. Translate each into one plain sentence before saying it**, under the language rule in `setup-interview.md`: nothing spoken carries a file path, a script name, a platform slug, or a system word. "Requisition" is a job posting. "Session token" is a login. "Coverage gap" is a place I can't see into.
 >
 > - **Three of these are never spoken at all.** The rotted-recipe rule, the sub-agent finding, and the unvouched-nil rule are engineering rationale for you. They are not limitations the user can act on, and reading them aloud makes the tool sound broken.
-> - **Say the ones that set expectations**, which is most of them: what a quiet week means at their level, that sourcing is only part of the problem, that judging fit is theirs, and that a browser hiccup is recoverable and will be reported.
+> - **Say the rest only when they happen**, in the digest: what a quiet week means at their level, that sourcing is only part of the problem, that judging fit is theirs, and that a browser hiccup is recoverable.
 
 - **ATS site-search dead-link rate is high.** A majority of hits may be closed requisitions. This is the search index, not your setup.
 - **Some postings won't render their description.** Board listings occasionally return a shell with no body text. Log the posting with whatever is knowable and flag the gap rather than dropping it.
 - **A zero-result cycle is normal at senior levels**, and so is a run of them. Whether that should ever trigger an automatic query review is the user's call, not a default; some explicitly decline the trigger, and the answer belongs in the decisions log either way.
 - **A flooded cycle is normal at junior levels**, and the volume rules in `search-techniques.md` manage it rather than fixing it. A table that never shrinks because applications aren't going out is a throughput problem the bot can surface but not solve.
-- **Sourcing is not the bottleneck at every level.** At senior levels the seat is rare, so finding it is most of the work. At junior levels the roles are plentiful and the constraints are application throughput, resume screening, and getting past the first filter. A search bot helps with the first of those and not the other two. Say this out loud during setup rather than letting the bot look ineffective for four cycles.
+- **Sourcing is not the bottleneck at every level.** At senior levels the seat is rare, so finding it is most of the work. At junior levels the roles are plentiful and the constraints are application throughput, resume screening, and getting past the first filter. A search bot helps with the first of those and not the other two. Say this in the digest the first time a quiet or flooded week comes up, rather than letting the bot look ineffective for four cycles.
 - **Some postings are older than any date window.** A requisition already open and older than the catch-up sweep's window stays invisible until it's reposted or someone surfaces it manually. That gap is deliberate; see `search-techniques.md`.
 - **Automation can't judge fit.** The bot sources, screens, scores, and ranks. Every decision past that is yours.
 - **Some ATS platforms are structurally unreachable by keyword search**, including one top-ten platform that gates every requisition behind a session token. Those employers have to be swept by name. It is a coverage gap to state, never a nil to report.

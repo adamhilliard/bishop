@@ -373,6 +373,10 @@ Options: *Yes, find them · No thanks*. **On yes, fix the geographic anchor firs
 
 > I already check LinkedIn, the 25 hiring systems most companies post through, the job pages startup investors keep for their companies, the big job-listing sites, and any company you name. Are there any job boards specific to your line of work? Professional associations and certification bodies often run one.
 
+**If they skipped LinkedIn,** drop it from the list. **Say:**
+
+> I already check the 25 hiring systems most companies post through, the job pages startup investors keep for their companies, the big job-listing sites, and any company you name. Are there any job boards specific to your line of work? Professional associations and certification bodies often run one.
+
 Vet each source once and record the verdict, so no later cycle re-chases a dead end.
 
 ### G. Connect your tools (~3 min)
@@ -410,6 +414,8 @@ Work through these in order. Keep every spoken line plain, per the language rule
    > - If I go quiet for a stretch, I'm working, not stuck.
    >
    > After this one, your searches run on their own schedule without you.
+
+   **If they skipped LinkedIn,** drop the browser line: the browser add-on is only set up for LinkedIn, so no browser opens.
 
    > **The permission storm is real and it is not a bug.** The approval step earlier writes the permission block, but settings do not take effect mid-session, so this first run gets no benefit from it. **Do not promise otherwise, and do not tell them it will be quiet.** From their next session on, it is.
 

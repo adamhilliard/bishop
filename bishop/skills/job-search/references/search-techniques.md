@@ -122,7 +122,7 @@ Nothing here is candidate-specific, which is why it lives in the skill and is re
 
 ### Sources, and how often each one runs
 
-1. **A logged-in job-board session via browser automation.** Personalized feeds and email alerts are invisible to anonymous web search. **Where the user turned browser access on at Connect LinkedIn, this is a required source, not best-effort:** run it every cycle, and when it fails say so in the digest. Where they turned it off, or never installed the browser extension, the search runs without it and nothing here applies.
+1. **A logged-in job-board session via browser automation.** Personalized feeds and email alerts are invisible to anonymous web search. **Where the profile says `linkedin: connected`, this is a required source, not best-effort:** run it every cycle, and when it fails say so in the digest. Where it says `linkedin: declined`, the search runs without it and nothing here applies, even when a browser is recorded for job boards.
 2. **Aggregators** (Indeed, ZipRecruiter, Glassdoor, regional boards) via web search, **used to harvest company names from snippets and re-search those directly.** Don't build a dedicated channel around their own job search; see the measured verdict below.
 3. **Direct careers pages** for companies of interest.
 4. **ATS site-search.**
@@ -417,6 +417,8 @@ An unattended run can't click a browser picker, and the properties that look lik
 3. **If the recorded ID is absent and exactly one browser is connected**, proceed with it, and **verify the session identity** (read the logged-in account name off the page) before trusting the results. A run once proceeded under this fallback against an unrecognized browser that happened to be signed in as the right person; that was luck, not verification.
 4. **If the recorded ID is absent at the very start, re-list once before falling back.** Extensions connect a minute or two into a run more often than you'd expect.
 5. **Zero browsers, or an ambiguous result:** fall back to search-only for that cycle **and say so in the digest.**
+6. **A browser without LinkedIn.** Someone who declined LinkedIn can still record a browser, for the boards that only open in one. Use it for those and never open linkedin.com. Step 3's identity check needs a signed-in account, so skip it: these boards are public.
+7. **`browser: none` is a setting, not a failure.** The browser-only boards report `OFF-CADENCE`, and the digest says "off under your current settings." Nothing goes under "Couldn't reach."
 
 **Don't try to identify a browser by anything else.** Display names get reassigned between runs (the same device showed as "Browser 2" and then "Browser 1" inside a single run), a browser extension's ID is identical on every install, and a locality flag can read true for two connected browsers at once.
 

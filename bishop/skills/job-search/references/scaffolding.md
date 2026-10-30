@@ -118,7 +118,8 @@ rule in Decisions_Log.md. Live results live in the tracking file(s).
 - **Rigor** -> light by default (not asked)
 - **Country** -> A. You
 - **Integrations** -> Everything G
-- **LinkedIn** -> Connect LinkedIn: the browser device id read off a connected browser, or `linkedin: declined`
+- **LinkedIn** -> Connect LinkedIn: `linkedin: connected` or `linkedin: declined`
+- **Browser** -> Connect LinkedIn: the browser device id read off a connected browser, or `browser: none`. An older profile with a device id on its LinkedIn line has LinkedIn connected and that browser
 - **Commit message** -> default `<BOT_NAME> cycle <N>, <YYYY-MM-DD>` (not asked)
 - **Follow-up dates** -> default on at early career and mid, 10 days; off at senior
 - **Captures** -> default on, `Postings/<Company>_<Title>/`

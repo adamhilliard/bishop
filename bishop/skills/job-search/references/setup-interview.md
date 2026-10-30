@@ -297,9 +297,38 @@ Then list the connected browsers and name the one that looks like theirs. **Conf
 | **Yes, that's the one** (Recommended) | I save it and move on to the last few settings |
 | **No, a different one** | Tell me which, and I'll record that instead |
 
-Record the confirmed browser's identifier in the profile. **Never record an identifier you did not read off a connected browser.** If none appear, have them reopen the browser and re-sign in, then check again.
+Record `linkedin: connected` and the confirmed browser's identifier in the profile. **Never record an identifier you did not read off a connected browser.** If none appear, have them reopen the browser and re-sign in, then check again.
 
-> **Prefer to skip it?** Take the answer the first time, with no push-back: the risk is to their account, so the call is theirs. Run search-only, record `linkedin: declined` in the profile, and name the source they're giving up in one line. **With LinkedIn declined, nothing touches linkedin.com:** no sweep, no `--comp` check, no feed read. They can add LinkedIn anytime by saying so, and the disclosure above is repeated when they do.
+> **Prefer to skip it?** Take the answer the first time, with no push-back: the risk is to their account, so the call is theirs. Record `linkedin: declined` in the profile. **With LinkedIn declined, nothing touches linkedin.com:** no sweep, no `--comp` check, no feed read. They can add LinkedIn anytime by saying so, and the disclosure above is repeated when they do. **Say:**
+>
+> > Okay, I'll leave LinkedIn out.
+
+**Then offer the add-on for job boards alone · picker,** single-select, header `Browser`. Some boards only open in a browser, and without the add-on a search can't read them. **Say:**
+
+> Some job boards only open in a browser, including investor boards like a16z and Sequoia and many professional associations' boards. Want the browser add-on just for those? I'd read job boards and never open LinkedIn.
+
+| Option | Description |
+|---|---|
+| **Yes, add it** (Recommended) | I'll read the boards that only open in a browser |
+| **No thanks** | I'll skip those boards |
+
+**On yes, Say:**
+
+> 1. Add Claude to the browser you use. It's a small add-on from Anthropic, the same people who make Claude, and I'll give you the one-click install link to add it.
+> 2. Sign in with your Claude account when it asks.
+> 3. Tell me when that's done and I'll confirm the connection.
+
+Same install link as above. Then the browser confirm picker, with this line in place of the LinkedIn one. **Say:**
+
+> That's the browser I'll read job boards from. I'll record it in your profile so your searches use it automatically. Is that the right one?
+
+Record the identifier the same way.
+
+**On no thanks, Say:**
+
+> Okay, I'll skip the boards that only open in a browser.
+
+Record `browser: none`. They can add it anytime by saying so.
 
 ### D. Settings (~2 min)
 
@@ -417,7 +446,7 @@ Work through these in order. Keep every spoken line plain, per the language rule
    >
    > After this one, your searches run on their own schedule without you.
 
-   **If they skipped LinkedIn,** drop the browser line: the browser add-on is only set up for LinkedIn, so no browser opens.
+   **If they skipped LinkedIn,** the browser line follows their add-on choice. With the add-on, it says "That's me reading job boards." With `browser: none`, drop the line: no browser opens.
 
    **If the session is already in Auto mode** (Claude Code tells you when it is), the first line is this instead:
 

@@ -16,6 +16,7 @@ Wall-E
 - **Country:** United States. Currency USD, US spelling, dates written MM/DD/YYYY to Sam; files keep ISO dates
 - **Accessibility adjustments:** none recorded (setup has no question for them)
 - **LinkedIn:** `linkedin: declined` [DL-S1]. Nothing touches linkedin.com: no sweep, no pay check, no feed read
+- **Browser:** `browser: none`. The boards that only open in a browser are off under these settings
 - **Integrations:** none. Setup ran Essentials plus "Employers near you"; extra digest channels, calendar, and email intake were not offered
 - **Email intake:** off
 - **Calendar events:** off

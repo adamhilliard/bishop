@@ -2,13 +2,13 @@
 
 Bishop is an AI agent that runs recurring job searches in Claude. One setup interview saves your profile and scoring rules onto your own computer. A scheduled task then sources roles from job boards, applicant tracking systems, and the job pages startup investors keep for their companies. Bishop then checks each posting is real, scores it against what you actually want, and hands you a ranked digest.
 
-When an interview lands, Bishop builds a deck you practice out loud: the question shows, the answer hides, the timer runs. You answer the questions every interview asks once, in your own words, and each company gets one deck, tailored to the posting and the people you'll meet in every round.
+When an interview lands, Bishop builds a deck you practice out loud: the question shows and the answer hides. You answer the questions every interview asks once, in your own words, and each company gets one deck, tailored to the posting and the people you'll meet in every round.
 
 Free, MIT licensed, and it works at any career level, from first job to executive search.
 
 ## Install
 
-**You need the [Claude](https://claude.com) desktop app.** It's free to download. Have your resume or a PDF of your LinkedIn profile handy.
+**You need the [Claude](https://claude.com) desktop app and a paid Claude plan (Pro or higher).** Claude Code, where Bishop runs, isn't on the free plan. Have your resume or a PDF of your LinkedIn profile handy.
 
 Prefer pictures? The [install guide on adamhilliard.com](https://adamhilliard.com/bishop) walks through the same steps with screenshots.
 
@@ -16,7 +16,7 @@ Prefer pictures? The [install guide on adamhilliard.com](https://adamhilliard.co
 2. Click **Customize** in the left sidebar, then the **Plugins** tab. (Plugins are free add-ons for Claude. Bishop is one of them.)
 3. In the top right, click **Add**, then **Add marketplace**.
 4. In the box, type `adamhilliard/bishop` and click **Sync**. Type it and click Sync. Don't press Enter, and ignore any repository suggestions that pop up.
-5. **Bishop Job Search** appears in the list. Click **Install**.
+5. **Bishop** appears in the list. Click **Install**.
 6. Start a **new conversation in Claude Code**. It won't appear in one that's already open. Don't use plain Claude chat for Bishop's work; performance degrades quickly there.
 7. Say: *"Help me set up a job search."*
 
@@ -27,9 +27,9 @@ Prefer pictures? The [install guide on adamhilliard.com](https://adamhilliard.co
 > **Don't type `/plugin` commands into the Claude app's chat box.** They only work in a terminal (see the last section below). The steps above need no terminal.
 
 <details>
-<summary><b>Bishop Job Search didn't appear? Drop the folder in instead.</b></summary>
+<summary><b>Bishop didn't appear? Drop the folder in instead.</b></summary>
 
-Download `bishop.zip` from the [latest release](https://github.com/adamhilliard/bishop/releases/latest) and unzip it into your skills directory:
+On [Bishop's GitHub page](https://github.com/adamhilliard/bishop), click **Code**, then **Download ZIP**. Unzip it, then move the `bishop` folder inside it into your skills directory:
 
 | | Path |
 |---|---|
@@ -69,7 +69,7 @@ In a new conversation, say:
 
 > Help me set up a job search.
 
-**Setup saves your files in a folder on your computer.** Just tell it where you’d like them; if you’re not sure, tell Bishop and it will pick a spot for you.
+**Setup saves your files in the folder you start the conversation in.** If that folder already has other files in it, Bishop offers to make a folder of its own. To come back later, start a new conversation in that same folder.
 
 **The setup interview takes about fifteen minutes.** Have your resume or a PDF of your LinkedIn profile handy.
 

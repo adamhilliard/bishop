@@ -23,7 +23,13 @@ description: >-
 
 ## 2. Is there already a Bishop here?
 
-**Look for every file any version of Bishop wrote, not just today's.** No Bishop files at all: go straight to the splash.
+**Look for every file any version of Bishop wrote, not just today's.** No Bishop files at all: check the folder (below), then the splash.
+
+**A folder of its own.** No Bishop files, but the folder has other files in it (their home folder, Downloads, a work project): picker, single-select, header `Folder`. **Say:**
+
+> This folder already has other files in it. I'd keep your search in its own folder so nothing gets mixed up. Want me to make one called Bishop here?
+
+Options: *Yes, make it* (Recommended) · *No, use this folder*. On yes, make `Bishop/` here and write every file into it; the scheduled tasks run in it. An empty folder skips this.
 
 | What to look for | Written by |
 |---|---|
@@ -155,7 +161,7 @@ description: >-
 
 - **Job search's own closing note doesn't run** when this front door started it. Step 10 replaces it.
 - **The shared basics belong to job search** (the resume, the one review line, the Team and Level pickers, target roles), asked in its sections A and B. When they skipped job search, the first module that runs asks those same questions in job search's exact words, plus job search's Permissions picker, before its own steps.
-- **Save the resume file** into the Bishop folder with their OK (`Resume.<ext>`), so interviews can ask about its lines.
+- **The resume copy** is job search's Keep a copy picker in section A, same words and options. When job search is skipped, the first module asks it with the shared basics.
 - **Mark each module `done` in `Bishop_Setup.md`** when it finishes.
 
 ## 8. Ask about the next module
@@ -199,3 +205,5 @@ Started: {{YYYY-MM-DD}}
 **Say:**
 
 > You're set. {{If they set up interviews:}} When you confirm an interview, tell me: "I have an interview with {{company}}," and I'll build that company's deck.
+>
+> Your files are in {{folder, in plain words: "a folder called Bishop in Documents"}}. To come back, open Code and start a new conversation in that folder, so I can find them.

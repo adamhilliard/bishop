@@ -101,7 +101,7 @@ rule in Decisions_Log.md. Live results live in the tracking file(s).
 ### Key Positioning Point   -> left empty at setup; filled from the first real screening call, never guessed
 
 ### Target Roles            -> B. Titles (priority-ordered; a second track is reactive)
-### Hard Excludes           -> B. Visa, the current employer (default; drop on "include my employer"), plus any "make a rule" excludes
+### Hard Excludes           -> B. Visa ("Yes" only; "later" flags instead), the current employer (default; drop on "include my employer"), plus any "make a rule" excludes
 ### Location Criteria       -> B. Location (hard filter + commute rule)
 ### Compensation            -> B. Compensation (floor + how it's measured + equity)
 ### Company Profile         -> reactive ("make a rule"); stability scored from public signals
@@ -551,7 +551,8 @@ You are {{BOT_NAME}}, {{NAME}}'s job search. Run the {{TRACK}} digest.
     RESOLVE, and at most one NOTE line. Reasoning goes in Decisions_Log.md, not here.
 
 14. COMMIT the changes, following the commit-message rule in the
-    profile's Customization section.
+    profile's Customization section. Skip this when Customization
+    says git: off.
 
 15. DIGEST, to the channel the profile names, capped at the number in
     Operating_Procedures.md's Digest Format & Cap: new roles, freshness

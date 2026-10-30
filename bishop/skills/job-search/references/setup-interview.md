@@ -39,9 +39,26 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 
 **All four pass: say nothing at all.** Go on to the front door's next step. A user in the right place never learns this happened.
 
+**Git is optional, and checked quietly after the four.** On a Mac, `git` without Apple's developer tools pops up an install box, so check `xcode-select -p` first and treat a failure as no git. **No git:** skip the setup commit and every cycle's commit, record `git: off` in Customization, and say nothing.
+
 **Any probe fails: stop.** Do not run the interview, do not print the splash, do not start a search.
 
-**Say:**
+**Only Python failed?** The shell works, so this is Code, and the message further down would send them where they already are. **Say:**
+
+> Before we start: I need a free program called Python on your computer to run your searches, and it isn't here yet. Want me to set it up? Your computer will ask you to approve it.
+
+**On a Mac, add:**
+
+> If a box pops up asking to install developer tools, click Install. That's the piece I need.
+
+Picker, single-select, header `Python`: *Yes, set it up* (Recommended) · *I'll do it myself*.
+
+- **Yes:** on Windows, `winget install -e --id Python.Python.3.13`; on a Mac, Apple's developer tools carry Python, so the install box is the route. Each asks their approval. Then probe again. A new install often isn't seen until a new conversation, so if the probe still fails, **Say:** "It's installed. Start a new conversation here and say "help me set up a job search.""
+- **I'll do it myself, Say:**
+
+  > Get it from python.org/downloads. On Windows, tick "Add python.exe to PATH" on the first screen. Then start a new conversation here and say "help me set up a job search."
+
+**Any other probe failed, Say:**
 
 > Before we start: I can't set up your search from here. I need to be over in Code, which is the part of Claude where I can save your profile onto your own computer and run your search for you on a schedule.
 >
@@ -75,7 +92,7 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 
 | Option | Description |
 |---|---|
-| **Essentials (~15 min)** (Recommended) | I learn your background, target roles, location, pay, and what you care about, connect your LinkedIn, and start returning ranked results |
+| **Essentials (~15 min)** (Recommended) | I learn your background, target roles, location, pay, and what you care about, offer to connect your LinkedIn, and start returning ranked results |
 | **Everything (~30 min)** | Everything in Essentials, plus I research employers near you, add your field's specialist job boards, and offer to connect your other tools (email, calendar, Slack) |
 
 ## Permissions
@@ -110,9 +127,17 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 - **Merge, never overwrite.** If the file already exists, add any missing entries to `permissions.allow` and leave everything else in it alone. A user who already tuned their own settings should not lose them to this step.
 - **What is deliberately absent, and stays absent:** `Bash(git push:*)`, any delete or `rm`, and any blanket `Bash(*)`. Bishop commits locally; nothing here sends anything outward, and a cycle that wants a command outside this list should stop and ask. **Do not widen the list to clear a prompt.** If a run keeps stopping on something, that is worth the user seeing.
 - **`Bash(python:*)` is the broadest line here** and it is what runs the bundled sweeps and the weekly audit. It is scoped to this project by virtue of living in the project's own settings file. **Write it for whichever binary the probe found:** `Bash(python:*)` or `Bash(python3:*)`.
-- **Two entries wait on later answers.** Add `Artifact` once they choose the dashboard in D, and `mcp__claude-in-chrome__*` once LinkedIn connects. Merge each into the same file at that point, the same way.
+- **Some entries wait on later answers.** Add `Artifact` once they choose the dashboard in D, `mcp__claude-in-chrome__*` once a browser connects (for LinkedIn or for job boards alone), and each connector's tools once G connects it (Slack, email, calendar), by the tool names the connector shows. Merge each into the same file at that point, the same way. **A tool missing from this list stalls a scheduled run,** which waits for an approval nobody is there to give.
 
-**Then say, in one plain line:** this covers their scheduled searches and every future session, and this session will still ask for permission often, especially during their first search.
+**On "Batch them now," then Say:**
+
+> Done. That covers your scheduled searches and every future session. This session will still ask for permission often, especially during your first search.
+
+**Then, unless the session is already in Auto mode** (Claude Code tells you when it is), **Say:**
+
+> One more option: Auto mode. A safety check approves routine steps for you, which also helps your scheduled searches run without stopping to wait for you. Pick Auto from the mode menu in the desktop app, or press Shift+Tab in the terminal.
+
+> **This comes before any scheduled task exists, on purpose.** A task can be saved in Auto mode only when the session is in Auto at the moment the task is made. Skip the Auto line for "Ask me one at a time": they asked to approve each step.
 
 ---
 
@@ -122,7 +147,7 @@ The user picks **Essentials** (~15 min) or **Everything** (~30 min). Essentials 
 
 **Step 1 · Background · upload or free text. Say:**
 
-> Share your resume and/or a LinkedIn PDF and I'll read your history from it. A PDF, DOCX, or plain paste all work. No resume yet is completely fine, just say so and I'll ask instead.
+> Share your resume and/or a LinkedIn PDF by dragging the file into this chat box, and I'll read your history from it. A PDF, DOCX, or plain paste all work. No resume yet is completely fine, just say so and I'll ask instead.
 
 **Step 2 · One review · free text.** Parse the document for level, current role, and location, then:
 
@@ -136,7 +161,7 @@ Options: *Yes, keep a copy* (Recommended) · *No thanks*. On yes, save it as `Re
 
 **No resume · free text:**
 
-> No problem. Tell me about your background: your most recent role and the ones before it with rough years, roughly your level, where you're based, and the kind of work you do.
+> No problem. Tell me about your background: your most recent jobs with rough years, where you're based, and the kind of work you do. Just finished school? Your degree, when you finished, and any internships, part-time jobs or projects are plenty.
 
 **Deriving level.** From the parse or the free-text answer, place them on a rung and a band. **Never ask for the band directly.** If there's no resume, or their correction disputes the level, ask the two cold pickers:
 
@@ -167,7 +192,7 @@ Options: *Yes, keep a copy* (Recommended) · *No thanks*. On yes, save it as `Re
 | **Same level** | Keep searching at the rung you're at |
 | **Step up** | Target the rung above |
 
-No recommendation, three even weights. **Whatever they pick sets which title tiers get built next.** "Open to a step down" is what makes the step-down comp trade real.
+No recommendation, three even weights. **At Entry level professional, leave out "Open to a step down":** there's no level below it. **Whatever they pick sets which title tiers get built next.** "Open to a step down" is what makes the step-down comp trade real.
 
 **Titles · free text confirm.** From the parse and the target level, build the flat list of titles you'll search, including at least one peer-function title (the job next door hired under a different name). Then:
 
@@ -195,6 +220,12 @@ Anything besides full-time is ranked as a band below full-time by default; no fo
 
 Ask `Commute` only if `Arrangement` includes hybrid or on-site, so it goes in its own call once `Arrangement` is answered.
 
+**If they picked "Open to relocating to a new city," Say:**
+
+> Where would you move? Name cities or regions, or say anywhere.
+
+Record the places in the location filter; "anywhere" drops the city screen for relocation roles.
+
 **Then, only if onsite or hybrid, drive-time opt-in · picker,** single-select, header `Drive time`. **Say:**
 
 > Since these roles would have you commuting in, would you like me to calculate drive time and flag anything past the limit you just set?
@@ -206,13 +237,15 @@ Ask `Commute` only if `Arrangement` includes hybrid or on-site, so it goes in it
 
 **On yes, ask for the address · free text:**
 
-> What's your home address? It stays saved on your own device, nowhere else.
+> What's your home address? A zip code or nearby cross streets works too. It stays saved on your own device, nowhere else.
 
 **Compute drive time, not distance,** at a rush-hour departure, since that's the trip they'd actually take. Relocation answered softly still records as a hard filter.
 
 **Compensation · free text, then picker. Say:**
 
-> What is the lowest salary you would accept to make a move?
+> What is the lowest salary you would accept? Not sure? Say so and I'll look up typical pay for these roles near you.
+
+**On "not sure,"** research typical pay for their titles and area, propose a floor in one line, and confirm it.
 
 **No salary posted · picker,** single-select, header `No salary posted`. **Say:**
 
@@ -232,21 +265,21 @@ Ask `Commute` only if `Arrangement` includes hybrid or on-site, so it goes in it
 
 | Option | Description |
 |---|---|
-| **No value, only salary** | Judge every role on salary alone |
-| **Public shares have value to me** | Public shares have cash value to me and I'd lower my compensation expectations for them; startup stock options don't have cash value to me |
-| **Public shares and stock options have value to me** | Startup stock options also have cash value to me, and I'd lower my compensation expectations for them |
+| **Salary only** | Judge every role on salary alone |
+| **Public company stock counts** | Shares in a company on the stock market count as pay, and I'd take less salary for them. Startup stock options don't count |
+| **Startup options count too** | Stock options at a private startup also count, and I'd take less salary for them |
 
-**Keep this order: no value, only salary → public shares have value → public shares and stock options have value** (least to most inclusive). No recommendation.
+**Keep this order: salary only → public company stock counts → startup options count too** (least to most inclusive). No recommendation.
 
 **Two pay screens, kept separate.** A posting that states a number **below the floor** isn't shown; that's a hard screen, and the equity "lower my expectations" options can pull the floor down so a below-floor role with equity can still pass. A posting that states **no pay at all** is governed entirely by the "No salary posted" answer above: shown-and-flagged for everything, shown-except-step-downs, or excluded outright. **When a no-pay role is shown it's flagged and ranked below any role that clears the floor on a stated number, and never counts as clearing.**
 
-**How equity counts, by default.** Unless they chose "No value, only salary," public shares stated in the posting count at year-one value toward the floor; startup options count at zero unless the third equity option was chosen, then at half their stated value. Record the rule in Compensation.
+**How equity counts, by default.** Unless they chose "Salary only," public shares stated in the posting count at year-one value toward the floor; startup options count at zero unless the third equity option was chosen, then at half their stated value. Record the rule in Compensation.
 
 **Visa · picker,** single-select, header `Visa`. **Say:**
 
 > One quick check: do you need visa sponsorship to take a role?
 
-Options: *No · Yes*. Postings state this, so it's a reliable screen and the one blocker nothing else surfaces.
+Options: *No · Yes · Not now, but I will later (for example, on OPT)*. Postings state this, so it's a reliable screen and the one blocker nothing else surfaces. **"Yes" screens; "later" doesn't:** keep those roles and flag any posting that says it never sponsors.
 
 *Configures:* the boolean query and title tiers, the location filter and commute rule, the comp floor and its measurement, the no-pay-posted rule, the equity handling, and the sponsorship screen.
 
@@ -255,7 +288,7 @@ Options: *No · Yes*. Postings state this, so it's a reliable screen and the one
 **What matters to you · free text confirm.** From everything so far, propose the rubric and let them tweak it. **Say:**
 
 > My default settings will rank the roles on the following:
-> - Pay clears your comp floor
+> - Pay meets your minimum
 > - Title progression (a step up scores; a lateral move doesn't; a step down ranks a band below laterals)
 > - Commute time / location / fully remote
 > - Estimated company stability (based on my research)
@@ -263,7 +296,7 @@ Options: *No · Yes*. Postings state this, so it's a reliable screen and the one
 >
 > Cut any that don't matter, and add anything I'm missing.
 
-**The list order is the rank order; confirm it.** It becomes the profile's Motivator Buckets, in that order.
+**At Early career, leave out the title progression line:** a first job has no title to step up from. **The list order is the rank order; confirm it.** It becomes the profile's Motivator Buckets, in that order.
 
 **These rank, they don't screen.** A low score sorts a role down; only the hard screens (floor, location, visa) remove one. **Only offer factors a posting or public data can answer** on every role; a factor that can't be checked is a wish, not a score. **The review bar defaults silently to 3.0 on Glassdoor and Indeed** under "employer review scores," adjustable later via "make a rule."
 
@@ -279,7 +312,7 @@ Options: *No · Yes*. Postings state this, so it's a reliable screen and the one
 >
 > If you'd like to connect it, it takes a few minutes to set up once, then it just runs:
 >
-> 1. Add Claude to the browser you job-hunt in. It's a small add-on from Anthropic, the same people who make Claude, and I'll give you the one-click install link to add it.
+> 1. Add Claude to the browser you job-hunt in. It's a small add-on from Anthropic, the same people who make Claude, and I'll give you the one-click install link to add it. It works in Google Chrome. If you use Safari or Firefox, you'd need Chrome for this part.
 > 2. Sign in with your Claude account when it asks.
 > 3. Make sure you're logged in to LinkedIn in that same browser.
 > 4. Tell me when that's done and I'll confirm the connection.
@@ -314,7 +347,7 @@ Record `linkedin: connected` and the confirmed browser's identifier in the profi
 
 **On yes, Say:**
 
-> 1. Add Claude to the browser you use. It's a small add-on from Anthropic, the same people who make Claude, and I'll give you the one-click install link to add it.
+> 1. Add Claude to the browser you use. It's a small add-on from Anthropic, the same people who make Claude, and I'll give you the one-click install link to add it. It works in Google Chrome. If you use Safari or Firefox, you'd need Chrome for this part.
 > 2. Sign in with your Claude account when it asks.
 > 3. Tell me when that's done and I'll confirm the connection.
 
@@ -344,7 +377,13 @@ Record `browser: none`. They can add it anytime by saying so.
 **Then present the picker:**
 
 - **`Schedule`**, single-select: *Monday and Thursday* (Recommended) · *Monday, Wednesday, Friday* · *Every weekday*.
-- **`Delivery`**, single-select: *Chat and a dashboard* (Recommended) · *Just here in chat*. The dashboard is a private web page with your ranked roles as cards you can filter and save; if they pick it, describe it that way. **It gets built and handed over as a link right after the first search, not by a command they have to find.**
+- **`Delivery`**, single-select: *Chat and a dashboard* (Recommended) · *Just in chat*. The dashboard is a private web page with your ranked roles as cards you can filter and save; if they pick it, describe it that way. **It gets built and handed over as a link right after the first search, not by a command they have to find.**
+
+**After the picker, Say:**
+
+> Your searches run on this computer, so they only run while Claude is open and your computer is awake. If it's asleep at search time, I run once when it wakes up.
+>
+> To see a search's results, click Scheduled in Code's sidebar, then your search.
 
 **Color · picker,** single-select, header `Color`. **Say:**
 
@@ -426,7 +465,7 @@ Vet each source once and record the verdict, so no later cycle re-chases a dead 
 
 Work through these in order. Keep every spoken line plain, per the language rule in "How to run this."
 
-1. **Build the files and both scheduled tasks** per `scaffolding.md`, writing the profile from the answers and using the chosen name throughout. The cycle task runs on their cadence; the weekly quality audit runs on its own day, on Friday by default, recorded in Customization, and starts in week two. If the project folder is not a git repository, initialize one and commit the setup files.
+1. **Build the files and both scheduled tasks** per `scaffolding.md`, writing the profile from the answers and using the chosen name throughout. The cycle task runs on their cadence; the weekly quality audit runs on its own day, on Friday by default, recorded in Customization, and starts in week two. If git is available and the project folder is not a git repository, initialize one and commit the setup files.
 
 2. **Say what you just saved.** No file names or paths. **Say:**
 
@@ -440,7 +479,7 @@ Work through these in order. Keep every spoken line plain, per the language rule
 
    > Last thing before I go find your first roles. This run takes a while, and you'll want to be around for it.
    >
-   > - I'll ask your permission a lot on this first run. That's normal, and it settles down afterwards. If you'd rather not approve each step, switch me to Auto mode: pick Auto from the mode menu in the desktop app, or press Shift+Tab in the terminal. A safety check then approves routine steps for you and still stops anything risky.
+   > - I'll ask your permission a lot on this first run. That's normal, and it settles down afterwards.
    > - You'll see me open a browser and move around on my own. That's me reading job boards and your LinkedIn.
    > - If I go quiet for a stretch, I'm working, not stuck.
    >

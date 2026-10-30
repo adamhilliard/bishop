@@ -10,11 +10,13 @@ Works at any career level, from first job to executive search.
 
 **About a minute. The only typing is Bishop's address.**
 
+**You need a paid Claude plan (Pro or higher).** Claude Code, where Bishop runs, isn't on the free plan.
+
 1. Open the Claude app on your computer. **First time using Claude Code?** In a chat, type *"Help me set up Claude Code"* and follow the prompts.
 2. Click **Customize** in the left sidebar, then the **Plugins** tab. (Plugins are free add-ons for Claude. Bishop is one of them.)
 3. In the top right, click **Add**, then **Add marketplace**. Nothing here costs anything.
 4. In the box, type `adamhilliard/bishop` and click **Sync**. Type it and click Sync. Don't press Enter, and ignore any repository suggestions that pop up.
-5. **Bishop Job Search** appears in the list. Click **Install**.
+5. **Bishop** appears in the list. Click **Install**.
 6. Start a **new conversation in Claude Code**. Bishop won't show up in one that's already open.
 7. Say: *"Help me set up a job search."*
 
@@ -25,9 +27,9 @@ Works at any career level, from first job to executive search.
 > **Don't type `/plugin` commands into the Claude app's chat box.** They only work in a terminal. The steps above need no terminal.
 
 <details>
-<summary><b>Bishop Job Search didn't appear? Drop the folder in instead.</b></summary>
+<summary><b>Bishop didn't appear? Drop the folder in instead.</b></summary>
 
-Download `bishop.zip` from the [latest release](https://github.com/adamhilliard/bishop/releases/latest) and unzip it into your skills directory:
+On [Bishop's GitHub page](https://github.com/adamhilliard/bishop), click **Code**, then **Download ZIP**. Unzip it, then move the `bishop` folder inside it into your skills directory:
 
 | | Path |
 |---|---|
@@ -67,11 +69,11 @@ Open a new conversation and say:
 
 > Help me set up a job search.
 
-Have your resume or a LinkedIn PDF handy. Bishop asks where to save your files, then walks you through the rest and hands you your first digest.
+Have your resume or a LinkedIn PDF handy. Bishop saves your files in the folder you start the conversation in, then walks you through the rest and hands you your first digest.
 
 > **About LinkedIn.** Bishop can read your LinkedIn feed and job alerts through your browser, and it asks you first. **LinkedIn's User Agreement prohibits automated access without its permission, and LinkedIn does restrict accounts it flags for automation.** Bishop keeps it light and read-only, but the risk to your account is real and it is yours to take or skip. Say no during setup and Bishop never touches LinkedIn; it still searches everywhere else.
 
-It'll also ask for a one-time OK so it doesn't have to interrupt you at every step, and so your searches can keep running on schedule while you're away.
+It'll also ask for a one-time OK so it doesn't have to interrupt you at every step, and so your scheduled searches don't stop to wait for you. They run on your computer, so only while Claude is open and your computer is awake.
 
 **What you installed:**
 

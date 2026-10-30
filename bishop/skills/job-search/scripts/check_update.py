@@ -58,14 +58,16 @@ def installed_version():
 
 
 def latest_release():
-    url = "https://api.github.com/repos/%s/releases/latest" % GITHUB_REPO
+    """The version on main's plugin.json, which is what Sync installs.
+    Bishop publishes no GitHub Releases, so the releases API has nothing."""
+    url = ("https://raw.githubusercontent.com/%s/main/bishop/.claude-plugin/plugin.json"
+           % GITHUB_REPO)
     try:
-        req = Request(url, headers={"User-Agent": "bishop-update-check",
-                                    "Accept": "application/vnd.github+json"})
+        req = Request(url, headers={"User-Agent": "bishop-update-check"})
         raw = urlopen(req, timeout=6).read().decode("utf-8", "replace")
     except Exception:
         return None
-    m = re.search(r'"tag_name"\s*:\s*"([^"]+)"', raw)
+    m = re.search(r'"version"\s*:\s*"([^"]+)"', raw)
     return m.group(1) if m else None
 
 
@@ -87,8 +89,8 @@ def main():
         return 0
     if parse_version(latest) > parse_version(installed):
         line = (u"**Bishop update available:** Bishop %s is out (you have %s). "
-                u"To update: open Claude's Plugins screen and click Sync. Or "
-                u"see the [releases page](https://github.com/%s/releases)."
+                u"To update: open Claude's Plugins screen and click Sync. "
+                u"What changed is on [Bishop's GitHub page](https://github.com/%s)."
                 % (latest.lstrip("vV"), installed, GITHUB_REPO))
         try:
             io.open(notice_path, "w", encoding="utf-8").write(line + u"\n")

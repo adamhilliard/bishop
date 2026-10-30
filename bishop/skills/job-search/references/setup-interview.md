@@ -427,7 +427,11 @@ Work through these in order. Keep every spoken line plain, per the language rule
 
 5. **Run the first search and deliver the digest** to the channel they chose.
 
-6. **If they chose the dashboard, build and publish it now,** right after that first search, by following the `dashboard` skill (`skills/dashboard/SKILL.md`) end to end: build `dashboard.html`, publish it as a private page, wire its regeneration into the cycle task, then hand them the link and say it's private until they share it. **Do not leave this for a command they have to discover.** If they chose chat only, skip this entirely.
+6. **If they chose the dashboard, build and publish it now,** right after that first search, by following the `dashboard` skill (`skills/dashboard/SKILL.md`) end to end: build `dashboard.html`, publish it as a private page, wire its regeneration into the cycle task, then hand them the link. **Say:**
+
+   > Here's your dashboard: {{link}}. It's private, so only you can see it unless you share it. It updates itself after every search.
+
+   **Do not leave this for a command they have to discover.** If they chose chat only, skip this entirely.
 
 7. **Say plainly which answers were thin,** because those are the rules that will need correcting after the first two or three cycles, and **state the known limitations from `feedback-loop.md` out loud**, so nothing there gets mistaken for a bug later.
 

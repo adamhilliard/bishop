@@ -9,7 +9,7 @@
 **Ask job search's shared basics in its exact words,** from sections A and B of `setup-interview.md`: the background (resume, LinkedIn PDF or free text), the one review line, the Team and Level pickers when needed, the Target level picker, and the titles confirm. Then run its Permissions picker. Save the answers in the profile's shared sections, the way job search's setup does.
 
 - **The titles line changes for interviews.** **Say:** "Here are the roles I'll prep you for: {{list}}. Any changes?"
-- **Save the resume file** into the Bishop folder with their OK (`Resume.<ext>`).
+- **The resume copy** is section A's Keep a copy picker, same words and options.
 
 ## I1. What this is
 

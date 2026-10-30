@@ -19,6 +19,10 @@
 >
 > I encourage you to write the answers to this deck, yourself. This practice will pay off when you interview.
 
+**At Early career, add:**
+
+> Examples from school, internships, part-time jobs or projects all count.
+
 ## I2. What I read (silent)
 
 - **From the profile:** level, current role, career history, target roles.

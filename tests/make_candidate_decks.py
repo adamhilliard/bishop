@@ -37,6 +37,7 @@ w("core/meta.json", {"meta": {
         {"id": "I", "title": "Readiness", "color": ORANGE},
         {"id": "A", "title": "Opening", "color": ORANGE},
         {"id": "R", "title": "Resume", "color": ORANGE},
+        {"id": "T", "title": "Technical", "color": ORANGE},
         {"id": "C", "title": "Behavioral", "color": ORANGE},
         {"id": "E", "title": "Tough Questions", "color": ORANGE, "role": "hard"},
         {"id": "F", "title": "Questions to Ask", "color": ORANGE, "role": "ask"},
@@ -51,6 +52,10 @@ w("core/content/20-resume.json", {"content": [
     section("R", "Resume"),
     q("QR1", "R", "I see you cut first-visit fix time by 30%. Walk me through how.", "They want to see you own a number.", 90,
       source="Acme Robotics, 2021 to now: Cut first-visit fix time by 30% by rebuilding parts staging"),
+]})
+w("core/content/25-technical.json", {"content": [
+    section("T", "Technical"),
+    q("QT1", "T", "How do you decide which service calls get a technician first?", "Whether you can explain the core trade-offs of the job.", 90),
 ]})
 w("core/content/30-behavioral.json", {"content": [
     section("C", "Behavioral"),

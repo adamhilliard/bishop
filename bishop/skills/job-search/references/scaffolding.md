@@ -114,12 +114,13 @@ rule in Decisions_Log.md. Live results live in the tracking file(s).
 
 **What Customization records, one line each:**
 
-- **Palette, cadence, digest channel** -> D. Settings
+- **Palette, cadence, digest channel** -> D. Settings. Cadence includes the time, 7 in the morning unless they asked for another
 - **Rigor** -> light by default (not asked)
 - **Country** -> A. You
 - **Integrations** -> Everything G
 - **LinkedIn** -> Connect LinkedIn: `linkedin: connected` or `linkedin: declined`
 - **Browser** -> Connect LinkedIn: the browser device id read off a connected browser, or `browser: none`. An older profile with a device id on its LinkedIn line has LinkedIn connected and that browser
+- **Git** -> the capability check: `git: on`, or `git: off` when git isn't on the computer
 - **Commit message** -> default `<BOT_NAME> cycle <N>, <YYYY-MM-DD>` (not asked)
 - **Follow-up dates** -> default on at early career and mid, 10 days; off at senior
 - **Captures** -> default on, `Postings/<Company>_<Title>/`
@@ -549,6 +550,11 @@ You are {{BOT_NAME}}, {{NAME}}'s job search. Run the {{TRACK}} digest.
     sections, never delete. Append one Search Notes entry in the fixed
     shape Operating_Procedures.md defines: COVERAGE, CANARY, EVENTS, GATE,
     RESOLVE, and at most one NOTE line. Reasoning goes in Decisions_Log.md, not here.
+    If {{PROJECT_FOLDER}}/Outreach exists, then rebuild the outreach board
+    so its job-search group sees this run's companies: run build_page.py
+    from scripts/ in the Bishop plugin's outreach skill (next to the
+    job-search skill directory) with {{PROJECT_FOLDER}}. The person's
+    board lives in their browser and survives the rebuild.
 
 14. COMMIT the changes, following the commit-message rule in the
     profile's Customization section. Skip this when Customization
@@ -590,6 +596,10 @@ A second task, on its own day, pointed at `quality-audit.md`. **It is not a seco
 ```
 You are {{BOT_NAME}}. Run the weekly quality audit.
 
+0. Count the cycle entries in each tracking file's Search Notes. Fewer
+   than two: say "Your weekly check starts next week, once there are
+   two searches to compare." as this task's final message, and stop.
+
 1. Read references/quality-audit.md from the Bishop plugin's job-search
    skill. It defines every check and the three failure categories.
 
@@ -630,4 +640,4 @@ Do not delegate any part of this to a sub-agent, and do not report a
 conclusion the script did not compute.
 ```
 
-> **Start it in week two, not at setup.** The checks read a history of coverage lines, and with one cycle logged most of them have nothing to compare against.
+> **It starts in week two, not at setup.** The checks read a history of coverage lines, and with one cycle logged most of them have nothing to compare against. A task can't be created to start later, so setup creates it on its usual day and step 0 makes the early runs stop at one line.

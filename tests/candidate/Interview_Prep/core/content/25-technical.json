@@ -1,0 +1,20 @@
+{
+  "content": [
+    {
+      "kind": "section",
+      "id": "ST",
+      "section": "T",
+      "title": "Technical",
+      "cards": true
+    },
+    {
+      "kind": "question",
+      "id": "QT1",
+      "section": "T",
+      "chain": "QT1",
+      "title": "How do you decide which service calls get a technician first?",
+      "why": "Whether you can explain the core trade-offs of the job.",
+      "target": 90
+    }
+  ]
+}

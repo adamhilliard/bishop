@@ -71,5 +71,5 @@ Without a job search, the board still works: the default Bishop name and color, 
 - **A newer LinkedIn export:** they press Upload Export in the board. No rebuild. Stages, notes and logs stay with everyone still in their network.
 - **Who counts as warm:** change `settings.json` and rebuild.
 - **"Why is this person in this group?"** The board says, on each person: the rule that put them there. Point them to it; you can't see the person.
-- **Their name or color changed in job search,** or their search added companies: rebuild, so the board picks it up.
+- **Their name or color changed in job search:** rebuild, so the board picks it up. **New companies from a search** reach the board on their own: each search cycle rebuilds it.
 - **A copy of their board:** it lives only in their browser, and there's no export. Say so plainly.

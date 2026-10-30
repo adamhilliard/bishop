@@ -31,6 +31,11 @@
         "color": "#e2541b"
       },
       {
+        "id": "T",
+        "title": "Technical",
+        "color": "#e2541b"
+      },
+      {
         "id": "C",
         "title": "Behavioral",
         "color": "#e2541b"

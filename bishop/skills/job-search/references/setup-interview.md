@@ -106,7 +106,7 @@ Picker, single-select, header `Python`: *Yes, set it up* (Recommended) · *I'll 
 | **Batch them now** (Recommended) | One approval now, then I run without interrupting you |
 | **Ask me one at a time** | I'll ask before each action |
 
-**On "Batch them now,"** write this to the project's `.claude/settings.json`. That write is the one approval they'll see.
+**On "Batch them now,"** write this to `.claude/settings.json` in their Bishop folder (the one the front door settled on, which is also where the scheduled tasks run). That write is the one approval they'll see.
 
 ```json
 {
@@ -224,7 +224,7 @@ Ask `Commute` only if `Arrangement` includes hybrid or on-site, so it goes in it
 
 > Where would you move? Name cities or regions, or say anywhere.
 
-Record the places in the location filter; "anywhere" drops the city screen for relocation roles.
+Record the places in the location filter; "anywhere" drops the city screen for relocation roles. **A role in a place they'd move to passes the commute check:** the commute limit applies only near home.
 
 **Then, only if onsite or hybrid, drive-time opt-in · picker,** single-select, header `Drive time`. **Say:**
 
@@ -381,6 +381,8 @@ Record `browser: none`. They can add it anytime by saying so.
 
 **After the picker, Say:**
 
+> I'll run them at 7 in the morning. Tell me if another time works better.
+>
 > Your searches run on this computer, so they only run while Claude is open and your computer is awake. If it's asleep at search time, I run once when it wakes up.
 >
 > To see a search's results, click Scheduled in Code's sidebar, then your search.
@@ -466,6 +468,16 @@ Vet each source once and record the verdict, so no later cycle re-chases a dead 
 Work through these in order. Keep every spoken line plain, per the language rule in "How to run this."
 
 1. **Build the files and both scheduled tasks** per `scaffolding.md`, writing the profile from the answers and using the chosen name throughout. The cycle task runs on their cadence; the weekly quality audit runs on its own day, on Friday by default, recorded in Customization, and starts in week two. If git is available and the project folder is not a git repository, initialize one and commit the setup files.
+
+   **If making a task is refused** (Auto mode's safety check can stop it, with no reason given), ask once in chat. **Say:**
+
+   > Before I set up your searches: want me to schedule them for {{days}} at {{time}}?
+
+   On yes, try again. **If it's refused a second time, Say:**
+
+   > Claude's safety check stopped me from setting up your search schedule. Switch out of Auto mode for a moment (the mode menu in the desktop app, or Shift+Tab in the terminal), then say "try again." You'll be asked to approve it once, and you can switch back after.
+
+   Never work around the refusal another way, and never go on to the first search without the tasks: the schedule is the product.
 
 2. **Say what you just saved.** No file names or paths. **Say:**
 

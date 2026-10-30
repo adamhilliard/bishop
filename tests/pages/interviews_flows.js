@@ -167,7 +167,7 @@
       go('cover');
       await wait(50);
       const text = $1('#slide').innerText;
-      assert(/To Write\s*4/.test(text), 'To Write: ' + (text.match(/To Write\s*\d+/) || ['?'])[0]);
+      assert(/To Write\s*5/.test(text), 'To Write: ' + (text.match(/To Write\s*\d+/) || ['?'])[0]);
       assert(/To Lock In\s*0/.test(text), 'To Lock In: ' + (text.match(/To Lock In\s*\d+/) || ['?'])[0]);
     });
     await check('Test: hidden first, then your answer', async () => {

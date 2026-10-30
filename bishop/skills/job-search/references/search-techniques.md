@@ -145,6 +145,8 @@ Nothing here is candidate-specific, which is why it lives in the skill and is re
 | **B** | VC portfolio boards where the field overlaps with venture-backed employers |
 | **C** | Aggregators mined for company names, and anything vetted in after setup |
 
+**One exception to the seed: an early-career search with `linkedin: declined` seeds the aggregators at Tier A.** At that band the roles are plentiful and mostly posted on the big job-listing sites, and without LinkedIn the Tier A set would be the company hiring systems alone. They run the same way as at Tier C, mined for company names that are then re-searched directly, never as a channel of their own (the measured verdict below still holds). Re-tier on measurement as usual.
+
 > **Re-tier on measurement, not on the seed.** The seed is a guess about which sources pay off, and it is wrong for some fields: in trades, healthcare, education, and most local employment, the VC boards belong nowhere and an association board is Tier A from day one. **The verdicts from F. Your field's sources override the seed immediately.**
 
 - **The profile's rigor setting decides which tiers run at all.** Light is Tier A only, standard runs each tier on its day, deep runs everything every cycle. **Tiering still measures every source it runs**, so a light search keeps promoting and demoting normally and will say when its Tier A dries up.

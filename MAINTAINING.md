@@ -133,6 +133,8 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 **From the dry run:** searches run at 7 in the morning unless asked otherwise; a refused scheduled task gets one confirm in chat, then a plain way out of Auto mode; the weekly check stops at one line until there are two searches; permissions go in the Bishop folder; each search rebuilds the outreach board so its job-search group fills in; and early-career interview practice says school, internship and part-time examples count.
 
+**Early-career searches without LinkedIn** seed the big job-listing sites at Tier A (still mined for company names), so a light search isn't left with the company hiring systems alone.
+
 > **Unreleased.** 2.0 ships once every module is ready, not before.
 
 > **`engine/` is the source; `assets/template.html` is built from it.** Edit the engine files, run `python scripts/build_template.py`, and commit both; `build_template.py --check` fails if the committed template is stale. Never hand-edit the template. The robot mark and favicon come from the dashboard's `assets/robot.svg`, so the two pages share one mark.

@@ -93,7 +93,7 @@ build_package.py                     builds the handoff zip
 3. Bump `version` in `bishop/.claude-plugin/plugin.json`, **and the matching `version` in `.claude-plugin/marketplace.json`.** Two files carry it: the plugin manifest gates updates, the marketplace entry is what the Desktop plugin card shows.
 4. **Update the Release history below. Every release, including patches.**
 5. `python build_package.py`.
-6. Tag the commit (`git tag v<version>`) and push the tag. No GitHub Release: GitHub only stores the code, and the no-marketplace fallback is the repo's own Download ZIP (the READMEs point there).
+6. Tag the commit (`git tag v<version>`) and push the tag. No GitHub Release: GitHub only stores the code, and the no-marketplace fallback is the repo's own Download ZIP (the READMEs point there). **2.0.0 is the one exception, and the last:** it got a Release with `bishop.zip` because 1.9.0 and older find updates through GitHub Releases. From 2.0 on, the update check reads main's `plugin.json`, so later versions need none.
 
 > **The history is organized by minor, and a patch updates the minor's entry rather than opening its own.** A new minor opens a new `###` heading; every patch after it appends its line to that heading. **The rule is that no release lands without the history reflecting it**, which is what 1.4.0 through 1.4.2 broke: three releases shipped against a history that stopped at 1.3.0.
 

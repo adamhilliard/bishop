@@ -59,7 +59,7 @@ def installed_version():
 
 def latest_release():
     """The version on main's plugin.json, which is what Sync installs.
-    Bishop publishes no GitHub Releases, so the releases API has nothing."""
+    Bishop stopped publishing GitHub Releases after 2.0.0, so the releases API goes stale."""
     url = ("https://raw.githubusercontent.com/%s/main/bishop/.claude-plugin/plugin.json"
            % GITHUB_REPO)
     try:

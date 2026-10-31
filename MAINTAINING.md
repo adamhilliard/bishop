@@ -32,7 +32,7 @@ build_package.py                     builds the handoff zip
 
 > **`/plugin` does not run in the desktop app's chat box.** It answers "isn't available in this environment." Every install doc must say so, and must lead with the desktop Plugins screen. Two rounds of published instructions got this wrong (2026-09-02).
 >
-> **Open question, desktop marketplace add for non-owners.** A tester who does not own the repo reported that after adding the marketplace, Bishop Job Search did not appear in the list. Whether the desktop picker accepts a public repo the user doesn't own is undocumented, and it can't be tested from the maintainer's account (the picker autocompletes the maintainer's own repos). Until a non-owner confirms the desktop path end to end, every install doc carries the `bishop.zip` drop-in as the fallback.
+> **Open question, desktop marketplace add for non-owners.** A tester who does not own the repo reported that after adding the marketplace, Bishop (then listed as Bishop Job Search) did not appear in the list. Whether the desktop picker accepts a public repo the user doesn't own is undocumented, and it can't be tested from the maintainer's account (the picker autocompletes the maintainer's own repos). Until a non-owner confirms the desktop path end to end, every install doc carries the `bishop.zip` drop-in as the fallback.
 
 **`python build_package.py` still builds `bishop.zip`**, which stays useful for two things: attaching to a GitHub Release for people not installing from a marketplace, and `claude --plugin-dir bishop.zip` for a one-session trial. The zip is not committed; it's a release asset.
 
@@ -119,7 +119,7 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 ## Release history
 
-### 2.0.0 (unreleased)
+### 2.0.0
 
 **Interview practice joins Bishop (`/bishop:interviews`), and the plugin's name on the Plugins screen becomes plain "Bishop."** It builds a core deck of the questions every interview asks, which the candidate answers once in their own words, and one deck per company, covering every round of that company's process, whose standard questions show those core answers. Each deck is one self-contained HTML file in Bishop's look (the robot and the search's name in the top bar, as on the dashboard); answers save in the browser, where each company deck reads the core answers, and a copy of every answer prints from the deck (`#print-all`, Save as PDF).
 
@@ -135,7 +135,7 @@ Deliberately not watermarked: the reference files, because Claude loads them int
 
 **Early-career searches without LinkedIn** seed the big job-listing sites at Tier A (still mined for company names), so a light search isn't left with the company hiring systems alone.
 
-> **Unreleased.** 2.0 ships once every module is ready, not before.
+**From the visual review:** Readiness says "Nothing to lock in yet" before anything is written; a deck's top risk is named in plain words, never a question id; and the board's LinkedIn note names the person's own Bishop.
 
 > **`engine/` is the source; `assets/template.html` is built from it.** Edit the engine files, run `python scripts/build_template.py`, and commit both; `build_template.py --check` fails if the committed template is stale. Never hand-edit the template. The robot mark and favicon come from the dashboard's `assets/robot.svg`, so the two pages share one mark.
 

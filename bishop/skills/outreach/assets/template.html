@@ -713,7 +713,7 @@ function personPanel(p){
 const howto=last=>'<ol class="howto"><li>On LinkedIn, click <b>Me</b> (your photo at the top).</li><li>Click <b>Settings &amp; Privacy</b>, then <b>Data privacy</b>.</li>'+
   '<li>Click <b>Get a copy of your data</b> and choose to pick specific data.</li><li>Tick <b>Connections</b> and <b>Messages</b>, then click <b>Request archive</b>.</li>'+
   '<li>LinkedIn emails you, usually within a day. Download the file.</li><li>'+last+'</li></ol>'+
-  '<p class="note">LinkedIn moves its menus now and then. If yours look different, ask Bishop.</p>';
+  '<p class="note">LinkedIn moves its menus now and then. If yours look different, ask '+esc(BOT_NAME)+'.</p>';
 const nearTop=()=>{const r=['starred'];if(SEARCH.size)r.push('at a company in your search');r.push('helped before');if(PAST.size)r.push('at a company you worked for');r.push('exchanged messages');return r.slice(0,-1).join(', ')+', or '+r[r.length-1]};
 function helpPanel(){
   return pnTop(-1,0)+'<div class="pn-body help"><h2 id="pnTitle" tabindex="-1">How This Board Works</h2>'+

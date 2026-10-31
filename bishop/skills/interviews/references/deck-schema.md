@@ -83,7 +83,7 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
         "title": "Head of Field Service",
         "description": ["Head of Field Service, Acme Robotics."],
         "actions": [{"label": "Start practicing", "go": "QA1", "primary": true}],
-        "risk": {"title": "Highest-risk question: QE1", "body": "The posting asks for robotics experience."}
+        "risk": {"title": "Biggest risk: robotics experience", "body": "The posting asks for robotics experience."}
       },
       "hub": {"title": "What this hire needs to solve.", "intro": "Ranked from the posting and the recruiter call."}
     },
@@ -104,7 +104,7 @@ Every slide has `kind`, `id`, `section` and `title`, and appears in the order of
 - **`deck.rounds`** lists every round of the company's process (one deck per company); **`deck.round`** picks the one coming up. Each round: `id`, `label`, `ask` (the interviewer's name, so the section reads "Questions for Priya"), `who` (their name and title, which leads the sidebar), `date` (`YYYY-MM-DD`) and `time` once booked, and an optional `guide` (`{title, body}`) shown first on the cover. The builder puts the round, date and time first in the sidebar and on the cover, then the round's `who`; `deck.sidebar` and `cover.description` hold only what's true in every round.
 - **`rounds` on a slide** (`["hm"]`) keeps it to those rounds; a slide without it is in every round. A **`shortlist`** slide (section `I`, in `00-intro.json` after the hub; `round`, `title`, `intro`, `questions: [{topic, title}]`) is optional, one per round at most.
 - **A deck with no rounds** can set `deck.interview` (`{date, time, round}`) itself; the core deck sets neither and is `"evergreen": true`.
-- **`deck.cover`**: `eyebrow` (company / function), `title` (the role), `titleAccent` (optional, a second line in the accent color), `description` (lines under the title that hold in every round; the builder adds the round, date and time above them), `actions` (buttons: `{label, go: slide id, primary}`), and `risk` (`{title, body}`: the top risk, which the builder expects whenever there's a risk list). The cover's `guides` come from the round (`deck.rounds[].guide`); don't write them by hand.
+- **`deck.cover`**: `eyebrow` (company / function), `title` (the role), `titleAccent` (optional, a second line in the accent color), `description` (lines under the title that hold in every round; the builder adds the round, date and time above them), `actions` (buttons: `{label, go: slide id, primary}`), and `risk` (`{title, body}`: the top risk, which the builder expects whenever there's a risk list; name it in plain words, never by a question id). The cover's `guides` come from the round (`deck.rounds[].guide`); don't write them by hand.
 - **`deck.theme.accent`** is the company's own brand color, read from their site, never guessed. The core deck keeps a neutral one.
 - **`deck.jd`** links the posting in the header (a URL, or the saved posting's path relative to `Interview_Prep/`, such as `../Postings/Acme_Director.md`); with none, `{"none": "No posting · referral"}`.
 - **`sections[].role`**: `"hard"` (Tough Questions) or `"ask"` (Questions to Ask) turns on the origin, source and theme checks.

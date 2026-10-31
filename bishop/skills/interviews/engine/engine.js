@@ -1103,7 +1103,7 @@ function renderReadiness(s) {
   const none = (t) => `<p class="comp-test">${esc(t)}</p>`;
   const cards = [
     card('To Write', toWrite.length, toWrite.length ? qList(toWrite) : none('Every question has an answer.')),
-    card('To Lock In', toLock.length, toLock.length ? qList(toLock) : none('Every answer is locked in.')),
+    card('To Lock In', toLock.length, toLock.length ? qList(toLock) : none(practice.some(written) ? "Every answer you've written is locked in." : 'Nothing to lock in yet.')),
     card(
       'Flagged answers',
       flagged.length,

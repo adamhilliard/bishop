@@ -89,7 +89,7 @@ w("hooli/meta.json", {"meta": {
         "cover": {"eyebrow": "Hooli / Service", "title": "VP, Field Service",
                   "description": ["Every round of Hooli's process, one deck."],
                   "actions": [{"label": "Start practicing", "go": "QA1", "primary": True}],
-                  "risk": {"title": "Highest-risk question: QE20", "body": "The posting asks for a 200-person org; Sam has led 60."}},
+                  "risk": {"title": "Biggest risk: team size", "body": "The posting asks for a 200-person org; Sam has led 60."}},
         "hub": {"title": "What this hire needs to solve.", "intro": "Ranked from the posting and the recruiter call."},
     },
     "sections": [

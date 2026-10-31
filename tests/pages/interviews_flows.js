@@ -314,7 +314,7 @@
     await check('Cover: no numbers row or glyph; top risk shown', () => {
       go('cover');
       assert(!$1('#slide .stats') && !$1('#slide .compass'), 'stats or glyph still on the cover');
-      assert($1('#slide').innerText.includes('Highest-risk question'), 'no top risk');
+      assert($1('#slide').innerText.includes('Biggest risk: team size'), 'no top risk');
     });
     await check('Rounds: interview line and Questions for <name>', () => {
       assert($1('#side-meta').innerText.includes('Recruiter screen · Mon, Mar 4, 2030'), 'sidebar: ' + $1('#side-meta').innerText);

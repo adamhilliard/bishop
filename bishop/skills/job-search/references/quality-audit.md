@@ -52,6 +52,18 @@
 
 > **Bishop installs from a third-party marketplace, where Claude Code's own auto-update is off by default.** That is why this check earns a place: without it most users never hear a new version exists. Anyone who prefers the hands-off path can enable auto-update for the marketplace and ignore these notices.
 
+### 2.1 Bring an older search up to date
+
+**A Bishop update can change the cycle prompt's template, and a running search keeps the copy it was set up with.** So each week, after step 1, check the cycle prompt (its file is in the File Map) for the items below and apply any that are missing. Each has one right answer, so each lands under **Fixed for you**, once, in the week it's applied.
+
+| Since | Look for | Fix | Reads as |
+|---|---|---|---|
+| 2.1.0 | Step 13 asks for an outreach board rebuild (`build_page.py` in the outreach skill) | Delete that instruction from the prompt, and set an `Outreach` row in `Bishop_Setup.md` to `retired` | With an `Outreach/` folder: "Bishop no longer updates your outreach board, because LinkedIn's data export stopped including job titles and companies. The board you have still opens." Without one: not shown |
+| 2.1.0 | Step 15 has no "Who you know" line | Add that line from the prompt template in `scaffolding.md`, and the "Who you know there" shape to `Operating_Procedures.md` under Digest Format & Cap | "Each new role in your digest now links to the people you already know at that company on LinkedIn." |
+
+- **Change only the item named.** Leave the rest of the prompt and the procedures as they are.
+- **The prompt template in `scaffolding.md` is the source** for any wording added.
+
 ---
 
 ## 3. Silent-failure checks

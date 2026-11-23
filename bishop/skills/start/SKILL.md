@@ -10,9 +10,11 @@ description: >-
 
 **Ask one thing at a time and wait for the answer.** Every rule in "How to run this" in `skills/job-search/references/setup-interview.md` applies here and in every module's setup: pickers wherever the answer is a small set, the recommended option first, `Say:` lines close to verbatim, plain words, derive then confirm, never celebrate the occasion.
 
-**Modules always run in this order: job search, interviews, outreach.** One at a time: the first module they picked runs start to finish, including its own permissions and its first result. Only then does Bishop ask about the next one. A module they didn't pick is skipped.
+**Modules always run in this order: job search, then interviews.** One at a time: the first module they picked runs start to finish, including its own permissions and its first result. Only then does Bishop ask about the next one. A module they didn't pick is skipped.
 
-> **Offer only the modules this copy of Bishop ships.** A module ships when its skill is in this plugin (`skills/job-search/`, `skills/interviews/`, `skills/outreach/`). Never offer, describe, or promise one that isn't there.
+> **Offer only the modules this copy of Bishop ships.** A module ships when its skill is in this plugin (`skills/job-search/`, `skills/interviews/`). Never offer, describe, or promise one that isn't there.
+>
+> **Outreach was retired in 2.1.0.** LinkedIn's data export stopped including connections' job titles and companies, which it needed. Never offer it. A `skills/outreach/` folder holding only `scripts/build_page.py` is a placeholder that keeps 2.0 searches from erroring, not a module.
 
 ## 1. Can this run here? (silent)
 
@@ -39,7 +41,7 @@ Options: *Yes, make it* (Recommended) · *No, use this folder*. On yes, make `Bi
 | `Archived_Setup_*` folders | Earlier "archive and start fresh" runs |
 | `Postings/`, `Resume.*` | Job search captures; the saved resume |
 | `Interview_Prep/` | Interviews |
-| `Outreach/` | Outreach |
+| `Outreach/` | Outreach, retired in 2.1.0 (the person's board still opens) |
 | `Bishop_Setup.md` | This front door |
 | Scheduled tasks whose prompt names this folder | Job search's cycle and weekly check |
 
@@ -56,6 +58,7 @@ Options: *Yes, make it* (Recommended) · *No, use this folder*. On yes, make `Bi
 
 - **Files from 2.0 carry a format line** (`<!-- bishop-format: ... -->`) on line 1. Files without one are from an earlier version, so delete-and-start-over leads, first in the list.
 - **Leave out "Add a module"** when every module this copy ships is already set up.
+- **An `Outreach/` folder is from 2.0.** Never offer to set it up or rebuild it. If they ask about it, say once that LinkedIn stopped including titles and companies in its export, so Bishop no longer builds the board; the one they have still opens, and it stops updating. Each new role in the digest now links to who they know at that company. The folder stays unless they pick delete or archive.
 - **A separate setup in a new folder** isn't one of the four (a picker holds four); someone who asks for it gets it, run into the new folder they name.
 - **Add a module:** skip the splash and the letter (they've seen them) and go to step 5, offering only what's missing.
 - **Change what I have:** don't run any setup. Route to "Correcting a bot after a cycle" in the job-search skill, take the change, and stop.
@@ -117,7 +120,7 @@ Options: *Yes, make it* (Recommended) · *No, use this folder*. On yes, make `Bi
 
 > Whether you're looking for your next opportunity, or are in between roles, I built this AI agent to help you find jobs at companies that match your skills and interests. I hope this makes your search just a little bit easier.
 >
-> This agent helps you find new job postings, practice for interviews, and identify who in your network can open doors for you. As someone who has reviewed 1,000s of resumes, AI-generated ones are easy to spot, and several modern applicant tracking systems now have AI spam filters in place. Beyond that, hiring is, at its core, human. When Bishop finds you a role you like, take the few extra minutes you saved and go through it by hand. You will land more interviews.
+> This agent helps you find new job postings and practice for interviews. As someone who has reviewed 1,000s of resumes, AI-generated ones are easy to spot, and several modern applicant tracking systems now have AI spam filters in place. Beyond that, hiring is, at its core, human. When Bishop finds you a role you like, take the few extra minutes you saved and go through it by hand. You will land more interviews.
 >
 > This agent is under continuous development and improvement. Send me a message on LinkedIn if you have feedback, so we can all improve this tool together.
 >
@@ -130,7 +133,7 @@ Options: *Yes, make it* (Recommended) · *No, use this folder*. On yes, make `Bi
 
 **Say:**
 
-> Hi, I'm Bishop. I'm here to help you find a few new... angles (haha...get it?) for your job search. I can find new roles that match what you're looking for, verify they're real, and rank them for you. I can build you a deck to help you practice for interviews. I can also help you organize the people you already know, so the right conversations don't go cold. You pick which of those you want. Each one takes between 5 and 30 minutes to set up.
+> Hi, I'm Bishop. I'm here to help you find a few new... angles (haha...get it?) for your job search. I can find new roles that match what you're looking for, verify they're real, and rank them for you. I can build you a deck to help you practice for interviews. With each new role, I'll link you to the people you already know there. You pick which of those you want. Each one takes between 5 and 30 minutes to set up.
 
 ## 6. Pick your modules
 
@@ -142,7 +145,6 @@ Options: *Yes, make it* (Recommended) · *No, use this folder*. On yes, make `Bi
 |---|---|
 | **Find new roles** (Recommended) | Bishop searches the internet for roles that meet your criteria, on a schedule you set, and serves them to you in a digest |
 | **Practice for interviews** | Bishop builds you a deck of questions interviewers commonly ask, then you can write and practice your answers |
-| **Work your network** | Bishop teaches you how to extract your LinkedIn contacts, and helps you organize them into groups worth contacting |
 
 - **Job search is the recommended, first option.** The picker can't pre-tick a box, so "Recommended" and first place are how it reads as the default.
 - **The dashboard isn't here.** It's offered inside job search's setup.
@@ -151,13 +153,12 @@ Options: *Yes, make it* (Recommended) · *No, use this folder*. On yes, make `Bi
 
 ## 7. Run the modules, in order
 
-**Job search, then interviews, then outreach,** skipping any they didn't pick. Each runs completely, with nothing from another module mixed in.
+**Job search, then interviews,** skipping any they didn't pick. Each runs completely, with nothing from another module mixed in.
 
 | Module | Its setup | About |
 |---|---|---|
 | Job search | `skills/job-search/references/setup-interview.md`, from "Choose your setup" through "After the interview" | 15 to 30 minutes |
 | Interviews | `skills/interviews/references/setup.md` | 5 minutes |
-| Outreach | `skills/outreach/references/setup.md` | 10 minutes |
 
 - **Job search's own closing note doesn't run** when this front door started it. Step 10 replaces it.
 - **The shared basics belong to job search** (the resume, the one review line, the Team and Level pickers, target roles), asked in its sections A and B. When they skipped job search, the first module that runs asks those same questions in job search's exact words, plus job search's Permissions picker, before its own steps.
@@ -196,7 +197,8 @@ Started: {{YYYY-MM-DD}}
 | Interviews | later |
 ```
 
-- **States:** `not started`, `done`, `later`.
+- **States:** `not started`, `done`, `later`, `retired`.
+- **An `Outreach` row from 2.0:** set it to `retired` the next time this file is read, and never run it.
 - **"Let's keep going"** reads it and runs the first module that isn't `done`, in the order of step 7, skipping the splash and the letter.
 - **Adding a module later** adds its row.
 

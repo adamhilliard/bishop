@@ -80,7 +80,7 @@ Picker, single-select, header `Python`: *Yes, set it up* (Recommended) · *I'll 
 
 ## The front door
 
-**The existing-setup check, the splash, the author's letter and "How I work" live in `skills/start/SKILL.md`.** They run once, before any module, so a setup that also adds interviews or outreach never repeats them.
+**The existing-setup check, the splash, the author's letter and "How I work" live in `skills/start/SKILL.md`.** They run once, before any module, so a setup that also adds interviews never repeats them.
 
 ---
 

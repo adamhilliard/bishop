@@ -23,6 +23,7 @@ bishop/                              the plugin
         ├── engine/                  the deck page's source: shell.html, engine.css, engine.js
         ├── scripts/                 build_template.py (engine/ to assets/template.html), build_deck.py (fills it)
         └── assets/                  template.html (built from engine/), defaults, question banks
+    └── outreach/scripts/build_page.py   a placeholder for 2.0 searches; Outreach was retired in 2.1.0 (see the history)
 build_package.py                     builds the handoff zip
 ```
 
@@ -118,6 +119,15 @@ Extracted from a live executive job search that has been running daily since Jul
 Deliberately not watermarked: the reference files, because Claude loads them into context every cycle and a credit line there is noise inside search instructions; and the digest, because it's someone's private job search and a recurring credit reads as an ad.
 
 ## Release history
+
+### 2.1.0
+
+**Outreach is retired, and each new role in the digest links to who the user knows at that company.** LinkedIn's free data export stops including connections' job titles and companies in December 2026. Four of Outreach's five default groups and its job-search group matched on those two fields, so a board built from a new export would put almost everyone under Everyone Else. What still worked (people you've messaged, a stage tracker) wasn't worth a module and a setup step. Removing a module changes how running searches behave, which earns the minor.
+
+- **The digest's replacement:** a "Who you know at {{company}}" link under each new role, to LinkedIn's people search limited to the user's own connections (`scaffolding.md`, "Who you know there"). The user clicks it; Bishop never opens it, so the LinkedIn terms rule from 1.8.1 isn't touched, and it shows whether or not LinkedIn was connected.
+- **Gone:** `skills/outreach` (skill, board, builder, setup), its front-door option and order, the interviews hand-off to it, the outreach line in the author's letter and in "How I work", contract 4 (only Outreach read the employer index) and Outreach's rows in contracts 1 and 3, the outreach tests and the made-up LinkedIn export.
+- **Running 2.0 searches update themselves at the weekly check** (`quality-audit.md` §2.1): it deletes the cycle prompt's outreach rebuild, adds the "Who you know" line, and says so under Fixed for you. Until that runs, `skills/outreach/scripts/build_page.py` stays as a placeholder that builds nothing and exits clean, so a cycle doesn't error on a missing file. **Delete the placeholder once 2.0 searches have had a weekly check,** in a later release.
+- **A user's existing board still opens,** since it's a self-contained file and their contacts live in their browser. It stops updating. The front door treats an `Outreach/` folder as retired, never offers to rebuild it, and still includes it in delete and archive.
 
 ### 2.0.0
 

@@ -9,7 +9,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 C = os.path.join(HERE, "candidate")
-KNOWN = {"profile": 1, "procedures": 1, "tracking": 1, "employer-index": 1}
+KNOWN = {"profile": 1, "procedures": 1, "tracking": 1}
 failures = 0
 
 
@@ -109,13 +109,5 @@ for f in tracks:
         report("%s: every live row opens Key Context with its stage (dashboard, interviews)" % f, not bad,
                "%d row(s) without a stage token" % len(bad))
     report("%s: search notes block (dashboard)" % f, bool(re.search(r"search notes", text, re.I)), "no search notes")
-
-# ---- 4. The employer index ----
-idx = read("Employer_Index.md")
-if idx is None:
-    report("employer index (outreach, once built)", True)
-else:
-    version_ok("employer index", idx, "employer-index")
-    report("employer index: an employer table (outreach)", bool(tables(idx)), "no table")
 
 sys.exit(1 if failures else 0)

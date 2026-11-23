@@ -93,10 +93,10 @@ Load these as needed; there is no reason to read all of them for a single task.
 
 | File | Read it when | Size |
 |---|---|---|
-| `references/setup-interview.md` | Setting up a new bot, after the front door. The capability preflight, the operating conventions, the Essentials/Everything fork, then sections A–D and E–G. | ~410 lines |
-| `references/scaffolding.md` | Writing the files and the two task prompts, read contracts, or changing the table format. | ~625 lines |
+| `references/setup-interview.md` | Setting up a new bot, after the front door. The capability preflight, the operating conventions, the Essentials/Everything fork, then sections A–D and E–G. | ~515 lines |
+| `references/scaffolding.md` | Writing the files and the two task prompts, read contracts, or changing the table format. | ~655 lines |
 | `references/search-techniques.md` | Running a cycle, or fixing a search that is missing roles. Integrity rules, sourcing, verification. | ~675 lines |
-| `references/quality-audit.md` | The weekly audit only. **No daily cycle reads this.** | ~235 lines |
+| `references/quality-audit.md` | The weekly audit only. **No daily cycle reads this.** | ~250 lines |
 | `references/feedback-loop.md` | Correcting the bot, writing a decisions-log entry, opening a trial, or stating limitations. | ~100 lines |
 
 ## Bundled scripts

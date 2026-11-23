@@ -184,7 +184,7 @@ Bishop, a free job-search plugin by Adam Hilliard
 ### Results Table Format    -> below (locked layout)
 ### Ranking & Rank Overrides-> below + C. How to rank it
 ### Freshness Order         -> interviewing, then applied, then open by score; unverified and "Apply link unconfirmed" rows first within each
-### Digest Format & Cap     -> D. Settings (delivery) + the level-based cap; every digest ends with the coverage note (see below)
+### Digest Format & Cap     -> D. Settings (delivery) + the level-based cap; each new role carries a "Who you know" link, and every digest ends with the coverage note (both below)
 ### Search Notes Shape      -> below (fixed shape, 4KB cap)
 ### Dashboard               -> URL and favicon (an emoji, or the Bishop robot by default), written by the dashboard skill at first publish
 ### Prose & Writing Rules   -> whatever style the project uses
@@ -417,6 +417,21 @@ Fixed shape, four buckets, compact. Never per-source prose:
 - **Drop an empty bucket, except "Couldn't reach," which always shows,** even as "none." Its whole job is to be believed when it says nothing broke.
 - **It is not roles, so it never counts against the digest cap.** One short block regardless of volume, and it earns its place most on the quiet weeks.
 
+### Who you know there
+
+**Each new role in the digest carries one link: the people the user already knows at that company, on LinkedIn.** The user clicks it in their own browser and LinkedIn runs the search. **Bishop never opens it**, so nothing touches LinkedIn on their behalf.
+
+> - **Remote Field Service Director · Acme Robotics · 92**
+>   [Who you know at Acme Robotics](https://www.linkedin.com/search/results/people/?keywords=%22Acme%20Robotics%22&network=%5B%22F%22%5D)
+
+- **The address:** `https://www.linkedin.com/search/results/people/?keywords=<company>&network=%5B%22F%22%5D`. `network=["F"]` keeps it to their own connections.
+- **The company** is the name in the tracking table with a trailing Inc, LLC, Ltd, Corp, Co, PLC, GmbH or the like dropped, in double quotes, URL-encoded (`%22Acme%20Robotics%22`).
+- **It's a keyword search,** so it also finds people who used to work there, who can be just as useful. The label stays "Who you know at {{company}}"; never call it current employees.
+- **Never open, fetch or check it,** in a cycle, the resolve step or the weekly audit. It isn't an apply link. **It shows whatever the profile's LinkedIn setting**, since the user is the one who clicks it.
+- **New roles only,** once each, and it never counts against the cap.
+
+> **Why it's here:** it replaces 2.0's outreach board, retired in 2.1.0 when LinkedIn's data export stopped carrying connections' titles and companies.
+
 ---
 
 ## The Scheduled Task Prompt
@@ -550,11 +565,6 @@ You are {{BOT_NAME}}, {{NAME}}'s job search. Run the {{TRACK}} digest.
     sections, never delete. Append one Search Notes entry in the fixed
     shape Operating_Procedures.md defines: COVERAGE, CANARY, EVENTS, GATE,
     RESOLVE, and at most one NOTE line. Reasoning goes in Decisions_Log.md, not here.
-    If {{PROJECT_FOLDER}}/Outreach exists, then rebuild the outreach board
-    so its job-search group sees this run's companies: run build_page.py
-    from scripts/ in the Bishop plugin's outreach skill (next to the
-    job-search skill directory) with {{PROJECT_FOLDER}}. The person's
-    board lives in their browser and survives the rebuild.
 
 14. COMMIT the changes, following the commit-message rule in the
     profile's Customization section. Skip this when Customization
@@ -572,7 +582,9 @@ You are {{BOT_NAME}}, {{NAME}}'s job search. Run the {{TRACK}} digest.
     one line near the top: "N decision(s) from the weekly check are
     waiting for you." Nothing else from the check goes in the digest.
     Say how many more roles matched but did not
-    make the top list, rather than listing them. End every digest with the
+    make the top list, rather than listing them. Under each new role, put
+    the "Who you know" link in the shape Operating_Procedures.md's Digest
+    Format & Cap gives; never open or check it. End every digest with the
     COVERAGE NOTE defined in Operating_Procedures.md, rendered from this
     run's Search Notes COVERAGE line. Create calendar events only for
     dated commitments, only if the profile turned that on, and never with
